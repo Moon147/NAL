@@ -1,5 +1,5 @@
 ;;======================================================================================= 
-;;  Prueba de Parser para NAL, niveles 1-3
+;;  Prueba de Parser para NAL
 ;;  usando el paquete :PARSEQ en
 ;;     github.com/mrossini-ethz/parseq
 ;;
@@ -16,20 +16,54 @@
 ;(use-package :parseq)
 (in-package :nal)
 
-(defrule judgement () (and relation sp (? truthvalue)) (:choose 0 2))
+(defrule sentence () (or judgement question))
 
-(defrule relation () (and term sp+ copula sp+ term) (:choose 0 2 4))
+(defrule judgement () (and statement sp (? truthvalue)) (:choose 0 2))
 
-(defrule term () (or (and "{" sp anyword sp (? "+") sp "}")
-                     (and "[" sp anyword sp (? "+") sp "]")
-					 (and "(" sp "¡" sp anyword sp "," sp anyword sp (? "+") ")")
-					 (and "(" sp "!" sp anyword sp "," sp anyword sp (? "+") ")")
-					 (and "(" sp "-" sp anyword sp "," sp anyword sp (? "+") ")")
-					 (and "(" sp "%" sp anyword sp "," sp anyword sp (? "+") ")")
-                     anyword)  
+(defrule question () statement)
+
+(defrule statement () (or (and term sp relation sp term)
+						  compound-statement 
+						  term))
+
+(defrule term () (or anyword
+					 variable
+					 compound-term
+					 statement)
 		(:string))
 
-(defrule copula () (or "->o" "->" "<->" "o->o" "o->"))
+(defrule relation () (or "<->" ;;Similarity
+												 "<=>" ;;Equivalence 
+												 "->o" ;;Property					 
+												 "-->" ;;Inheritance
+												 "o->o" ;;InstanceProperty
+												 "o->" ;;Instance					 
+												 "==>" ;;Implication
+						 						 ))
+
+(defrule compound-statement () (or (and "(--" sp statement ")") ;;Negation
+								   (and "(||" sp statement sp+ statement "+)") ;;Disjunction
+								   (and "(&&" sp statement sp+ statement "+)"))) ;;Conjunction
+
+(defrule compound-term () (or (and "{" term "+}") ;;SetExt
+							  (and "[" term "+]") ;;SetInt
+							  (and "(&" sp+ term sp+ term "+)") ;;IntersectionExt
+							  (and "(|" sp+ term sp+ term "+)") ;;IntersectionInt
+							  (and "(-" sp+ term sp+ term ")") ;;DifferenceExt
+							  (and "(~" sp+ term sp+ term ")") ;;DifferenceInt
+							  (and "(*" sp+ term sp+ term "+)") ;;Product
+							  (and "(/" sp+ term "+" sp+ "_" sp+ term "*)") ;;ImageExt
+							  (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)"))) ;; ImageInt
+
+(defrule variable () (or independent-var
+						 dependent-var
+						 query-var))
+
+(defrule independent-var () (and "$[" anyword "]"))
+
+(defrule dependent-var () (and "#" anyword))
+
+(defrule query-var () (and "?[" anyword "]"))
 
 (defrule truthvalue() (and "<" sp frequency sp "," sp confidence sp ">") (:choose 2 6))
 
@@ -66,7 +100,3 @@
 
 (defrule sp () (* (or #\space #\tab #\newline)))	;espacio opcional (cerradura transitiva)
 (defrule sp+ () (+ (or #\space #\tab #\newline)))	;espacio obligatorio (cerrradura positiva)
-
-
-
-
