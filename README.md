@@ -3,7 +3,7 @@ Para descargar el proyecto:
 1. Crear carpeta local
 2. Posicionarse en la carpeta creada.
 3. Descargar proyecto desde la terminal con:
-    $ git clone https://github.com/Moon147/NAL-Reasoner.git
+    $ git clone https://github.com/Moon147/NAL.git
 
 Para revisar cambios con la rama que se está trabajando:
 1. Posicionarse en la carpeta del proyecto.
