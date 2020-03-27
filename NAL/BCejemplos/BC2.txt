@@ -1,0 +1,5 @@
+zorro -> animal <0.7, 0.7>
+ardilla -> animal <0.7, 0.7>
+libelula -> animal <0.7, 0.7>
+tortuga -> animal <0.7, 0.7>
+pato ->animal <0.7, 0.7>

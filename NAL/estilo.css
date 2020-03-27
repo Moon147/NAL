@@ -1,0 +1,374 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body{
+	background-color: #F0F0F1;
+	font-family: 'Libre Franklin', sans-serif;
+}
+
+#contenedor{
+	margin: auto;
+	display: block;
+	/*background-image: url("fondo6.jpg");*/
+	background: gray;
+}
+
+header{
+	height: 50px;
+	background: black;
+	font-family: 'Libre Franklin', sans-serif;
+    color: white;
+}
+
+
+th#titulo h1{
+	font-size: 40px;
+	text-align: center;
+}
+
+th#institucion h3{
+	font-size: 15px;
+	text-align: center;
+}
+
+
+/*----------------BASE DE CONOCIMIENTO------------------*/
+aside{
+	width: 30%;
+	height: 550px;
+	margin-top:  25px;
+	float: left;
+}
+#aside{
+	background: white;
+	height: 95%;
+	width: 100%;
+}
+
+.c1{
+	margin-left: 20%;
+	line-height: 50px;
+	font-size: 20px;
+	text-align: center;
+}
+
+#TABLA{
+	text-align: center;
+	height: 80%;
+	overflow-y: scroll;
+	background-color: rgb(201, 201, 201 , 0.7);
+	display: flex;
+	position: relative;
+	border-collapse: collapse;
+}
+
+#TABLA th, td {
+    border-spacing: 0;
+}
+#num{
+	width: 40px;}
+#exp{
+	width: 160px;}
+#vv{
+	width: 180px;}
+
+#BC{
+	text-align: center;
+	height: 80%;
+	overflow-y: scroll;
+	background-color: rgb(201, 201, 201 , 0.7);
+	display: none;
+	position: relative;
+}
+
+.tabs1{
+	list-style: none;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-left: 0;
+	display: flex;
+}
+
+.tabs__item {
+	border: 1px solid #ccc;
+	border-bottom: none;
+	line-height: 1.5;
+	height: 25px;
+	padding: 0 1em;
+	margin-right: 1px;
+	background: #A3A3A3;
+	border-radius: 5px 5px 0 0;
+	color: white;
+}
+
+.tabs__item:hover {
+  background-color: #ddd;
+}
+
+.tabcontent {
+  display: none;
+  border-top: none;
+}
+
+
+.active {
+	background: white;}
+
+.active h4{ color: #A3A3A3;}
+
+/*----------------OPERADOR DE CONOCIMIENTO------------------*/
+#contenido{
+	width: 67%; /*--------------------------------------------hice cambio aqui*/
+	height: 550px;
+	margin-top:  25px;
+	margin-left: 10px;
+	margin-right: 10px;
+	display: inline-block;
+	position: relative;
+}
+
+#informacion{
+	background: white;
+	height: 400px;
+	overflow-y: scroll;
+	display: block;
+	position: relative;
+}
+#DEBUG{
+	background: white;
+	height: 400px;
+	display: none;
+	position: relative;
+}
+
+.tabs2{
+	list-style: none;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-left: 0;
+	display: flex;
+}
+
+.tabs__item2 {
+	border: 1px solid #ccc;
+	border-bottom: none;
+	line-height: 1.5;
+	height: 25px;
+	padding: 0 1em;
+	margin-right: 1px;
+	background: #A3A3A3;
+	border-radius: 5px 5px 0 0;
+	color: white;
+}
+
+.tabs__item2:hover {
+  background-color: #ddd;
+}
+
+.tabcontent2 {
+  display: none;
+  border-top: none;
+}
+.active {
+	background: white;}
+
+.active h4{ color: #A3A3A3;}
+
+.conocimiento{
+	position: absolute;
+	height: 100px;
+	width: 85%;
+	float: left;
+	font-size: 16px;
+}
+
+.botonSubir{
+	width: 100px;
+	height: 35px;
+	margin-top: 50px;
+	margin-left: 90%;
+	transform: translate(-20%);
+	background:#BEB8B8;
+	border-bottom: 5px solid #5E5E5E;
+	border-right: 5px solid #5E5E5E;
+    border-radius: 10px;
+	cursor: pointer;
+	color: black;
+	font-size: 15px;
+}
+
+.simbolo{
+	width: 40px;
+	height: 20px;
+	background:#BEB8B8;
+	border-bottom: 2px solid #5E5E5E;
+	border-right: 2px solid #5E5E5E;
+    border-radius: 8px;
+	cursor: pointer;
+	font-size: 15px;
+	margin-top: 2px;
+	margin-left: 3px;
+	vertical-align: center;
+}
+
+.simbolo:hover {
+  background-color: #ddd;
+}
+
+.parrafo-salida{
+	width: 100%;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+/*---------------------PUSH BAR------------------------*/
+
+.submenu{
+	margin-left: 8px;
+	margin-right: 8px;
+	border-top: 1px solid #BEB8B8;
+	border-bottom: 1px solid #BEB8B8;
+	font-size: 25px;
+	cursor: pointer;
+}
+
+.submenu h5{ margin-top: 20px;
+		  margin-bottom: 5px; }
+.regresar{
+	display: none;
+}
+
+/*----------------POLITICA DE CONTROL------------------*/
+/*#politica{
+	background: white;
+	width: 28%;
+	height: 550px;
+	margin-top:  25px;
+	display: inline-block;
+	position: absolute;
+}*/
+
+.politica{
+	display: none;
+  	border-top: none;
+}
+
+.pc{
+	background: white;
+	width: 1.4%;
+	height: 525px;
+	margin-top:  50px;
+	display: inline-block;
+	position: absolute;
+}
+
+.pc:hover{
+	background: black;
+	color: white;
+}
+
+.c2{
+	margin-left: 27%;
+	line-height: 50px;
+	font-size: 20px;
+	text-align: center;
+}
+
+.cerrar, .regresar{
+	width: 35px;
+	height: 25px;
+	margin-top: 10px;
+	margin-left: 90%;
+	margin-bottom: 10px;
+	transform: translate(-20%);
+	background:#BEB8B8;
+	border-bottom: 5px solid #5E5E5E;
+	border-right: 5px solid #5E5E5E;
+    border-radius: 10px;
+	cursor: pointer;
+	color: black;
+	font-size: 15px;
+}
+
+
+.submit{
+	width: 100px;
+	height: 35px;
+	margin-top: 10px;
+	margin-left: 30%;
+	transform: translate(-30%);
+	background:#BEB8B8;
+	border-bottom: 5px solid #5E5E5E;
+	border-right: 5px solid #5E5E5E;
+    border-radius: 10px;
+	cursor: pointer;
+	color: black;
+	font-size: 15px;
+}
+
+input[type=reset]{
+	width: 100px;
+	height: 35px;
+	margin-top: 10px;
+	background:#BEB8B8;
+	border-bottom: 5px solid #5E5E5E;
+	border-right: 5px solid #5E5E5E;
+    border-radius: 10px;
+	cursor: pointer;
+	color: black;
+	font-size: 15px;
+}
+
+
+/*----------------SELECCIONA BC------------------*/
+.selecciona-BC{
+	display: none;
+  	border-top: none;
+}
+
+.c4{
+	margin-left: 10px;
+	line-height: 50px;
+	font-size: 20px;
+	text-align: center;
+}
+
+
+/*----------------SUBE BC------------------*/
+.sube-BC{
+	display: none;
+  	border-top: none;
+}
+
+.c3{
+	margin-left: 15%;
+	line-height: 50px;
+	font-size: 20px;
+	text-align: center;
+}
+
+.parrafo-subir-bc{
+	padding-left: 10px;
+	padding-top: 20px;
+}
+
+
+/*----------------FOOTER------------------*/
+footer{
+	background-color: black;
+	height: 30px;
+	width: 100%;
+}
+
+footer p{
+	color: white;
+	font-size: 17px;
+	text-align: center;
+	line-height: 30px;
+}
+

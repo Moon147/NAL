@@ -1,0 +1,5 @@
+perro -> animal <0.7, 0.7>
+ardilla -> animal <0.7, 0.7>
+mono -> animal <0.7, 0.7>
+tortuga -> animal <0.7, 0.7>
+caballo ->animal <0.7, 0.7>
