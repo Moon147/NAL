@@ -23,47 +23,46 @@
 (defrule question () statement)
 
 (defrule statement () (or (and term sp relation sp term)
-						  compound-statement 
-						  term))
+			  compound-statement 
+			  term))
 
 (defrule term () (or anyword
-					 variable
-					 compound-term
-					 statement)
+		 variable
+		 compound-term)
 		(:string))
 
-(defrule relation () (or "<->" ;;Similarity
-												 "<=>" ;;Equivalence 
-												 "->o" ;;Property					 
-												 "-->" ;;Inheritance
-												 "o->o" ;;InstanceProperty
-												 "o->" ;;Instance					 
-												 "==>" ;;Implication
-						 						 ))
+(defrule relation () (or "<->" ;;Similarity NAL-2
+			 "<=>" ;;Equivalence NAL-5
+			 "->o" ;;Property NAL-2
+			 "-->" ;;Inheritance NAL-1
+			 "o->o" ;;InstanceProperty NAL-2
+			 "o->" ;;Instance NAL-1					 
+			 "==>" ;;Implication NAL-5
+			 ))
 
-(defrule compound-statement () (or (and "(--" sp statement ")") ;;Negation
-								   (and "(||" sp statement sp+ statement "+)") ;;Disjunction
-								   (and "(&&" sp statement sp+ statement "+)"))) ;;Conjunction
+(defrule compound-statement () (or (and "(--" sp statement ")") ;;Negation NAL-5
+				   (and "(||" sp statement sp+ statement "+)") ;;Disjunction NAL-5
+				   (and "(&&" sp statement sp+ statement "+)"))) ;;Conjunction NAL-5
 
-(defrule compound-term () (or (and "{" term "+}") ;;SetExt
-							  (and "[" term "+]") ;;SetInt
-							  (and "(&" sp+ term sp+ term "+)") ;;IntersectionExt
-							  (and "(|" sp+ term sp+ term "+)") ;;IntersectionInt
-							  (and "(-" sp+ term sp+ term ")") ;;DifferenceExt
-							  (and "(~" sp+ term sp+ term ")") ;;DifferenceInt
-							  (and "(*" sp+ term sp+ term "+)") ;;Product
-							  (and "(/" sp+ term "+" sp+ "_" sp+ term "*)") ;;ImageExt
-							  (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)"))) ;; ImageInt
+(defrule compound-term () (or (and "{" term "+}") ;;SetExt NAL-2
+			  (and "[" term "+]") ;;SetInt NAL-2
+			  (and "(&" sp+ term sp+ term "+)") ;;IntersectionExt NAL-3
+			  (and "(|" sp+ term sp+ term "+)") ;;IntersectionInt NAL-3
+			  (and "(-" sp+ term sp+ term ")") ;;DifferenceExt NAL-3
+			  (and "(~" sp+ term sp+ term ")") ;;DifferenceInt NAL-3
+			  (and "(*" sp+ term sp+ term "+)") ;;Product NAL-4
+			  (and "(/" sp+ term "+" sp+ "_" sp+ term "*)") ;;ImageExt NAL-4
+			  (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)"))) ;; ImageInt NAL-4
 
 (defrule variable () (or independent-var
-						 dependent-var
-						 query-var))
+			 dependent-var
+			 query-var))
 
 (defrule independent-var () (and "$[" anyword "]"))
 
-(defrule dependent-var () (and "#" anyword))
+(defrule dependent-var () (and "#" anyword)) ;;NAL-6
 
-(defrule query-var () (and "?[" anyword "]"))
+(defrule query-var () (and "?[" anyword "]")) ;;NAL-6
 
 (defrule truthvalue() (and "<" sp frequency sp "," sp confidence sp ">") (:choose 2 6))
 
