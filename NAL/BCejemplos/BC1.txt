@@ -1,5 +1,4 @@
-perro -> animal <0.7, 0.7>
-ardilla -> animal <0.7, 0.7>
-mono -> animal <0.7, 0.7>
-tortuga -> animal <0.7, 0.7>
-caballo ->animal <0.7, 0.7>
+águila --> ave <1.0, 0.9>
+ave --> animal <1.0, 0.9>
+leche --> líquido <1.0, 0.9>
+agua --> líquido <1.0, 0.9>
