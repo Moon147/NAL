@@ -53,7 +53,7 @@
               ((not (equal aux2 'NIL)) ;----------Si la expresión es correcta:
                       ; Si la expresión no tiene valor de verdad se le asigna por default (1.0, 0.9)
                           (if (null (second aux2)) (setf aux2 (list (first aux2) '(1.0 0.9)) ))
-                            (insert aux2) ;-------Agrega la estructura de la expresión a la cache de BC
+                            (insert (list (convierte (first aux2)) (second aux2)  (first aux2))) ;-------Agrega la estructura de la expresión a la cache de BC
                             (insert2 aux) );------Agregar la expresión a la cache de mensajes
               ((and (equal aux2 'NIL) (not (null aux)) ); Si la expresión está mal:
                     (insert2 (cons "Mensaje error" aux)) )  )) ;Agregar como mensaje de error a la cache de errores
@@ -67,13 +67,13 @@
                 (:th :id "vv" "Valor de verdad")) 
                 ;(parser conocimiento)
                 (if (not (null (search "?" conocimiento))) 
-                  (setf tv (truth-value (parseq 'question conocimiento)) )
+                  (setf tv (truth-value (parseq 'query (remove #\? conocimiento))) )
                   (parser conocimiento))
                 (loop for i from 1 to (- *cont* 1)
                  do 
                   (setf expresion (first (obtiene-expresion (list i))))
                   (setf valorV (second expresion))
-                  (setf relacion (first expresion))
+                  (setf relacion (third expresion))
                     (htm
                      (:tr 
                       (:td (print i))
@@ -218,7 +218,7 @@
                             :direction :output :if-exists :supersede)
                (loop for i from 1 to (- *cont* 1)
                  do 
-                (write-line (first (first (first (obtiene-expresion (list i))) )) stream) )) 
+                (write-line  (third (first (obtiene-expresion (list i) ))) stream) )) 
                 ;Sube el nuevo archivo a la carpeta virtual del proyecto /NAL-Reasoner
                 (push (create-static-file-dispatcher-and-handler
                     "/NAL-Reasoner/BC/BC0.txt"
@@ -234,7 +234,7 @@
                             :direction :output :if-exists :supersede)
                (loop for i from 1 to (- *cont* 1)
                  do 
-                (write-line (first (first (first (obtiene-expresion (list i))) )) stream) ) 
+                (write-line (third (first (obtiene-expresion (list i)) )) stream) ) 
 
                 ;Sube el nuevo archivo a la carpeta virtual del proyecto /NAL-Reasoner
                 (push (create-static-file-dispatcher-and-handler

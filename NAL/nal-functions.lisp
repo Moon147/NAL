@@ -96,7 +96,7 @@
 	(cond
 		((or (null term) (= i *cont*)) '()) 
 		((string= term  aux) 
-			(setf aux2 (first (first (first (obtiene-expresion (list i))))))
+			(setf aux2 (first  (first (first (obtiene-expresion (list i))))))
 			(append (list aux2) (extension aux2 1)) ) 
 		(T (extension term (incf i))) ) )
 
@@ -115,10 +115,18 @@
 				collect x)
 	    B)) 
 
+(defun convierte (string)
+    (loop for i = 0 then (1+ j)
+          as j = (position #\Space string :start i)
+          collect (subseq string i j)
+          while j))
+
 ; Devuelve la expresión de consulta con el valor de verdad calculado "term1 --> term2 <f , c>"
-(defun truth-value (expresion)
+(defun truth-value (query)
+	(setf expresion (convierte query))
+	
 	(setq term1 (first expresion)
-	      term2 (remove #\? ( remove #\] (remove #\[ (fifth expresion)))) )
+	      term2 (third expresion)) 
 	(let ( (w+ '()) (w '()) (confidence '()) (frequency '())
 		(Ai	(cons term1 (intension term1 1)) )
 		(Bi	(cons term2 (intension term2 1)) )
@@ -130,5 +138,5 @@
 	(setf w  (+ (length Ae) (length Bi))) 							  ; w  = ||aE|| + ||bI|| 
 	(setf frequency (format nil "~,2f" (/ w+ w)) )					  ; frequency = w+ / w
 	(setf confidence (format nil "~,2f" (/ w (+ w k)))  )			  ; confidence = w / (w + k)
-	(concatenate 'string term1 " --> " term2 " <" frequency ", " confidence ">") ))
+	(concatenate 'string term1 " --> " term2 " <" frequency ", " confidence ">")) ) 
 	
