@@ -38,7 +38,7 @@
 
 (defrule judgement () (and statement sp (? truthvalue)) (:choose 0 2))
 
-(defrule query () statement)
+(defrule query () (and statement sp "?") (:choose 0))
 
 (defrule statement () (or (and term sp relation sp term)
                       compound-statement 

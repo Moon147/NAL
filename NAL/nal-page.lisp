@@ -67,7 +67,7 @@
                 (:th :id "vv" "Valor de verdad")) 
                 ;(parser conocimiento)
                 (if (not (null (search "?" conocimiento))) 
-                  (setf tv (truth-value (parseq 'query (remove #\? conocimiento))) )
+                  (setf tv (truth-value (parseq 'query conocimiento)) )
                   (parser conocimiento))
                 (loop for i from 1 to (- *cont* 1)
                  do 
