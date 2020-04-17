@@ -1,5 +1,0 @@
-pez -> animal <0.7, 0.7>
-ardilla -> animal <0.7, 0.7>
-libelula -> animal <0.7, 0.7>
-tortuga -> animal <0.7, 0.7>
-pajaro ->animal <0.7, 0.7>
