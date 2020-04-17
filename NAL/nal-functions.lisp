@@ -1,4 +1,5 @@
 (in-package :nal)
+
 ;;======================================================================================= 
 ;;  
 ;;  Caché para las expresiones válidas, analizadas con el parser
@@ -64,6 +65,15 @@
 	(setf *mensajes-cache* (cacle:make-cache 10000000 #'proveedor2 :policy :lru)))
 
 
+
+;;======================================================================================= 
+;;  
+;;  Concatenar cadenas
+;;  
+;;=======================================================================================
+(defun concatena (lista)
+	(concatenate 'string (first lista) (second lista)))
+
 ;;======================================================================================= 
 ;;  
 ;;  CÁLCULO VALOR DE VERDAD
@@ -75,6 +85,7 @@
 (defparameter term1 'nil)
 (defparameter term2 'nil)
 (defparameter k 1)
+(defparameter expresion '())
 
 ; Función para calcular intension con parámetros: término a buscar y posición de la expresión a comparar con
 ; elementos de la cache
@@ -123,7 +134,7 @@
 
 ; Devuelve la expresión de consulta con el valor de verdad calculado "term1 --> term2 <f , c>"
 (defun truth-value (query)
-	(setf expresion (convierte query))
+	(setq expresion (convierte query))
 	
 	(setq term1 (first expresion)
 	      term2 (third expresion)) 
@@ -139,4 +150,55 @@
 	(setf frequency (format nil "~,2f" (/ w+ w)) )					  ; frequency = w+ / w
 	(setf confidence (format nil "~,2f" (/ w (+ w k)))  )			  ; confidence = w / (w + k)
 	(concatenate 'string term1 " --> " term2 " <" frequency ", " confidence ">")) ) 
+
+
+;;======================================================================================= 
+;;  
+;;  Envío de archivos
+;;  
+;;=======================================================================================
+(defparameter flag-firstFile T)
+(defparameter flag-files 2)
+(defparameter flag-reset T)
+(defparameter flag-selectbc '())
+(defparameter flag-BC0 '())
+(defvar path-selectbc '())
+(defvar path '())
+
+(defvar *files* nil)
+
+(defvar *directory*
+    #+(or :win32 :mswindows) #p"c:\\NAL-Reasoner\\"
+    #-(or :win32 :mswindows) #p"/home/nalogic/NAL/BC/")
+
+
+(let ((counter 0))
+  (defun handle-file (post-parameter)
+  	(setf flag-reset 'T)
+  	(print counter)
+    (when (and post-parameter
+               (listp post-parameter))
+      (destructuring-bind (path file-name content-type)
+          post-parameter
+        (let ((new-path (make-pathname :name (format nil "BC-~A"
+                                                     (incf counter))
+                                       :type nil
+                                       :defaults *directory*)))
+          ;; strip directory info sent by Windows browsers
+          (when (search "Windows" (user-agent) :test 'char-equal)
+            (setq file-name (cl-ppcre:regex-replace ".*\\\\" file-name "")))
+          (rename-file path (ensure-directories-exist new-path))
+          (push (list new-path file-name content-type) *files*))))))
+
+(defun clean-tmp-dir2 ()
+  (loop for (path . nil) in *files*
+        when (probe-file path)
+        do (ignore-errors (delete-file path)))
+  (setq *files* nil))
+
+(defun writefile (path)
+	(with-open-file  (stream  path :direction :output :if-exists :supersede)
+      (loop for i from 1 to (- *cont* 1)
+       do 
+      (write-line (concatena (third (first (obtiene-expresion (list i)) ))) stream) )) )
 	

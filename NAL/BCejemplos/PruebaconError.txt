@@ -1,0 +1,8 @@
+pez -> animal
+ardilla --> animal
+libélula -> animal
+tortuga --> animal
+pájaro ->animal
+ardilla --> omnívora
+turtuga --> omnívora
+

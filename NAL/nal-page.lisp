@@ -3,7 +3,7 @@
 (define-easy-handler (index :uri "/NAL-Reasoner/index.html"
                                 :default-request-type :post)
 
-      (conocimiento valorV relacion expresion path aux2 (selectbc :parameter-type 'integer) tv)
+      (conocimiento valorV relacion expresion aux2 (selectbc :parameter-type 'integer) tv)
 
   (with-html
     (:html
@@ -53,7 +53,10 @@
               ((not (equal aux2 'NIL)) ;----------Si la expresión es correcta:
                       ; Si la expresión no tiene valor de verdad se le asigna por default (1.0, 0.9)
                           (if (null (second aux2)) (setf aux2 (list (first aux2) '(1.0 0.9)) ))
-                            (insert (list (convierte (first aux2)) (second aux2)  (first aux2))) ;-------Agrega la estructura de la expresión a la cache de BC
+                            ;-------Agrega la estructura de la expresión a la cache de BC
+                            ; Se agrega una lista con 3 elementos (("term" "cop" "term2") (vv) ("expresion"  "vv"))
+                            (insert (list (convierte (first aux2)) (second aux2)  
+                               (list (first aux2) (format nil " <~{~a~^, ~}>" (second aux2))) )) 
                             (insert2 aux) );------Agregar la expresión a la cache de mensajes
               ((and (equal aux2 'NIL) (not (null aux)) ); Si la expresión está mal:
                     (insert2 (cons "Mensaje error" aux)) )  )) ;Agregar como mensaje de error a la cache de errores
@@ -73,7 +76,7 @@
                  do 
                   (setf expresion (first (obtiene-expresion (list i))))
                   (setf valorV (second expresion))
-                  (setf relacion (third expresion))
+                  (setf relacion (first (third expresion)))
                     (htm
                      (:tr 
                       (:td (print i))
@@ -164,42 +167,6 @@
         (:p 
           (:input :type "submit" :class "submit" :value "Enviar datos")
           (:input :type "reset" :value "Restaurar"))))
-
-
-          ;---------------------------------------SELECCIONAR BASE DE CONOCIMIENTO-----------------------------------------
-          (:section :class "selecciona-BC sub-menu"
-            (:span :class "c4" "Seleccionar Base de Conocimiento")
-              (:p (:form :method :post    ;formulario para escoger BC
-                (:select :name "selectbc"  
-                  (loop for x from 1 to (length *tmp-test-files*)
-                    do
-                      (htm
-                        (:option :value x  :selected (eq x selectbc) (print x)))))
-                (:input  :type "submit"  )))  ;fin formulario 
-              
-            (cond  ((numberp selectbc)
-              (initialize-cache) ;----- reiniciar la bc de expresiones y mensajes de error antes de evaluar el nuevo archivo 
-              (setq path  (format nil "/tmp/NAL-Reasoner/hunchentoot-test-~A" selectbc) )  ;--- selecciona el último archivo subido
-                (with-open-file (in path)
-                (loop for line = (read-line in nil) ;------LEE ARCHIVO
-                     while line do (parser line)) )))
-
-            ;Muestra archivos de BC
-            (when *tmp-test-files* 
-              (htm
-               (:p
-                (:table :style "padding: 5px;" :border 1 :cellpadding 2 :cellspacing 0
-                 (loop for (path file-name nil) in *tmp-test-files*
-                       for counter from 1
-                       do (htm
-                           (:tr (:td :align "right" (str counter))
-                            ;(:td :onclick "almacena()" (esc file-name) )
-                            (:td :onclick "almacena()" (esc file-name) )
-                            (:td :align "right"
-                             (str (ignore-errors
-                                    (with-open-file (in path)
-                                      (file-length in)) ))
-                             "&nbsp;Bytes"))))))))   )
            
 
           ;---------------------------------------SUBIR BASE DE CONOCIMIENTO-----------------------------------------
@@ -212,43 +179,67 @@
                :name "file1" :multiple))
              (:p :class "parrafo-subir-bc" (:input :type :submit))) )
 
-            ;Archivo de BC con las expresiones agregadas por la "consola" antes de que suba algún archivo
-            (unless *tmp-test-files*
-              (with-open-file  (stream  "BC/BC0.txt" 
-                            :direction :output :if-exists :supersede)
-               (loop for i from 1 to (- *cont* 1)
-                 do 
-                (write-line  (third (first (obtiene-expresion (list i) ))) stream) )) 
-                ;Sube el nuevo archivo a la carpeta virtual del proyecto /NAL-Reasoner
-                (push (create-static-file-dispatcher-and-handler
-                    "/NAL-Reasoner/BC/BC0.txt"
-                    (make-pathname :name "BC/BC0" :type "txt" :version nil
-                                   :defaults *this-file*)
-                    "text/txt")  *dispatch-table* ))
+            (when *files* 
+              (when (and flag-firstFile (= (length *files*) 1)) 
+                (setq flag-firstFile '())
+                (cond ((> *cont* 1) 
+                  (setq path "BC/BC-0")
+                  (writefile path)
+                  (setq *files* (list (first *files*) 
+                    (list #P"/home/nalogic/NAL/BC/BC-0" "BC-0.txt" "text/plain") )
+                    flag-BC0 'T)
+                  (incf flag-files))) )
+
+              (when (or (= (length *files*) flag-files) (numberp selectbc))
+                (if flag-selectbc (writefile path-selectbc) (writefile path))
+                (cond ((numberp selectbc)
+                        (setq path-selectbc (format nil "BC/BC-~A" (if flag-BC0 (- selectbc 1) selectbc))
+                             flag-reset 'T flag-selectbc 'T)) 
+                      (T (setq path (first (second *files*) )
+                               flag-selectbc '())
+                          (incf flag-files) 
+                          (writefile path))) )
+
+              (when flag-reset
+                (setf flag-reset '())
+                (initialize-cache) ;----- reiniciar la bc de expresiones y mensajes de error antes de evaluar el nuevo archivo
+                (if (numberp selectbc)
+                  (setq path  path-selectbc)              ;--- obtiene archivo seleccionado por usuario
+                  (setq path (first (first *files*) )) )  ;--- obtiene el último archivo subido
+                ;(print (first *files*))
+                (with-open-file (in path)
+                  (loop for line = (read-line in nil) ;------LEE ARCHIVO
+                       while line do (parser line)) )) ) ;parsea cada expresión 
 
 
-            (when (and *tmp-test-files* (null selectbc))
-                ;Crea un nuevo archivo para guardar los archivos en una carpeta física
-                ;"BC/prueba.txt"
-              (with-open-file  (stream  (format nil "BC/BC~A.txt" (length *tmp-test-files*))
-                            :direction :output :if-exists :supersede)
-               (loop for i from 1 to (- *cont* 1)
-                 do 
-                (write-line (third (first (obtiene-expresion (list i)) )) stream) ) 
+            ;---------------------------------------SELECCIONAR BASE DE CONOCIMIENTO-----------------------------------------
+          (:section :class "selecciona-BC sub-menu"
+            (:span :class "c4" "Seleccionar Base de Conocimiento")
+              (:p (:form :method :post    ;formulario para escoger BC
+                (:select :name "selectbc"  
+                  (loop for x from 1 to (length *files*)
+                    do
+                      (htm
+                        (:option :value x  :selected (eq x selectbc) (print x)))))
+                (:input  :type "submit"  )))  ;fin formulario 
 
-                ;Sube el nuevo archivo a la carpeta virtual del proyecto /NAL-Reasoner
-                (push (create-static-file-dispatcher-and-handler
-                    (format nil "/NAL-Reasoner/BC/BC~A.txt" (length *tmp-test-files*))
-                    (make-pathname :name (format nil "BC/BC~A.txt" (length *tmp-test-files*)) :type "txt" :version nil
-                                   :defaults *this-file*)
-                    "text/txt")  *dispatch-table* )) 
+            ;Muestra archivos de BC
+            (when *files* 
+              (htm
+               (:p
+                (:table :style "padding: 5px;" :border 1 :cellpadding 2 :cellspacing 0
 
-             (initialize-cache) ;----- reiniciar la bc de expresiones y mensajes de error antes de evaluar el nuevo archivo 
-              (setq path (first (first *tmp-test-files*) ))  ;--- selecciona el último archivo subido
-              ;(print (first *tmp-test-files*))
-              (with-open-file (in path)
-                (loop for line = (read-line in nil) ;------LEE ARCHIVO
-                     while line do (parser line)) )  ) ;--- parsea cada línea
+                 (loop for (path file-name nil) in (reverse *files*)
+                       for counter from 1
+                       do (htm
+                           (:tr (:td :align "right" (str counter))
+                            ;(:td :onclick "almacena()" (esc file-name) )
+                            (:td :onclick "almacena()" (esc file-name) )
+                            (:td :align "right"
+                             (str (ignore-errors
+                                    (with-open-file (in path)
+                                      (file-length in)) ))
+                             "&nbsp;Bytes"))))))))   )
 
         );/section data-pushbar-id 
           

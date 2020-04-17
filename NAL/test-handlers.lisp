@@ -55,7 +55,7 @@
                (listp post-parameter))
       (destructuring-bind (path file-name content-type)
           post-parameter
-        (let ((new-path (make-pathname :name (format nil "hunchentoot-test-~A"
+        (let ((new-path (make-pathname :name (format nil "hunchentoot-~A"
                                                      (incf counter))
                                        :type nil
                                        :defaults *tmp-test-directory*)))

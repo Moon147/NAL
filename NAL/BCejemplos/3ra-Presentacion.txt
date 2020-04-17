@@ -1,0 +1,4 @@
+águila --> ave <1.0, 0.9>
+ave --> animal <1.0, 0.9>
+leche --> líquido <1.0, 0.9>
+agua --> líquido <1.0, 0.9>
