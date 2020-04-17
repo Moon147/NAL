@@ -28,6 +28,9 @@
 ;;                         normalized-number...
 ;;                      *) En el comentario de la regla relation la cópula Instance es de nivel 2
 ;;                         en lugar de nivel 1 como estaba indicado...
+;;	
+;;	ACTUALIZACIÓN:	Jenifer López agregó el signo de interrogación para consulta de los valores
+;;	(10-abril,2020)	de verdad en la regla "query".
 ;;=================================================================================================
 
 (ql:quickload :parseq)
