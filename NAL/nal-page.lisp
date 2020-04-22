@@ -3,7 +3,17 @@
 (define-easy-handler (index :uri "/NAL-Reasoner/index.html"
                                 :default-request-type :post)
 
-      (conocimiento valorV relacion expresion aux2 (selectbc :parameter-type 'integer) tv)
+      (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer) tv)
+
+
+  ;------------------variables para subir archivos--------------------------
+  (let (post-parameter-p)
+  (when (post-parameter "file1")
+    (handle-file (post-parameter "file1"))
+    (setq post-parameter-p t))
+  (when (post-parameter "clean")
+    (clean-tmp-dir)
+    (setq post-parameter-p t)))
 
   (with-html
     (:html
@@ -16,7 +26,12 @@
         :href "https://fonts.googleapis.com/css?family=Libre+Franklin&display=swap")
       (:script :src "https://kit.fontawesome.com/d0a92786ea.js"
         :crossorigin "anonymous"))
-      
+
+    ;Muestra BC cuando el usuario selecciona una ----------------------------
+   (cond ((numberp selectbc) 
+      (setf var-selectbc selectbc)
+      (manage-files)))
+    ;------------------------------------------------------------------------  
      (:body
       (:div :id "contenedor"
         (:header
@@ -37,29 +52,6 @@
               (:h4 "BC"))
             (:li :class "tabs__item" :onclick "openTab(event,'BC');"
               (:h4 "TABLA")))
-          ;------------------variables para subir archivos--------------------------
-          (let (post-parameter-p)
-          (when (post-parameter "file1")
-            (handle-file (post-parameter "file1"))
-            (setq post-parameter-p t))
-          (when (post-parameter "clean")
-            (clean-tmp-dir)
-            (setq post-parameter-p t)))
-
-          ;-------------------FUNCION PARA USAR PARSER NAL--------------------------
-          (defun parser (aux)  ;------------------Mandar expresión para parsearla
-            (setf aux2 (parseq 'judgement aux))
-            (cond 
-              ((not (equal aux2 'NIL)) ;----------Si la expresión es correcta:
-                      ; Si la expresión no tiene valor de verdad se le asigna por default (1.0, 0.9)
-                          (if (null (second aux2)) (setf aux2 (list (first aux2) '(1.0 0.9)) ))
-                            ;-------Agrega la estructura de la expresión a la cache de BC
-                            ; Se agrega una lista con 3 elementos (("term" "cop" "term2") (vv) ("expresion"  "vv"))
-                            (insert (list (convierte (first aux2)) (second aux2)  
-                               (list (first aux2) (format nil " <~{~a~^, ~}>" (second aux2))) )) 
-                            (insert2 aux) );------Agregar la expresión a la cache de mensajes
-              ((and (equal aux2 'NIL) (not (null aux)) ); Si la expresión está mal:
-                    (insert2 (cons "Mensaje error" aux)) )  )) ;Agregar como mensaje de error a la cache de errores
 
           (:div :id "aside"
             (:span :class "c1" "Base de Conocimiento")
@@ -69,9 +61,11 @@
                 (:th :id "exp" "Expresión")
                 (:th :id "vv" "Valor de verdad")) 
                 ;(parser conocimiento)
-                (if (not (null (search "?" conocimiento))) 
-                  (setf tv (truth-value (parseq 'query conocimiento)) )
-                  (parser conocimiento))
+                (cond ((search "?" conocimiento) 
+                        (setq cont-message *cont2*)
+                        (setf tv (truth-value (parseq 'query conocimiento))) )
+                      (T (parser conocimiento) ))
+                        ;(setq cont-message (- *cont2* 1)) ))
                 (loop for i from 1 to (- *cont* 1)
                  do 
                   (setf expresion (first (obtiene-expresion (list i))))
@@ -90,12 +84,12 @@
             (:li :class "tabs__item2" :onclick "openTab2(event,'DEBUG')"
               (:h4 "DEBUG")))
           (:div :class "tabcontent2 active" :id "informacion"
-            (loop for i from 1 to (- *cont2* 1) 
+            (loop for i from cont-message to (- *cont2* 1) 
                    do 
                    (setf expresion (obtiene-mensaje (list i)))
                    (htm
                       (:p :class "parrafo-salida" "  "(print i) 
-                        "La expresión: " (print (first expresion)) " ha sido añadida"))))
+                         (print (first expresion)) ))))
 
           (:div :class "tabcontent2" :id "DEBUG") 
           ;(print(parseq 'judgement conocimiento))
@@ -179,38 +173,6 @@
                :name "file1" :multiple))
              (:p :class "parrafo-subir-bc" (:input :type :submit))) )
 
-            (when *files* 
-              (when (and flag-firstFile (= (length *files*) 1)) 
-                (setq flag-firstFile '())
-                (cond ((> *cont* 1) 
-                  (setq path "BC/BC-0")
-                  (writefile path)
-                  (setq *files* (list (first *files*) 
-                    (list #P"/home/nalogic/NAL/BC/BC-0" "BC-0.txt" "text/plain") )
-                    flag-BC0 'T)
-                  (incf flag-files))) )
-
-              (when (or (= (length *files*) flag-files) (numberp selectbc))
-                (if flag-selectbc (writefile path-selectbc) (writefile path))
-                (cond ((numberp selectbc)
-                        (setq path-selectbc (format nil "BC/BC-~A" (if flag-BC0 (- selectbc 1) selectbc))
-                             flag-reset 'T flag-selectbc 'T)) 
-                      (T (setq path (first (second *files*) )
-                               flag-selectbc '())
-                          (incf flag-files) 
-                          (writefile path))) )
-
-              (when flag-reset
-                (setf flag-reset '())
-                (initialize-cache) ;----- reiniciar la bc de expresiones y mensajes de error antes de evaluar el nuevo archivo
-                (if (numberp selectbc)
-                  (setq path  path-selectbc)              ;--- obtiene archivo seleccionado por usuario
-                  (setq path (first (first *files*) )) )  ;--- obtiene el último archivo subido
-                ;(print (first *files*))
-                (with-open-file (in path)
-                  (loop for line = (read-line in nil) ;------LEE ARCHIVO
-                       while line do (parser line)) )) ) ;parsea cada expresión 
-
 
             ;---------------------------------------SELECCIONAR BASE DE CONOCIMIENTO-----------------------------------------
           (:section :class "selecciona-BC sub-menu"
@@ -225,21 +187,19 @@
 
             ;Muestra archivos de BC
             (when *files* 
-              (htm
-               (:p
+              (htm (:p
                 (:table :style "padding: 5px;" :border 1 :cellpadding 2 :cellspacing 0
-
                  (loop for (path file-name nil) in (reverse *files*)
-                       for counter from 1
-                       do (htm
-                           (:tr (:td :align "right" (str counter))
-                            ;(:td :onclick "almacena()" (esc file-name) )
-                            (:td :onclick "almacena()" (esc file-name) )
-                            (:td :align "right"
-                             (str (ignore-errors
-                                    (with-open-file (in path)
-                                      (file-length in)) ))
-                             "&nbsp;Bytes"))))))))   )
+                   for counter from 1
+                   do (htm
+                       (:tr (:td :align "right" (str counter))
+                        ;(:td :onclick "almacena()" (esc file-name) )
+                        (:td :onclick "almacena()" (esc file-name) )
+                        (:td :align "right"
+                         (str (ignore-errors
+                                (with-open-file (in path)
+                                  (file-length in)) ))
+                         "&nbsp;Bytes"))))))))   )
 
         );/section data-pushbar-id 
           

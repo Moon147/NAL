@@ -190,7 +190,7 @@ function openTab2(evt, tabName) {
   for (i = 0; i < tabs__item.length; i++) {
     tabs__item[i].className = tabs__item[i].className.replace(" active", "");
   }
-  document.getElementById(tabName).style.display = "flex";
+  document.getElementById(tabName).style.display = "block";
   evt.currentTarget.className += " active";
 }
 

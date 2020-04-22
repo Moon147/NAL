@@ -28,9 +28,6 @@
 ;;                         normalized-number...
 ;;                      *) En el comentario de la regla relation la cópula Instance es de nivel 2
 ;;                         en lugar de nivel 1 como estaba indicado...
-;;	
-;;	ACTUALIZACIÓN:	Jenifer López agregó el signo de interrogación para consulta de los valores
-;;	(10-abril,2020)	de verdad en la regla "query".
 ;;=================================================================================================
 
 (ql:quickload :parseq)
@@ -55,22 +52,22 @@
                          "->o"      ;;Property NAL-2
                          "-->"      ;;Inheritance NAL-1
                          "o->o"     ;;InstanceProperty NAL-2
-                         "o->"      ;;Instance NAL-2					 
+                         "o->"      ;;Instance NAL-2                     
                          "==>" ))   ;;Implication NAL-5
 
 (defrule compound-statement () (or (and "(--" sp statement ")")     ;;Negation NAL-5
-				   (and "(||" sp statement sp+ statement "+)")      ;;Disjunction NAL-5
-				   (and "(&&" sp statement sp+ statement "+)")))    ;;Conjunction NAL-5
+                   (and "(||" sp statement sp+ statement "+)")      ;;Disjunction NAL-5
+                   (and "(&&" sp statement sp+ statement "+)")))    ;;Conjunction NAL-5
 
 (defrule compound-term () (or (and "{" term "+}") ;;SetExt NAL-2
-			  (and "[" term "+]") ;;SetInt NAL-2
-			  (and "(&" sp+ term sp+ term "+)")      ;;IntersectionExt NAL-3
-			  (and "(|" sp+ term sp+ term "+)")      ;;IntersectionInt NAL-3
-			  (and "(-" sp+ term sp+ term ")")       ;;DifferenceExt NAL-3
-			  (and "(~" sp+ term sp+ term ")")       ;;DifferenceInt NAL-3
-			  (and "(*" sp+ term sp+ term "+)")      ;;Product NAL-4
-			  (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
-			  (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
+              (and "[" term "+]") ;;SetInt NAL-2
+              (and "(&" sp+ term sp+ term "+)")      ;;IntersectionExt NAL-3
+              (and "(|" sp+ term sp+ term "+)")      ;;IntersectionInt NAL-3
+              (and "(-" sp+ term sp+ term ")")       ;;DifferenceExt NAL-3
+              (and "(~" sp+ term sp+ term ")")       ;;DifferenceInt NAL-3
+              (and "(*" sp+ term sp+ term "+)")      ;;Product NAL-4
+              (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
+              (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
 
 (defrule variable () (or independent-var
                          dependent-var
@@ -94,10 +91,12 @@
 ;; 
 
 (defrule normalized-number () (or   (and "0" "." decimalpart)
-                                    (and "1" "." (* "0")) ) 
+                                    "0"
+                                    (and "1" "." (* "0")) 
+                                    "1")
                                     (:flatten)
             (:lambda (&rest arguments) 
-                    (float (read-from-string (apply #'concatenate 'string  arguments))))   )
+                    (float (read-from-string (apply #'concatenate 'string  arguments)))) ) 
 
 (defrule decimalpart () (* digit) (:string))
 
@@ -116,7 +115,7 @@
 (defrule digit () (char "0-9"))
 (defrule binary-digit () (char "0-1"))
 
-(defrule anyword () (+ (char "a-zA-Z0-9_üáéíóúñÁÉÍÓÚÑ")) )
+(defrule anyword () (+ (char "a-zA-Z0-9_üáéíóúñÁÉÍÓÚÑ-")) )
 
-(defrule sp () (* (or #\space #\tab #\newline)))	;espacio opcional (cerradura transitiva)
-(defrule sp+ () (+ (or #\space #\tab #\newline)))	;espacio obligatorio (cerrradura positiva)
+(defrule sp () (* (or #\space #\tab #\newline)))    ;espacio opcional (cerradura transitiva)
+(defrule sp+ () (+ (or #\space #\tab #\newline)))   ;espacio obligatorio (cerrradura positiva)
