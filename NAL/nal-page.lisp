@@ -3,7 +3,7 @@
 (define-easy-handler (index :uri "/NAL-Reasoner/index.html"
                                 :default-request-type :post)
 
-      (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer) tv)
+      (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer))
 
 
   ;------------------variables para subir archivos--------------------------
@@ -27,11 +27,11 @@
       (:script :src "https://kit.fontawesome.com/d0a92786ea.js"
         :crossorigin "anonymous"))
 
-    ;Muestra BC cuando el usuario selecciona una ----------------------------
+    ;Muestra BC cuando el usuario selecciona una
    (cond ((numberp selectbc) 
       (setf var-selectbc selectbc)
       (manage-files)))
-    ;------------------------------------------------------------------------  
+    ;------------------------------------------- 
      (:body
       (:div :id "contenedor"
         (:header
@@ -59,13 +59,11 @@
               (:tr 
                 (:th :id "num" "No")
                 (:th :id "exp" "Expresión")
-                (:th :id "vv" "Valor de verdad")) 
-                ;(parser conocimiento)
+                (:th :id "vv" "Valor de verdad"))
+
                 (cond ((search "?" conocimiento) 
-                        (setq cont-message *cont2*)
-                        (setf tv (truth-value (parseq 'query conocimiento))) )
+                        (truth-value (parseq:parseq 'query conocimiento)) )
                       (T (parser conocimiento) ))
-                        ;(setq cont-message (- *cont2* 1)) ))
                 (loop for i from 1 to (- *cont* 1)
                  do 
                   (setf expresion (first (obtiene-expresion (list i))))
@@ -80,7 +78,7 @@
         (:section :id "contenido"
           (:ul :class "tabs2"
             (:li :class "tabs__item2 active" :onclick "openTab2(event,'informacion')"
-              (:h4 "SALIDA"))
+              (:h4 "OUTPUT"))
             (:li :class "tabs__item2" :onclick "openTab2(event,'DEBUG')"
               (:h4 "DEBUG")))
           (:div :class "tabcontent2 active" :id "informacion"
@@ -89,9 +87,16 @@
                    (setf expresion (obtiene-mensaje (list i)))
                    (htm
                       (:p :class "parrafo-salida" "  "(print i) 
-                         (print (first expresion)) ))))
+                         (print (first expresion)) )) ))
 
-          (:div :class "tabcontent2" :id "DEBUG") 
+          (:div :class "tabcontent2" :id "DEBUG"
+            (when intensionA
+              (htm
+                (:p :class "parrafo-salida" "  " (print intensionA) )
+                (:p :class "parrafo-salida" "  " (print extensionA) )
+                (:p :class "parrafo-salida" "  " (print intensionB) )
+                (:p :class "parrafo-salida" "  " (print extensionB)) )
+              (setq intensionA '() intensionB '() extensionA '() extensionB '())) )
           ;(print(parseq 'judgement conocimiento))
           (:button :class "simbolo" :onclick "simbolo('-->')" :style "margin-left: 10px" "-->")
           (:button :onclick "simbolo('<=>')"  :class "simbolo" "<=>")
@@ -103,18 +108,11 @@
           (:button :onclick "simbolo('||')"  :class "simbolo" "||")
           (:button :onclick "simbolo('&&')"  :class "simbolo" "&&")
           (:button :onclick "simbolo('+')"  :class "simbolo" "+")
-          ;;---CAMBIAR---
-          ;(:input :type :text :class "conocimiento" :id "conocimiento" :value (or expresion "perro -> animal") )
-          ;(:button :onclick "almacena()" "Subir") )
         
           (:p (:form :method :post 
-            (if (null tv) 
               (htm
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
                   :placeholder "Estructura: perro --> animal" ))
-              (htm
-                (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
-                  :value tv )) )
               (:input :class "botonSubir" :type "submit"  ))) )
           
 

@@ -11,11 +11,22 @@
 ;;
 ;;  Dr. Salvador Godoy C. -  noviembre 2019.
 ;;
-;;      ACTUALIZACIÓN:  Montserrat González Padilla actualizó la gramática para dejarla
-;;      (01-abril,2020) "casi" como la gramática oficial de NARSESE ubicada en 
-;;                      https://github.com/opennars/opennars/wiki/Narsese-Grammar-(Input-Output-Format)
-;;                      Con excepción del formato del valor de verdad que quedó delimitado
-;;                      por corchetes triangulares y separado por coma.
+;;      ACTUALIZACIÓN:  Salvador Godoy modificó las reglas STATEMENT, TERM y RELATION para que
+;;      (17-abril-2020) entreguen la estructura de un juicio en forma de lista "pura" sin cadenas.
+;;                      La expresión.
+;;                                          canario --> ave <1.0,0.9>
+;;                      antes se entregaba con la estructura:
+;;                                        ("canario --> ave" (1.0 0.9))
+;;                      Y ahora se enregan así:
+;;                                      ((CANARIO --> AVE) (1.0 0.9))
+;;                      Con la limitación de no distinguir mayúsculas y minúsculas...
+;;                      También invertí el orden de estos comentarios para que el último siempre
+;;                      sea el de hasta arriba y el más antiguo, el de hasta abajo...
+;;                      Por último, modifiqué la regla NORMALIZED-NUMBER para que acepte también
+;;                      un cero sin parte decimal, así como un uno sin parte decimal...
+;;
+;;      ACTUALIZACIÓN:  Jenifer López agregó el signo de interrogación para consulta de los valores
+;;      (11-abril,2020) de verdad en la regla "query".
 ;;
 ;;      ACTUALIZACIÓN:  Salvador Godoy corrigió algunos errores menores en la gramática:
 ;;      (10-abril,2020) *) La aparición de espacios en la regla judgement se soluciónó con
@@ -27,70 +38,87 @@
 ;;                         decimal-part y se cambió la función de aceptación en la regla 
 ;;                         normalized-number...
 ;;                      *) En el comentario de la regla relation la cópula Instance es de nivel 2
-;;                         en lugar de nivel 1 como estaba indicado...
+;;                         en lugar de nivel 1 como estaba indicado...  
+;;
+;;      ACTUALIZACIÓN:  Montserrat González Padilla actualizó la gramática para dejarla
+;;      (01-abril,2020) "casi" como la gramática oficial de NARSESE ubicada en 
+;;                      https://github.com/opennars/opennars/wiki/Narsese-Grammar-(Input-Output-Format)
+;;                      Con excepción del formato del valor de verdad que quedó delimitado
+;;                      por corchetes triangulares y separado por coma.
 ;;=================================================================================================
 
 (ql:quickload :parseq)
-(use-package :parseq)
 (in-package :nal)
 
-(defrule sentence () (or judgement query))
+(parseq:defrule sentence () (or judgement query))
 
-(defrule judgement () (and statement sp (? truthvalue)) (:choose 0 2))
+(parseq:defrule judgement () (and statement sp (? truthvalue)) (:choose 0 2))
 
-(defrule query () (and statement sp "?") (:choose 0))
+(parseq:defrule query () (and statement sp "?") (:choose 0))
 
-(defrule statement () (or (and term sp relation sp term)
+;; ===========================================================
+;;  Agregé :choose en lugar de :string  
+;;  para separar los elementos de la lista (17-abril-2020)
+;; ===========================================================
+(parseq:defrule statement () (or (and term sp relation sp term)
                       compound-statement 
                       term) 
-                      (:string))
+                      (:choose 0 2 4))
+;; ===========================================================
+;;  Agregé :lambda después de :string
+;;  para  entregar en forma de símbolo (17-abril-2020)
+;; ===========================================================
+(parseq:defrule term () (or anyword variable compound-term) 
+                    (:string)
+                    (:lambda (term) (read-from-string term)) )
 
-(defrule term () (or anyword variable compound-term) (:string))
-
-(defrule relation () (or "<->"      ;;Similarity NAL-2
+(parseq:defrule relation () (or "<->"      ;;Similarity NAL-2
                          "<=>"      ;;Equivalence NAL-5
                          "->o"      ;;Property NAL-2
                          "-->"      ;;Inheritance NAL-1
                          "o->o"     ;;InstanceProperty NAL-2
-                         "o->"      ;;Instance NAL-2                     
-                         "==>" ))   ;;Implication NAL-5
+                         "o->"      ;;Instance NAL-2           
+                         "==>" )    ;;Implication NAL-5
+                    (:lambda (copula) (read-from-string copula)) )
+;; ===========================================================
+;; ===========================================================                    
 
-(defrule compound-statement () (or (and "(--" sp statement ")")     ;;Negation NAL-5
-                   (and "(||" sp statement sp+ statement "+)")      ;;Disjunction NAL-5
-                   (and "(&&" sp statement sp+ statement "+)")))    ;;Conjunction NAL-5
+                    
+(parseq:defrule compound-statement () (or (and "(--" sp statement ")")     ;;Negation NAL-5
+           (and "(||" sp statement sp+ statement "+)")      ;;Disjunction NAL-5
+           (and "(&&" sp statement sp+ statement "+)")))    ;;Conjunction NAL-5
 
-(defrule compound-term () (or (and "{" term "+}") ;;SetExt NAL-2
-              (and "[" term "+]") ;;SetInt NAL-2
-              (and "(&" sp+ term sp+ term "+)")      ;;IntersectionExt NAL-3
-              (and "(|" sp+ term sp+ term "+)")      ;;IntersectionInt NAL-3
-              (and "(-" sp+ term sp+ term ")")       ;;DifferenceExt NAL-3
-              (and "(~" sp+ term sp+ term ")")       ;;DifferenceInt NAL-3
-              (and "(*" sp+ term sp+ term "+)")      ;;Product NAL-4
-              (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
-              (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
+(parseq:defrule compound-term () (or (and "{" term "+}") ;;SetExt NAL-2
+        (and "[" term "+]") ;;SetInt NAL-2
+        (and "(&" sp+ term sp+ term "+)")      ;;IntersectionExt NAL-3
+        (and "(|" sp+ term sp+ term "+)")      ;;IntersectionInt NAL-3
+        (and "(-" sp+ term sp+ term ")")       ;;DifferenceExt NAL-3
+        (and "(~" sp+ term sp+ term ")")       ;;DifferenceInt NAL-3
+        (and "(*" sp+ term sp+ term "+)")      ;;Product NAL-4
+        (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
+        (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
 
-(defrule variable () (or independent-var
+(parseq:defrule variable () (or independent-var
                          dependent-var
                          query-var))
 
-(defrule independent-var () (and "$[" anyword "]"))
+(parseq:defrule independent-var () (and "$[" anyword "]"))
 
-(defrule dependent-var () (and "#" anyword))    ;;NAL-6
+(parseq:defrule dependent-var () (and "#" anyword))    ;;NAL-6
 
-(defrule query-var () (and "?[" anyword "]"))   ;;NAL-6
+(parseq:defrule query-var () (and "?[" anyword "]"))   ;;NAL-6
 
-(defrule truthvalue() (and "<" sp frequency sp "," sp confidence sp ">") (:choose 2 6))
+(parseq:defrule truthvalue() (and "<" sp frequency sp "," sp confidence sp ">") (:choose 2 6))
 
 ;; ================================================================================================
 ;;   Ya no existen límites a la precisión de los números de la siguiente sección...
 ;; ================================================================================================
 
-(defrule frequency () normalized-number)
-(defrule confidence () normalized-number)
+(parseq:defrule frequency () normalized-number)
+(parseq:defrule confidence () normalized-number)
 
-;; 
 
-(defrule normalized-number () (or   (and "0" "." decimalpart)
+(parseq:defrule normalized-number () (or   (and "0" "." decimalpart)
                                     "0"
                                     (and "1" "." (* "0")) 
                                     "1")
@@ -98,7 +126,7 @@
             (:lambda (&rest arguments) 
                     (float (read-from-string (apply #'concatenate 'string  arguments)))) ) 
 
-(defrule decimalpart () (* digit) (:string))
+(parseq:defrule decimalpart () (* digit) (:string))
 
 
 ;; ================================================================================================
@@ -112,10 +140,10 @@
 ;;   el espacio que separa términos y cópula es obligatorio...
 ;; ================================================================================================
 
-(defrule digit () (char "0-9"))
-(defrule binary-digit () (char "0-1"))
+(parseq:defrule digit () (char "0-9"))
+(parseq:defrule binary-digit () (char "0-1"))
 
-(defrule anyword () (+ (char "a-zA-Z0-9_üáéíóúñÁÉÍÓÚÑ-")) )
+(parseq:defrule anyword () (+ (char "a-zA-Z0-9_üáéíóúñÁÉÍÓÚÑ-")) )
 
-(defrule sp () (* (or #\space #\tab #\newline)))    ;espacio opcional (cerradura transitiva)
-(defrule sp+ () (+ (or #\space #\tab #\newline)))   ;espacio obligatorio (cerrradura positiva)
+(parseq:defrule sp () (* (or #\space #\tab #\newline))) ;espacio opcional (cerradura transitiva)
+(parseq:defrule sp+ () (+ (or #\space #\tab #\newline)))  ;espacio obligatorio (cerrradura positiva)
