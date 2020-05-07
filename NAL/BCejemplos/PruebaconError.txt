@@ -5,4 +5,3 @@ tortuga --> animal
 pájaro ->animal
 ardilla --> omnívora
 turtuga --> omnívora
-

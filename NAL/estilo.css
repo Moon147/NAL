@@ -4,17 +4,22 @@
 	box-sizing: border-box;
 }
 
+html{height:100%;} 
+
 body{
-	background-color: #F0F0F1;
+	min-height: 100%;
+	background-color: white;
 	font-family: 'Libre Franklin', sans-serif;
 }
 
 #contenedor{
-	margin: auto;
+	position: absolute;
+	top:0; left:0; bottom:0; right: 0; 
 	display: block;
 	/*background-image: url("fondo6.jpg");*/
 	background: gray;
 }
+
 
 header{
 	height: 50px;
@@ -38,7 +43,7 @@ th#institucion h3{
 /*----------------BASE DE CONOCIMIENTO------------------*/
 aside{
 	width: 30%;
-	height: 550px;
+	height: 80%;
 	margin-top:  25px;
 	float: left;
 }
@@ -122,7 +127,7 @@ aside{
 /*----------------OPERADOR DE CONOCIMIENTO------------------*/
 #contenido{
 	width: 67%; /*--------------------------------------------hice cambio aqui*/
-	height: 550px;
+	height: 80%;
 	margin-top:  25px;
 	margin-left: 10px;
 	margin-right: 10px;
@@ -132,14 +137,14 @@ aside{
 
 #informacion{
 	background: white;
-	height: 400px;
+	height: 72.7%;
 	overflow-y: scroll;
 	display: block;
 	position: relative;
 }
 #DEBUG{
 	background: white;
-	height: 400px;
+	height: 72.7%;
 	display: none;
 	position: relative;
 }
@@ -179,7 +184,7 @@ aside{
 
 .conocimiento{
 	position: absolute;
-	height: 100px;
+	height: 18.2%;
 	width: 85%;
 	float: left;
 	font-size: 19px;
@@ -244,15 +249,6 @@ aside{
 }
 
 /*----------------POLITICA DE CONTROL------------------*/
-/*#politica{
-	background: white;
-	width: 28%;
-	height: 550px;
-	margin-top:  25px;
-	display: inline-block;
-	position: absolute;
-}*/
-
 .politica{
 	display: none;
   	border-top: none;
@@ -261,10 +257,11 @@ aside{
 .pc{
 	background: white;
 	width: 1.4%;
-	height: 525px;
+	height: 81%;
 	margin-top:  50px;
 	display: inline-block;
 	position: absolute;
+	right: 0;
 }
 
 .pc:hover{
@@ -362,6 +359,8 @@ input[type=reset]{
 footer{
 	background-color: black;
 	height: 30px;
+	position: absolute;
+	bottom: 0;
 	width: 100%;
 }
 

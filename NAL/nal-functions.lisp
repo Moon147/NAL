@@ -143,16 +143,16 @@
 	(cond 
 	  ( auxiliar2 	;Si la expresión es correcta:
 					;Si la expresión no tiene valor de verdad se le asigna por default (1.0, 0.9)
-	  	(if (null (second auxiliar2)) (setf auxiliar2 (list (first auxiliar2) '(1.0 0.9)) ))
+	  	(if (null (second auxiliar2)) (setf auxiliar2 (list (first auxiliar2) '(1 0.9)) ))
 	    ;Agrega la estructura de la expresión a la cache de BC
 	    ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv"))
 	    (insert (list (first auxiliar2) (second auxiliar2)  
 	       (list (format nil "~(~a ~a ~a~)" (first (first auxiliar2)) (second (first auxiliar2)) (third (first auxiliar2)))
 	       		 (format nil " <~{~a~^, ~}>" (second auxiliar2))) ))
 	    ;Agregar la expresión a la cache de mensajes 
-	    (insert2  (format nil "La expresión: ~a ha sido añadida" aux ) ) )
+	    (insert2  (format nil "La expresión: ~(~a~) ha sido añadida" aux ) ) )
 	  ((and (equal auxiliar2 'NIL) (not (null aux)) )  ;Si la expresión está mal...
-	    (insert2 (format nil "Error en ~a" aux)) )  )) ;Agregar como mensaje de error a la cache de errores
+	    (insert2 (format nil "Error en ~(~a~)" aux)) )  )) ;Agregar como mensaje de error a la cache de errores
 
 
 
@@ -169,7 +169,7 @@
 ;;  CÁLCULO VALOR DE VERDAD
 ;;  
 ;;=======================================================================================
-
+(defparameter truthv 'nil)
 (defparameter term1 'nil)
 (defparameter term2 'nil)
 (defparameter k 1)
@@ -177,6 +177,7 @@
 (defparameter extensionA 'nil)
 (defparameter intensionB 'nil)
 (defparameter extensionB 'nil)
+(defvar var-decimales 2)
 
 ; Función para calcular intension con parámetros: término a buscar y posición de la expresión a comparar con
 ; elementos de la cache
@@ -207,12 +208,14 @@
 		(T (extension term (incf i))) )  ))
 
 ; Devuelve la expresión de consulta con el valor de verdad calculado "term1 --> term2 <f , c>"
-(defun truth-value (query)
-	(setq cont-message *cont2*)
-	
+(defun truth-value (query decimales)
+  (labels ((adjust-precision (number precision)       ;Función para redondear decimales del Profesor Godoy...
+                (let ((div-part (expt 10 precision)))
+                    (/ (round (* number div-part)) div-part))) )
+	(setf cont-message *cont2*)
 	(setq term1 (first query)
 	      term2 (third query)) 
-	(let ( (w+ '()) (w '()) (confidence '()) (frequency '())
+	(let ( (w+ '()) (w '()) (confidence 0) (frequency 0)
 		(Ai	(cons term1 (intension term1 1)) )
 		(Bi	(cons term2 (intension term2 1)) )
 		(Ae	(cons term1 (extension term1 1)) ) 
@@ -230,13 +233,15 @@
 		  intensionB  (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi)
 		  extensionB  (format 'nil "Extensión de ~(~a: ~a~) " term2 Be)
 
-		  w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  ; w+ = ||(aE n bE) u (aI n bI)||
-		  w  (+ (length Ae) (length Bi)) 							  	 ; w  = ||aE|| + ||bI|| 
-		  frequency (format nil "~,2f" (/ w+ w)) 					  	 ; frequency = w+ / w
-		  confidence (format nil "~,2f" (/ w (+ w k)))  ) 			  	 ; confidence = w / (w + k)
+		  w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  	; w+ = ||(aE n bE) u (aI n bI)||
+		  w  (+ (length Ae) (length Bi)) 							  	 	; w  = ||aE|| + ||bI|| 
+		  frequency (float (adjust-precision (/ w+ w) decimales)) 			; frequency = w+ / w
+		  confidence (float (adjust-precision (/ w (+ w k)) decimales)) ) 	; confidence = w / (w + k)
 
-	(insert2 (format nil "Resultado de la consulta es: ~(~a --> ~a~) <~a, ~a>"
-										term1 term2 frequency confidence)) ))  
+	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
+							" <" (format nil "~f" frequency) ", " (format nil "~f" confidence) ">" ))
+	(insert2 (format 'nil "El resultado de la consulta es: ~(~a --> ~a~) <~a, ~a>" 
+												term1 term2 frequency confidence)) )))  
 
 
 ;;======================================================================================= 
@@ -250,6 +255,7 @@
 (defparameter flag-selectbc '()) ;Bandera que indica cuando se ha seleccionado una BC
 (defparameter flag-BC0 '())		 ;Bandera que indica que se creó el archivo BC0
 (defvar path-selectbc '())		 ;Ruta de la BC seleccionada por el usuario
+(defvar opcjoin-selectbc '())	 ;Bandera de opción para unir nueva BC seleccionada con la actual
 (defvar path '())				 ;Ruta del archivo que se va a modificar
 (defparameter var-selectbc '())  ;Contiene el número del archivo seleccionado por usuario
 (defvar *files* nil)			 ;Variable donde se guardan todas las rutas y nombres de los archivos
@@ -277,9 +283,19 @@
         flag-BC0 'T)
       (incf flag-files))) )
 
+  ;Manejo para integrar BC a otra
+   (when (and opcjoin-selectbc (numberp var-selectbc))				
+		(setq path-selectbc (format nil "BC/BC-~A" (if flag-BC0 (- var-selectbc 1) var-selectbc))
+			flag-reset 'nil opcjoin-selectbc 'nil var-selectbc 'nil)
+		(if (not (equal path path-selectbc))
+			(with-open-file (in path-selectbc)
+		      (loop for line = (read-line in nil) 	  ;LEE ARCHIVO
+		           while line do (parser line))) 
+			(insert2 "No se puede agregar el mismo archivo")) )
+
   	;Manejo de los archivos existentes
   (when (or (= (length *files*) flag-files) (numberp var-selectbc))
-    (if flag-selectbc (writefile path-selectbc) (writefile path))
+    (writefile path)
     		;Cuando el usuario ha selccionado un archivo existente
     (cond ((numberp var-selectbc)
             (setq path-selectbc (format nil "BC/BC-~A" (if flag-BC0 (- var-selectbc 1) var-selectbc))

@@ -3,7 +3,10 @@
 (define-easy-handler (index :uri "/NAL-Reasoner/index.html"
                                 :default-request-type :post)
 
-      (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer))
+      (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer)
+        comportamiento (decimales :parameter-type 'integer)
+        (opcjoin :parameter-type 'string) 
+        (opcadd :parameter-type 'string))
 
 
   ;------------------variables para subir archivos--------------------------
@@ -30,7 +33,10 @@
     ;Muestra BC cuando el usuario selecciona una
    (cond ((numberp selectbc) 
       (setf var-selectbc selectbc)
+      (if opcjoin (setf opcjoin-selectbc 'T)) ;Bandera para agrega la BC seleccionada a la BC anterior trabajada
+      (setf opcjoin 'nil)
       (manage-files)))
+    (cond ((numberp decimales) (setf var-decimales decimales)))
     ;------------------------------------------- 
      (:body
       (:div :id "contenedor"
@@ -60,10 +66,13 @@
                 (:th :id "num" "No")
                 (:th :id "exp" "Expresión")
                 (:th :id "vv" "Valor de verdad"))
+              
+              (cond ((search "?" conocimiento) 
+                      (truth-value (parseq:parseq 'query conocimiento) var-decimales) 
+                      (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                      (setq truthv 'nil opcadd 'nil))     ;Se reinician las variables
+                (T (parser conocimiento) ))       
 
-                (cond ((search "?" conocimiento) 
-                        (truth-value (parseq:parseq 'query conocimiento)) )
-                      (T (parser conocimiento) ))
                 (loop for i from 1 to (- *cont* 1)
                  do 
                   (setf expresion (first (obtiene-expresion (list i))))
@@ -108,13 +117,17 @@
           (:button :onclick "simbolo('||')"  :class "simbolo" "||")
           (:button :onclick "simbolo('&&')"  :class "simbolo" "&&")
           (:button :onclick "simbolo('+')"  :class "simbolo" "+")
-        
           (:p (:form :method :post 
-              (htm
+              (htm  
+                (:input :type "checkbox"
+                 :name "opcadd"
+                 :value "agregar"
+                 :checked (string= "agregar" opcadd)
+                 (print "Agregar consulta a BC"))
+                (:br)
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
                   :placeholder "Estructura: perro --> animal" ))
               (:input :class "botonSubir" :type "submit"  ))) )
-          
 
         (:div :class "pc" :data-pushbar-target "mypushbar1"
           (:i :class "fas fa-angle-double-left"))
@@ -129,43 +142,31 @@
           ;;---------------------------------------FORMULARIO POLIÍTICA DE CONTROL------------------------------
           (:section :class "politica sub-menu"
             (:span :class "c2" "Política de Control")
-        ;;---Cambiar---
-        (:form :action "#" :method "get" :style "margin-left: 10px"
-        (:legend "Parámetros tipo 1") :br
-        (:p "Algo 1: "
-          (:label 
-            (:select :name "algo1"
-              (:option "algo1.1")
-              (:option "algo1.2")
-              (:option "algo1.3")))) :br
-        (:p "Algo 2: "
-          (:label 
-            (:input :type "radio" :name "algo2" :value "tipo1") "Tipo 1")
-          (:label 
-            (:input :type "radio" :name "algo2" :value "tipo2") "Tipo 2")) :br
-        (:p "Rango de algo: "
-          (:input :type "range" :name "volumen" :min "0" :max "10" :step "1"))
-        (:legend "Parámetros tipo 2") :br
-        (:p "Algo 3: " :br :t 
-          (:label "&nbsp;&nbsp;&nbsp;&nbsp;"
-            (:input :type "checkbox" :name "op1") "Opción 1 ") :br
-          (:label "&nbsp;&nbsp;&nbsp;&nbsp;"
-            (:input :type "checkbox" :name "op2") "Opción 2 ") :br
-          (:label "&nbsp;&nbsp;&nbsp;&nbsp;"
-            (:input :type "checkbox" :name "op3") "Opción 3 ")) :br
-        (:p 
-          (:label "Color: "
-            (:input :type "color" :name "colorfavorito"))) :br
-        (:p 
-          (:input :type "submit" :class "submit" :value "Enviar datos")
-          (:input :type "reset" :value "Restaurar"))))
+        (print decimales)
+          (:form :method :post :style "margin-left: 15px"
+          (:legend "Valores de verdad") :br
+          (:p "Decimales: "
+            (:select :name "comportamiento"
+             (loop for (value option) in '((:redondear "Redondear")
+                                           (:truncar "Truncar"))
+                   do (htm
+                       (:option :value value
+                        :selected (eq value comportamiento)
+                        (str option)))) )) :br
+          (:p "Cantidad de decimales: " :br :t 
+            (:input 
+              :name "decimales"
+              :value (or decimales 2))) :br
+          (:p 
+            (:input :type "submit" :class "submit" :value "Enviar datos")
+            (:input :type "reset" :value "Restaurar"))))
            
 
           ;---------------------------------------SUBIR BASE DE CONOCIMIENTO-----------------------------------------
           (:section :class "sube-BC sub-menu"
             (:span :class "c3" "Subir Base de Conocimiento")
           (no-cache)
-            (:form :method :post :enctype "multipart/form-data"
+            (:form :method :post :enctype "multipart/form-data" 
              (:p :class "parrafo-subir-bc" "Archivo: "
               (:input :type :file :accept ".txt" :id "files"
                :name "file1" :multiple))
@@ -175,32 +176,39 @@
             ;---------------------------------------SELECCIONAR BASE DE CONOCIMIENTO-----------------------------------------
           (:section :class "selecciona-BC sub-menu"
             (:span :class "c4" "Seleccionar Base de Conocimiento")
-              (:p (:form :method :post    ;formulario para escoger BC
-                (:select :name "selectbc"  
-                  (loop for x from 1 to (length *files*)
+              (:form :method :post :style "margin-left: 15px"
+                (:p     ;formulario para escoger BC
+                  (:select :name "selectbc" :style "margin-bottom: 15px"
+                   (loop for x from 1 to (length *files*)
                     do
                       (htm
-                        (:option :value x  :selected (eq x selectbc) (print x)))))
-                (:input  :type "submit"  )))  ;fin formulario 
+                        (:option :value x  :selected (eq x selectbc) (print x)))) ))
+                (:p
+                  (:input :type "checkbox"
+                             :name "opcjoin"
+                             :value "agregar"
+                             :checked (string= "agregar" opcjoin)
+                             (print "Unir bases de conocimiento")) )
 
-            ;Muestra archivos de BC
-            (when *files* 
-              (htm (:p
-                (:table :style "padding: 5px;" :border 1 :cellpadding 2 :cellspacing 0
-                 (loop for (path file-name nil) in (reverse *files*)
-                   for counter from 1
-                   do (htm
-                       (:tr (:td :align "right" (str counter))
-                        ;(:td :onclick "almacena()" (esc file-name) )
-                        (:td :onclick "almacena()" (esc file-name) )
-                        (:td :align "right"
-                         (str (ignore-errors
-                                (with-open-file (in path)
-                                  (file-length in)) ))
-                         "&nbsp;Bytes"))))))))   )
+                  ;Muestra archivos de BC
+                  (when *files* 
+                    (htm (:p
+                      (:table :style "padding: 5px;" :border 1 :cellpadding 2 :cellspacing 0
+                       (loop for (path file-name nil) in (reverse *files*)
+                         for counter from 1
+                         do (htm
+                             (:tr (:td :align "right" (str counter))
+                              (:td :onclick "almacena()" (esc file-name) )
+                              (:td :align "right"
+                               (str (ignore-errors
+                                      (with-open-file (in path)
+                                        (file-length in)) ))
+                               "&nbsp;Bytes"))))))))   
+            (:p (:input  :type "submit" :style "margin-top: 10px"  )) ) ) ;fin formulario- section
 
         );/section data-pushbar-id 
           
         (:footer
-          (:p "Instituto Politécnico Nacional. Centro de Investigación en Computación.")))
+          (:p "Instituto Politécnico Nacional. Centro de Investigación en Computación.")) )
+
       (:script :type "text/javascript" :src "funciones.js") ))))

@@ -46,7 +46,7 @@ html.pushbar_locked .pushbar_overlay{
 	top: 0;
 	right: 0;
 	width: 28%;
-	height: 550px;
+	height: 85%;
 	margin-top:  50px;
 	transform: translateZ(0) translateX(100%);
 }
