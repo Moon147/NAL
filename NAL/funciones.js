@@ -71,7 +71,7 @@ class Pushbar {
     closers.forEach(closer => closer.addEventListener('click', e => this.handleCloseEvent(e), false));
 
     if (this.overlay) {
-      this.overlay.addEventListener('click', e => this.handleCloseEvent(e), false);
+      this.overlay.removeEventListener('click', function(){console.log("");} , true);
     }
     document.addEventListener('keyup', e => this.handleKeyEvent(e));
   }
@@ -128,7 +128,6 @@ var conocimiento=document.querySelector("#conocimiento");
 var informacion=document.querySelector("#informacion");
 var id=1;
 
-console.log("Activo");
 
 function almacena(){
   //alert("que pasaaaaa");

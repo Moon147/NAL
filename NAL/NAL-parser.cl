@@ -52,6 +52,19 @@
 
 (parseq:defrule sentence () (or judgement query))
 
+(parseq:defrule funciones () (and "(" operacion sp int sp int sp (* formula) ")") (:choose 1 3 5 7) )
+                    
+(parseq:defrule operacion () (or "revisión"
+                                 "selección"
+                                 "deducción"
+                                 "inducción"
+                                 "abducción")
+        (:lambda (op) (read-from-string op)))
+
+(parseq:defrule formula () (or "valor-verdad"
+                                "evidencia-acumulada")
+        (:lambda (form) (read-from-string form)))
+
 (parseq:defrule judgement () (and statement sp (? truthvalue)) (:choose 0 2))
 
 (parseq:defrule query () (and statement sp "?") (:choose 0))
@@ -127,6 +140,10 @@
                     (float (read-from-string (apply #'concatenate 'string  arguments)))) ) 
 
 (parseq:defrule decimalpart () (* digit) (:string))
+
+(parseq:defrule int () (decimalpart)
+            (:lambda (&rest arguments) 
+            (read-from-string (apply #'concatenate 'string  arguments))))
 
 
 ;; ================================================================================================

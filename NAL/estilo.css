@@ -242,14 +242,31 @@ aside{
 	cursor: pointer;
 }
 
+.menu{
+	text-align: center;
+}
+
 .submenu h5{ margin-top: 20px;
 		  margin-bottom: 5px; }
 .regresar{
 	display: none;
 }
 
+.btn{
+	margin-top: 50%;
+	background-color: #FF4C4C;
+	border-bottom: 5px solid #E84242;
+	border-right: 5px solid #E84242;
+    border-radius: 10px;
+	font-size: 18px;
+	height: 40px;
+    width: 150px;
+	color: white;
+	cursor: pointer;
+}
+
 /*----------------POLITICA DE CONTROL------------------*/
-.politica{
+.politica, .reglas{
 	display: none;
   	border-top: none;
 }

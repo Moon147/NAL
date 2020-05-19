@@ -10,6 +10,7 @@
 (load "script-engine.lisp")
 (load "script.lisp")
 (load "NAL-parser.cl")
+(load "nal-comunication.lisp")
 (load "nal-functions.lisp")
 (load "nal-page.lisp")
 (hunchentoot:start (make-instance 'hunchentoot:easy-acceptor :port 8000))

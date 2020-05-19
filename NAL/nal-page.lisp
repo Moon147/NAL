@@ -4,6 +4,7 @@
                                 :default-request-type :post)
 
       (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer)
+        (selectlog :parameter-type 'integer)
         comportamiento (decimales :parameter-type 'integer)
         (opcjoin :parameter-type 'string) 
         (opcadd :parameter-type 'string))
@@ -37,6 +38,7 @@
       (setf opcjoin 'nil)
       (manage-files)))
     (cond ((numberp decimales) (setf var-decimales decimales)))
+    (if opcadd (setf var-addexp 'T))
     ;------------------------------------------- 
      (:body
       (:div :id "contenedor"
@@ -70,7 +72,11 @@
               (cond ((search "?" conocimiento) 
                       (truth-value (parseq:parseq 'query conocimiento) var-decimales) 
                       (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                      (setq truthv 'nil opcadd 'nil))     ;Se reinician las variables
+                      (setq truthv 'nil))                 ;Se reinician las variables
+                    ((search "(" conocimiento)
+                      (if (parseq:parseq 'funciones conocimiento) 
+                        (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
+                        (insert2 "No es válida la consulta")) )
                 (T (parser conocimiento) ))       
 
                 (loop for i from 1 to (- *cont* 1)
@@ -105,7 +111,13 @@
                 (:p :class "parrafo-salida" "  " (print extensionA) )
                 (:p :class "parrafo-salida" "  " (print intensionB) )
                 (:p :class "parrafo-salida" "  " (print extensionB)) )
-              (setq intensionA '() intensionB '() extensionA '() extensionB '())) )
+              (setq intensionA '() intensionB '() extensionA '() extensionB '())) 
+            (when statement 
+              (htm (:p :class "parrafo-salida" (print statement))
+                   (when e
+                    (htm (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la primera expresión: ~a"  e)))
+                         (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la segunda expresión: ~a"  e2))))) )
+              (setq statement 'nil truthv 'nil e 'nil e2 'nil)) )
           ;(print(parseq 'judgement conocimiento))
           (:button :class "simbolo" :onclick "simbolo('-->')" :style "margin-left: 10px" "-->")
           (:button :onclick "simbolo('<=>')"  :class "simbolo" "<=>")
@@ -119,12 +131,6 @@
           (:button :onclick "simbolo('+')"  :class "simbolo" "+")
           (:p (:form :method :post 
               (htm  
-                (:input :type "checkbox"
-                 :name "opcadd"
-                 :value "agregar"
-                 :checked (string= "agregar" opcadd)
-                 (print "Agregar consulta a BC"))
-                (:br)
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
                   :placeholder "Estructura: perro --> animal" ))
               (:input :class "botonSubir" :type "submit"  ))) )
@@ -137,12 +143,13 @@
           (:section :class "menu"
             (:div :class "submenu" :onclick "display_pushbar('.politica')"  (:h5 "Política de Control"))
             (:div :class "submenu" :onclick "display_pushbar('.selecciona-BC')"  (:h5 "Seleccionar Base de Conocimiento"))
-            (:div :class "submenu" :onclick "display_pushbar('.sube-BC')"  (:h5 "Subir Base de Conocimiento")))
+            (:div :class "submenu" :onclick "display_pushbar('.sube-BC')"  (:h5 "Subir Base de Conocimiento"))
+            (:div :class "submenu" :onclick "display_pushbar('.reglas')"  (:h5 "Reglas de Inferencia"))
+            (:button :data-pushbar-target "mypushbar2" :class "btn" (:p "Cerrar sesión")))
 
           ;;---------------------------------------FORMULARIO POLIÍTICA DE CONTROL------------------------------
           (:section :class "politica sub-menu"
             (:span :class "c2" "Política de Control")
-        (print decimales)
           (:form :method :post :style "margin-left: 15px"
           (:legend "Valores de verdad") :br
           (:p "Decimales: "
@@ -157,9 +164,16 @@
             (:input 
               :name "decimales"
               :value (or decimales 2))) :br
+          (:p  (:input :type "checkbox"
+                 :name "opcadd"
+                 :value "agregar"
+                 :checked  (string= "agregar" opcadd) 
+                 (print "Agregar consulta a BC"))) :br
           (:p 
             (:input :type "submit" :class "submit" :value "Enviar datos")
-            (:input :type "reset" :value "Restaurar"))))
+            (:input :type "reset" :value "Restaurar")))
+
+          )
            
 
           ;---------------------------------------SUBIR BASE DE CONOCIMIENTO-----------------------------------------
@@ -173,7 +187,7 @@
              (:p :class "parrafo-subir-bc" (:input :type :submit))) )
 
 
-            ;---------------------------------------SELECCIONAR BASE DE CONOCIMIENTO-----------------------------------------
+            ;---------------------------------------SELECCIONAR BASE DE CONOCIMIENTO---------------------------------
           (:section :class "selecciona-BC sub-menu"
             (:span :class "c4" "Seleccionar Base de Conocimiento")
               (:form :method :post :style "margin-left: 15px"
@@ -187,7 +201,7 @@
                   (:input :type "checkbox"
                              :name "opcjoin"
                              :value "agregar"
-                             :checked (string= "agregar" opcjoin)
+                             :checked (or (string= "agregar" opcjoin) var-addexp)
                              (print "Unir bases de conocimiento")) )
 
                   ;Muestra archivos de BC
@@ -206,7 +220,46 @@
                                "&nbsp;Bytes"))))))))   
             (:p (:input  :type "submit" :style "margin-top: 10px"  )) ) ) ;fin formulario- section
 
+
+          ;;---------------------------------------REGLAS DE INFERENCIA-------------------------------------------
+          (:section :class "reglas sub-menu"
+            (:span :class "c2" "Reglas de Inferencia") 
+            (:div :style "margin-left: 15px"
+              (:u "NAL-1")
+              (:p "-Locales:")
+              (:p :style "margin-left: 20px" "Revisión:  (revisión No-exp1 No-exp2)")
+              (:p :style "margin-left: 20px" "Selección: (selección No-exp1 No-exp2 *(valor-verdad | evidencia acumulada))") :br
+              (:p "-Hacia adelante:")
+              (:p :style "margin-left: 20px" "Deducción: (deducción No-exp1 No-exp2)")
+              (:p :style "margin-left: 20px" "Inducción: (inducción No-exp1 No-exp2)")
+              (:p :style "margin-left: 20px" "Abducción: (abducción No-exp1 No-exp2)")
+              (:p :style "margin-left: 20px" "Ejemplificación")
+              (:p :style "margin-left: 20px" "Conversión") :br
+              (:p "-Hacia atrás:")) )
+
         );/section data-pushbar-id 
+
+      (:section :data-pushbar-id "mypushbar2" :class "pushbar from_center"
+        (:button :class "cerrar" :data-pushbar-close :value"x")
+        (:p :style "margin-left: 40vw" "SESIONES")
+        (:form :method :post :style "margin-left: 10vw"
+          (:p     ;formulario para escoger BC
+            (:select :name "selectlog" :style "margin-bottom: 15px"
+             (loop for x from 1 to (length *log*)
+              do
+                (htm
+                  (:option :value x  :selected (eq x selectlog) (print x)))) ))
+
+            ;Muestra archivos de BC
+            (when *log* 
+              (htm (:p
+                (:table :style "padding: 5px;" :border 1 :cellpadding 2 :cellspacing 0
+                 (loop for sesion in (reverse *log*)
+                   for counter from 1
+                   do (htm
+                       (:tr (:td :align "right" (str counter))
+                        (:td (esc sesion) ) )))))))   
+            (:p (:input  :type "submit" :style "margin-top: 10px"  )) ))
           
         (:footer
           (:p "Instituto Politécnico Nacional. Centro de Investigación en Computación.")) )

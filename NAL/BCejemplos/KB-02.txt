@@ -6,6 +6,7 @@ fungi --> eucariota <1.0,0.9>
 protista --> eucariota <1.0,0.9>
 invertebrado --> animal <1.0,0.9>
 vertebrado --> animal <1.0,0.9>
+pulpo --> eucariota
 artrópodo --> invertebrado <1.0,0.9>
 molusco --> invertebrado <1.0,0.9>
 equinodermo --> invertebrado <1.0,0.9>
