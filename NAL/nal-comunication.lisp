@@ -138,19 +138,26 @@
 ;;  
 ;;=======================================================================================
 (defvar auxiliar2 '())
+(defvar confidenceCero (/ 1 2))
+(defvar tv 0)
+(defvar contPassParser 0)
+
 (defun parser (aux)  						
 	(setf auxiliar2 (parseq:parseq 'judgement aux))
+        
 	(cond 
 	  ( auxiliar2 	;Si la expresión es correcta:
 					;Si la expresión no tiene valor de verdad se le asigna por default (1, 0.9)
 	  	(if (null (second auxiliar2)) (setf auxiliar2 (list (first auxiliar2) '(1.0 0.9)) ))
 	    ;Agrega la estructura de la expresión a la cache de BC
 	    ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv"))
-	    (insert (list (first auxiliar2) (second auxiliar2)  
+      (setf tv (second auxiliar2))      ;tv valor de verdad (frequency confidence)
+	    (insert (list (first auxiliar2) 
+                    (if (= 0 (second tv)) (list (first tv) confidenceCero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
 	       (list (format nil "~(~a ~a ~a~)" (first (first auxiliar2)) (second (first auxiliar2)) (third (first auxiliar2)))
-	       		 (format nil " <~{~a~^, ~}>" (second auxiliar2))) ))
-	    ;Agregar la expresión a la cache de mensajes 
-	    (insert2  (format nil "La expresión: ~(~a~) ha sido añadida" aux ) ) )
+	       		 (format nil " <~{~a~^, ~}>" (second auxiliar2))) ))  
+      ;Agregar a variable contPassParser los que fueron agregados a la caché
+      (incf contPassParser) )
 	  ((and (equal auxiliar2 'NIL) (not (null aux)) )  ;Si la expresión está mal...
 	    (insert2 (format nil "Error en ~(~a~)" aux)) )  )) ;Agregar como mensaje de error a la cache de errores
 

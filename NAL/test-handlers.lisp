@@ -176,12 +176,7 @@
                               (str option)))) ) ))
             (:tr
              (:td :valign :top "Meal:")
-             (:td (loop for choice in '("Burnt weeny sandwich"
-                                        "Canard du jour"
-                                        "Easy meat"
-                                        "Muffin"
-                                        "Twenty small cigars"
-                                        "Yellow snow")
+             (:td (loop for choice in '("Burnt weeny sandwich")
                         do (htm
                             (:input :type "checkbox"
                              :name (format nil "meal{~A}" choice)

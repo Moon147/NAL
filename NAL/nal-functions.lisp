@@ -104,63 +104,63 @@
 (defvar expresion 'nil)
 (defvar e '())
 (defvar e2 '())
-(defparameter flag-ingresaBC T)	;Bandera para eliminar las expresiones usadas en las consultas
+(defparameter flag-ingresaBC 'nil)	;Bandera para eliminar las expresiones usadas en las consultas
 
 (defun local-rules-NAL1 (rule exp1 exp2 &optional decimales formula) 
 	(labels ((revision (vv1 vv2)       							;regla de inferencia NAL1 local: revisión
-                (let ((f1 (first vv1)) (c1 (second vv1))
-                	  (f2 (first vv2)) (c2 (second vv2)) (frev 'nil) (crev 'nil))
+    (let ((f1 (first vv1)) (c1 (second vv1))
+    	  (f2 (first vv2)) (c2 (second vv2)) (frev 'nil) (crev 'nil))
 
-                    (setq frev (float (adjust-precision (/ (+ (* f1 c1 (- 1 c2)) (* f2 c2 (- 1 c1))) (+ (* c1 (- 1 c2)) (* c2 (- 1 c1)))) decimales))
-                    	  crev (float (adjust-precision (/ (+ (* c1 (- 1 c2)) (* c2 (- 1 c1))) (+ (* c1 (- 1 c2)) (* c2 (- 1 c1)) (* (- 1 c1) (- 1 c2)))) decimales)) )
-                    (list frev crev))) 
+        (setq frev (float (adjust-precision (/ (+ (* f1 c1 (- 1 c2)) (* f2 c2 (- 1 c1))) (+ (* c1 (- 1 c2)) (* c2 (- 1 c1)))) decimales))
+        	  crev (float (adjust-precision (/ (+ (* c1 (- 1 c2)) (* c2 (- 1 c1))) (+ (* c1 (- 1 c2)) (* c2 (- 1 c1)) (* (- 1 c1) (- 1 c2)))) decimales)) )
+        (list frev crev))) 
 
-			 (seleccion-confianza (vv1 vv2)       				;regla de inferencia NAL1 local: selección- mayor confianza 
-			 	(let ((f1 (first vv1)) (c1 (second vv1))
-                	  (f2 (first vv2)) (c2 (second vv2)) ) 
-			 		(list (if (> c1 c2) f1 f2) (if (> c1 c2) c1 c2)) )) 
+		 (seleccion-confianza (vv1 vv2)       				;regla de inferencia NAL1 local: selección- mayor confianza 
+		 	(let ((f1 (first vv1)) (c1 (second vv1))
+            (f2 (first vv2)) (c2 (second vv2)) ) 
+		 		(list (if (> c1 c2) f1 f2) (if (> c1 c2) c1 c2)) )) 
 
-			 (seleccion-espectativa-ea (term1 term2 term3 term4) ;regla de inferencia NAL1 local: selección- espectativa
-			 	(let ((w+ '()) (w '()) (w2+ '()) (w2 '()) 
-						(Ai	(eliminarRepetidos (cons term1 (intension term1 1))) )
-						(Bi	(eliminarRepetidos (cons term2 (intension term2 1))) )
-						(Ae	(eliminarRepetidos (cons term1 (extension term1 1))) ) 
-						(Be	(eliminarRepetidos (cons term2 (extension term2 1))) )
-						(Ai2	(eliminarRepetidos (cons term3 (intension term3 1))) )
-						(Bi2	(eliminarRepetidos (cons term4 (intension term4 1))) )
-						(Ae2	(eliminarRepetidos (cons term3 (extension term3 1))) ) 
-						(Be2	(eliminarRepetidos (cons term4 (extension term4 1))) ) )
+		 (seleccion-espectativa-ea (term1 term2 term3 term4) ;regla de inferencia NAL1 local: selección- espectativa
+		 	(let ((w+ '()) (w '()) (w2+ '()) (w2 '()) 
+				(Ai	(eliminarRepetidos (cons term1 (intension term1 1))) )
+				(Bi	(eliminarRepetidos (cons term2 (intension term2 1))) )
+				(Ae	(eliminarRepetidos (cons term1 (extension term1 1))) ) 
+				(Be	(eliminarRepetidos (cons term2 (extension term2 1))) )
+				(Ai2	(eliminarRepetidos (cons term3 (intension term3 1))) )
+				(Bi2	(eliminarRepetidos (cons term4 (intension term4 1))) )
+				(Ae2	(eliminarRepetidos (cons term3 (extension term3 1))) ) 
+				(Be2	(eliminarRepetidos (cons term4 (extension term4 1))) ) )
 
-			 		(setq w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  		; w+ = ||(aE n bE) u (aI n bI)||
-		 				  w  (+ (length Ae) (length Bi))
-		 				  w2+ (length (union (intersection Ae2 Be2) (intersection Ai2 Bi2)))  	; w+ = ||(aE n bE) u (aI n bI)||
-		 				  w2  (+ (length Ae2) (length Bi2)) ) 
-			 		(setq e (/ (+ w+ (/ k 2)) (+ w k)) 		e2 (/ (+ w2+ (/ k 2)) (+ w2 k))) 	;fórmula de expactativa
-			 		
-			 		(if (> e e2) 
-			 			(setf truthv (second exp1))
-			 			(setq exp1 exp2 truthv (second exp2)) ) ))
+	 		(setq w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  		; w+ = ||(aE n bE) u (aI n bI)||
+ 				  w  (+ (length Ae) (length Bi))
+ 				  w2+ (length (union (intersection Ae2 Be2) (intersection Ai2 Bi2)))  	; w+ = ||(aE n bE) u (aI n bI)||
+ 				  w2  (+ (length Ae2) (length Bi2)) ) 
+	 		(setq e (/ (+ w+ (/ k 2)) (+ w k)) 		e2 (/ (+ w2+ (/ k 2)) (+ w2 k))) 	;fórmula de expactativa
+	 		
+	 		(if (> e e2) 
+	 			(setf truthv (second exp1))
+	 			(setq exp1 exp2 truthv (second exp2)) ) ))
 
-			 (seleccion-espectativa-vv (freq conf freq2 conf2)
-			 	(setq e (+ (* conf (- freq 0.5)) 0.5 ) e2 (+ (* conf2 (- freq2 0.5)) 0.5 )) 
-			 		(if (> e e2) 
-			 			(setf truthv (second exp1))
-			 			(setq exp1 exp2 truthv (second exp2))) ) )
+		 (seleccion-espectativa-vv (freq conf freq2 conf2)
+		 	(setq e (+ (* conf (- freq 0.5)) 0.5 ) e2 (+ (* conf2 (- freq2 0.5)) 0.5 )) 
+		 		(if (> e e2) 
+		 			(setf truthv (second exp1))
+		 			(setq exp1 exp2 truthv (second exp2))) )  )
 
 	(cond ((string= (string rule) "REVISIÓN") 
-				;(setf statement (list (first exp1) (revision (second exp1) (second exp2)) (third exp1))) 
-				(setf truthv (revision (second exp1) (second exp2))) 
-				;(parser statement) 
-				)
-		  ((string= (string rule) "SELECCIÓN")
-		  		(cond ((equal (first exp1) (first exp2)) 
-		  				(setf truthv (seleccion-confianza (second exp1) (second exp2))))
-		  			  ((string= (string formula) "EVIDENCIA-ACUMULADA") 
-		  			  	(seleccion-espectativa-ea (first (first exp1)) (third (first exp1)) 
-		  												(first (first exp2)) (third (first exp2))) )
-		  			  (T
-		  			  	(seleccion-espectativa-vv (first (second exp1)) (second (second exp1)) 
-		  			  							  (first (second exp2)) (second (second exp2)))) ) )) 
+					;(setf statement (list (first exp1) (revision (second exp1) (second exp2)) (third exp1))) 
+					(setf truthv (revision (second exp1) (second exp2))) 
+					;(parser statement) 
+					)
+			  ((string= (string rule) "SELECCIÓN")
+			  		(cond ((equal (first exp1) (first exp2)) 
+			  				(setf truthv (seleccion-confianza (second exp1) (second exp2))))
+			  			  ((= formula 0) 
+			  			  	(seleccion-espectativa-ea (first (first exp1)) (third (first exp1)) 
+  																					(first (first exp2)) (third (first exp2))) )
+			  (T
+			  	(seleccion-espectativa-vv (first (second exp1)) (second (second exp1)) 
+			  							  						(first (second exp2)) (second (second exp2)))) ) )) 
 
 	(setf statement (concatenate 'string (string (first (first exp1))) " --> " (string (third (first exp1))) 
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) ))
@@ -178,25 +178,33 @@
 
 (defun forward-rules-N1 (rule exp1 exp2 &optional decimales)
 	(labels ((deduction (vv1 vv2)
-				(list (float (adjust-precision (ext-and (first vv1) (first vv2)) decimales))
-					  (float (adjust-precision (ext-and (first vv1) (first vv2) (second vv1) (second vv2)) decimales))) ) 
+		(list (float (adjust-precision (ext-and (first vv1) (first vv2)) decimales))
+			  (float (adjust-precision (ext-and (first vv1) (first vv2) (second vv1) (second vv2)) decimales))) ) 
 
-			 (induction (vv1 vv2) 
-			 	(let ((w+ 'nil) (w 'nil) ) 
-			 	 (setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
-			 	 	   w  (ext-and (first vv2) (second vv2) (second vv1)) )	 				;w = and(f2 , c2 , c1 )
-			 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
-		  			   (float (adjust-precision (/ w (+ w k)) decimales)) ) )) 
+	 (induction (vv1 vv2) 
+	 	(let ((w+ 'nil) (w 'nil) ) 
+	 	 (setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
+	 	 	   w  (ext-and (first vv2) (second vv2) (second vv1)) )	 				;w = and(f2 , c2 , c1 )
+	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+  			   (float (adjust-precision (/ w (+ w k)) decimales)) ) )) 
 
-			 (abduction (vv1 vv2)
-			 	(let ((w+ 'nil) (w 'nil) ) 
-			 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
-			 	 	   w  (ext-and (first vv1) (second vv1) (second vv2)) )	 				;w = and(f1 ,c1 ,c2)
-			 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
-		  			   (float (adjust-precision (/ w (+ w k)) decimales))) ))
-			 
-			 (conversion (vv1)
-			 	 (list ) )	 ) 
+	 (abduction (vv1 vv2)
+	 	(let ((w+ 'nil) (w 'nil) ) 
+	 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
+	 	 	   w  (ext-and (first vv1) (second vv1) (second vv2)) )	 				;w = and(f1 ,c1 ,c2)
+	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+  			   (float (adjust-precision (/ w (+ w k)) decimales))) ))
+	 
+	 (conversion (vv1)
+	 	 (list (float 1) (float (adjust-precision (/ (* (first vv1) (second vv1)) 
+	 	 											(+ (* (first vv1) (second vv1)) k))  decimales)) )) 
+
+	 (exemplification (vv1 vv2)
+	 	(let ((w+ 'nil) (w 'nil) ) 
+	 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
+	 	 	   w  (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) )	 	;w = and(f1 ,c1,f2 ,c2)
+	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+  			   (float (adjust-precision (/ w (+ w k)) decimales))) ) )) 
 
 		(cond ((and (equal (first (first exp1)) (third (first exp2))) (string= (string rule) "DEDUCCIÓN")) 
 				 (setq truthv (deduction (second exp1) (second exp2)) 
@@ -210,6 +218,14 @@
 			  	(setq truthv (abduction (second exp1) (second exp2)) 
 				 		expresion (list (first (first exp2))  (first (first exp1))) ) ) 
 
+			  ((and (equal (third (first exp1)) (first (first exp2)) ) (string= (string rule) "EJEMPLIFICACIÓN")) 
+				 (setq truthv (exemplification (second exp1) (second exp2)) 
+				 		expresion (list (third (first exp2))  (first (first exp1))) ))
+
+			  ((and (string= rule "CONVERSIÓN") (null exp2))
+				 (setq truthv (conversion (second exp1)) 
+				 		expresion (list (third (first exp1)) (first (first exp1))) ))
+
 			  (T (insert2 "No es válida la consulta") (setf flag-ingresaBC 'nil))) 
 
 		(setf statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
@@ -217,25 +233,122 @@
 
 
 (defun inference-rules (solicitud decimales)
-	(when (and (< (second solicitud) *cont*) (< (third solicitud) *cont*))
+	(cond ((and (< (second solicitud) *cont*) (not (numberp (third solicitud))) )
+		(let ((exp1 (first (obtiene-expresion (list (second solicitud)))) )) 
+			(forward-rules-N1 (first solicitud) exp1 'nil decimales) ))
 
-	(let ((exp1 (first (obtiene-expresion (list (second solicitud)))) ) 
-		  (exp2 (first (obtiene-expresion (list (third  solicitud))))  ))
-		
-		(cond ((and (equal (first exp1) (first exp2)) 
-					(not (equal (second exp1) (second exp2))) (null (fourth solicitud))) 
-				(local-rules-NAL1 (first solicitud) exp1 exp2 decimales))
+		 ((and (< (second solicitud) *cont*) (< (third solicitud) *cont*))
+		 	
+			(let ((exp1 (first (obtiene-expresion (list (second solicitud)))) ) 
+			  	  (exp2 (first (obtiene-expresion (list (third  solicitud))))  ))
 
-			((and (string= (string (first solicitud)) "SELECCIÓN") (fourth solicitud)) 
-				(local-rules-NAL1 (first solicitud) exp1 exp2 nil (first (fourth solicitud))))
+			(cond ((and (equal (first exp1) (first exp2))
+						(not (equal (second exp1) (second exp2))) (not (numberp (fourth solicitud))) ) 
+					(local-rules-NAL1 (first solicitud) exp1 exp2 decimales))
 
-			((null (fourth solicitud)) 
-				(forward-rules-N1 (first solicitud) exp1 exp2 decimales) )
+				((and (string= (string (first solicitud)) "SELECCIÓN") (numberp (fourth solicitud))) 
+					(local-rules-NAL1 (first solicitud) exp1 exp2 nil (fourth solicitud)))
 
-			(T (insert2 "No es válida la consulta") (setf flag-ingresaBC 'nil)))  )) 
+				((not (numberp (fourth solicitud)) )
+					(forward-rules-N1 (first solicitud) exp1 exp2 decimales) )
 
-	;(when flag-ingresaBC 
-	;	(cacle:cache-remove *my-cache* (second solicitud))
-	;	(cacle:cache-remove *my-cache* (third solicitud))
-	;	(parser statement)) 
+				(T (insert2 "No es válida la consulta") (setf flag-ingresaBC 'nil))))  ))  
+
+	(when flag-ingresaBC 
+		(cacle:cache-remove *my-cache* (second solicitud))
+		(cacle:cache-remove *my-cache* (third solicitud))
+		(parser statement)) 
 	)
+
+;;======================================================================================= 
+;;  
+;;  Consultas tipo ? --> something
+;;  
+;;=======================================================================================
+(defvar subjectOptions)
+(defvar predicateOptions)
+
+(defun espectativa-vv (freq conf)
+	(setq e (+ (* conf (- freq 0.5)) 0.5 )) )
+
+(defun seleccion-confianza (vv1 vv2)       				;regla de inferencia NAL1 local: selección- mayor confianza 
+ 	(let ((f1 (first vv1)) (c1 (second vv1))
+    (f2 (first vv2)) (c2 (second vv2)) ) 
+ 		(list (if (> c1 c2) f1 f2) (if (> c1 c2) c1 c2)) )) 
+
+(defun extensionDirecta (term i )
+	(let ((aux (third (first (first (obtiene-expresion (list i))))) )  (expresion) )
+	(cond
+		((or (null term) (= i *cont*)) '()) 
+		((eql term  aux) 
+			(setf expresion (first (obtiene-expresion (list i))) )
+			(append (list (list i expresion)) (extensionDirecta term (incf i)) ) ) 
+		(T (extensionDirecta term (incf i))) )  ))
+
+
+(defun subject? (solicitud)
+	(let ((predicate (third solicitud))
+		 (subject) (maxEspectativa 0))
+
+		(setf subjectOptions (extensionDirecta predicate 1) )
+		(cond ((null subjectOptions)
+	
+			(setq truthv (concatenate 'string (string predicate) " --> " (string predicate)) 
+				subjectOptions (list predicate)) )
+
+			(T
+				(loop for expresion in subjectOptions
+					do (let ((value (second (second expresion))) (espectativa) )
+						(setf espectativa (espectativa-vv (first value) (second value)))
+						(if (> espectativa maxEspectativa) 
+							(setq subject (third (second expresion)) maxEspectativa espectativa) ) ))
+				(setq truthv subject  subjectOptions (mapcar #'(lambda (x) (third (second x))) subjectOptions) )) )
+))
+
+;;======================================================================================= 
+;;  
+;;  Consultas tipo something --> ?
+;;  
+;;=======================================================================================
+(defun intensionDirecta (term i)
+	(let ((aux (first (first (first (obtiene-expresion (list i))))) ) (expresion) )
+	(cond
+		((or (null term) (= i *cont*)) '()) 
+		((eql term  aux) 
+			(setf expresion (first (obtiene-expresion (list i))) )
+			(append (list (list i expresion)) (intensionDirecta term (incf i))) ) 													
+		(T (intensionDirecta term (incf i))) ) ) )
+
+(defun predicate? (solicitud)
+	(let ((subject (first solicitud))
+		(predicate) (maxEspectativa 0))
+
+		(setf predicateOptions (intensionDirecta subject 1) )
+		(cond ((null predicateOptions)
+	
+			(setq truthv (concatenate 'string (string subject) " --> " (string subject)) 
+				predicateOptions (list subject)) )
+
+			(T
+				(loop for expresion in predicateOptions
+					do (let ((value (second (second expresion))) (espectativa) )
+						(setf espectativa (espectativa-vv (first value) (second value)))
+						(if (> espectativa maxEspectativa) 
+							(setq predicate (third (second expresion)) maxEspectativa espectativa) ) ))
+				(setq truthv predicate predicateOptions (mapcar #'(lambda (x) (third (second x))) predicateOptions) )) )
+	))
+
+;;======================================================================================= 
+;;  
+;;  Función que recibe la salida del parcer de una consulta tipo:
+;;     a --> b?, a --> ? y ? --> b
+;;  
+;;=======================================================================================
+(defun query-NAL1 (query decimales)
+	(if (not (null query))
+		(cond ((listp (first query)) ; a --> b ?
+			      (truth-value (first query) decimales))     ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+			    ((string= (first query) #\?)                ; ? --> b 
+			      (subject? query))
+			    (T                ; a --> ?)
+			    	(predicate? query)) )) )

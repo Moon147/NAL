@@ -1,8 +1,0 @@
-robin --> feathered <1.0, 0.9>
-bird --> feathered <1.0, 0.9>
-swan --> bird <1.0, 0.9>
-swan --> swimmer <1.0, 0.9>
-gull --> bird <1.0, 0.9>
-gull --> swimmer <1.0, 0.9>
-crow --> bird <1.0, 0.9>
-crow --> swimmer <1.0, 0.9>

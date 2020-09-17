@@ -6,6 +6,7 @@
       (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
         comportamiento (decimales :parameter-type 'integer)
+        (kuser :parameter-type 'integer)
         (opcjoin :parameter-type 'string) 
         (opcadd :parameter-type 'string))
 
@@ -39,6 +40,7 @@
       (manage-files)))
     (cond ((numberp decimales) (setf var-decimales decimales)))
     (if opcadd (setf var-addexp 'T))
+    (if (numberp kuser) (setf k kuser))
     ;------------------------------------------- 
      (:body
       (:div :id "contenedor"
@@ -70,14 +72,15 @@
                 (:th :id "vv" "Valor de verdad"))
               
               (cond ((search "?" conocimiento) 
-                      (truth-value (parseq:parseq 'query conocimiento) var-decimales) 
+                      (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
                       (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                      (setq truthv 'nil))                 ;Se reinician las variables
+                      ;(setq truthv 'nil)
+                      )                 ;Se reinician las variables
                     ((search "(" conocimiento)
                       (if (parseq:parseq 'funciones conocimiento) 
                         (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
                         (insert2 "No es válida la consulta")) )
-                (T (parser conocimiento) ))       
+                  (T (parser conocimiento) ))       
 
                 (loop for i from 1 to (- *cont* 1)
                  do 
@@ -102,7 +105,9 @@
                    (setf expresion (obtiene-mensaje (list i)))
                    (htm
                       (:p :class "parrafo-salida" "  "(print i) 
-                         (print (first expresion)) )) ))
+                         (print (first expresion)) )) )
+            (if truthv (htm
+                        (:p :class "parrafo-salida" "  "(print truthv) ))  ) )
 
           (:div :class "tabcontent2" :id "DEBUG"
             (when intensionA
@@ -117,7 +122,13 @@
                    (when e
                     (htm (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la primera expresión: ~a"  e)))
                          (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la segunda expresión: ~a"  e2))))) )
-              (setq statement 'nil truthv 'nil e 'nil e2 'nil)) )
+              (setq statement 'nil truthv 'nil e 'nil e2 'nil)) 
+            (when (and truthv (or subjectOptions predicateOptions)) 
+              (htm (:p :class "parrafo-salida" (if subjectOptions
+                 (print (format 'nil "Lista de coincidencias: ~a" subjectOptions))
+                 (print (format 'nil "Lista de coincidencias: ~a" predicateOptions )) ) )) 
+              (setq truthv 'nil subjectOptions 'nil predicateOptions 'nil) ))
+
           ;(print(parseq 'judgement conocimiento))
           (:button :class "simbolo" :onclick "simbolo('-->')" :style "margin-left: 10px" "-->")
           (:button :onclick "simbolo('<=>')"  :class "simbolo" "<=>")
@@ -133,7 +144,7 @@
               (htm  
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
                   :placeholder "Estructura: perro --> animal" ))
-              (:input :class "botonSubir" :type "submit"  ))) )
+              (:input :class "botonSubir" :type "submit" :value "Enviar" ))) )
 
         (:div :class "pc" :data-pushbar-target "mypushbar1"
           (:i :class "fas fa-angle-double-left"))
@@ -151,7 +162,7 @@
           (:section :class "politica sub-menu"
             (:span :class "c2" "Política de Control")
           (:form :method :post :style "margin-left: 15px"
-          (:legend "Valores de verdad") :br
+          (:legend "Valor de verdad") :br
           (:p "Decimales: "
             (:select :name "comportamiento"
              (loop for (value option) in '((:redondear "Redondear")
@@ -164,17 +175,19 @@
             (:input 
               :name "decimales"
               :value (or decimales 2))) :br
+          (:p "Parámetro k: " :br :t 
+            (:input 
+              :name "kuser"
+              :value (or kuser 1))) :br
           (:p  (:input :type "checkbox"
                  :name "opcadd"
-                 :value "agregar"
-                 :checked  (string= "agregar" opcadd) 
-                 (print "Agregar consulta a BC"))) :br
+                 
+                 (esc "Agregar consulta a BC"))) :br
           (:p 
             (:input :type "submit" :class "submit" :value "Enviar datos")
             (:input :type "reset" :value "Restaurar")))
 
           )
-           
 
           ;---------------------------------------SUBIR BASE DE CONOCIMIENTO-----------------------------------------
           (:section :class "sube-BC sub-menu"
@@ -233,8 +246,8 @@
               (:p :style "margin-left: 20px" "Deducción: (deducción No-exp1 No-exp2)")
               (:p :style "margin-left: 20px" "Inducción: (inducción No-exp1 No-exp2)")
               (:p :style "margin-left: 20px" "Abducción: (abducción No-exp1 No-exp2)")
-              (:p :style "margin-left: 20px" "Ejemplificación")
-              (:p :style "margin-left: 20px" "Conversión") :br
+              (:p :style "margin-left: 20px" "Ejemplificación (ejemplificación No-exp1 No-exp2)")
+              (:p :style "margin-left: 20px" "Conversión (conversión No-exp)") :br
               (:p "-Hacia atrás:")) )
 
         );/section data-pushbar-id 

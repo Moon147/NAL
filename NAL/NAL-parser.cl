@@ -52,22 +52,30 @@
 
 (parseq:defrule sentence () (or judgement query))
 
-(parseq:defrule funciones () (and "(" operacion sp int sp int sp (* formula) ")") (:choose 1 3 5 7) )
-                    
+(parseq:defrule funciones () (or (and "(" operacion sp int sp")" )
+                                      (and "(" operacion sp int sp int sp")" ) 
+                                      (and "(selección" sp int sp int sp formula sp")" ))  (:choose 1 3 5 7) )
+
+
+;(parseq:defrule funciones () (and "(" operacion sp int sp int sp formula ")") (:choose 1 3 5 7) )
+                     
 (parseq:defrule operacion () (or "revisión"
                                  "selección"
                                  "deducción"
                                  "inducción"
-                                 "abducción")
+                                 "abducción"
+                                 "conversión"
+                                 "ejemplificación")
         (:lambda (op) (read-from-string op)))
 
-(parseq:defrule formula () (or "valor-verdad"
-                                "evidencia-acumulada")
+(parseq:defrule formula () (or "0" "1")
         (:lambda (form) (read-from-string form)))
 
 (parseq:defrule judgement () (and statement sp (? truthvalue)) (:choose 0 2))
 
-(parseq:defrule query () (and statement sp "?") (:choose 0))
+(parseq:defrule query () (or (and statement sp "?") 
+                             (and term sp "-->" sp "?")
+                             (and "?" sp "-->" sp term)) (:choose 0 2 4))
 
 ;; ===========================================================
 ;;  Agregé :choose en lugar de :string  
