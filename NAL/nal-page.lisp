@@ -106,8 +106,9 @@
                    (htm
                       (:p :class "parrafo-salida" "  "(print i) 
                          (print (first expresion)) )) )
-            (if truthv (htm
-                        (:p :class "parrafo-salida" "  "(print truthv) ))  ) )
+            (if (and truthv (or subjectOptions predicateOptions)) 
+              (htm
+                (:p :class "parrafo-salida" "  " (print (format 'nil "El resultado de la consulta es: ~a" truthv)) ))) )
 
           (:div :class "tabcontent2" :id "DEBUG"
             (when intensionA
@@ -124,9 +125,11 @@
                          (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la segunda expresión: ~a"  e2))))) )
               (setq statement 'nil truthv 'nil e 'nil e2 'nil)) 
             (when (and truthv (or subjectOptions predicateOptions)) 
-              (htm (:p :class "parrafo-salida" (if subjectOptions
-                 (print (format 'nil "Lista de coincidencias: ~a" subjectOptions))
-                 (print (format 'nil "Lista de coincidencias: ~a" predicateOptions )) ) )) 
+              (if subjectOptions
+                (htm (:p :class "parrafo-salida"
+                 (print (format 'nil "Lista de coincidencias: ~a" subjectOptions)) ) )
+                (htm (:p :class "parrafo-salida" 
+                 (print (format 'nil "Lista de coincidencias: ~a" predicateOptions )) )) )
               (setq truthv 'nil subjectOptions 'nil predicateOptions 'nil) ))
 
           ;(print(parseq 'judgement conocimiento))
