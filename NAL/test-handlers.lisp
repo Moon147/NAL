@@ -288,6 +288,11 @@
               "/NAL-Reasoner/logo_cic3.png"
               (make-pathname :name "logo_cic3" :type "png" :version nil
                              :defaults *this-file*)
+              "image/jpg")
+             (create-static-file-dispatcher-and-handler
+              "/NAL-Reasoner/logo_escom.jpg"
+              (make-pathname :name "logo_escom" :type "jpg" :version nil
+                             :defaults *this-file*)
               "image/png")
              (create-static-file-dispatcher-and-handler
               "/NAL-Reasoner/logo_ipn3.png"

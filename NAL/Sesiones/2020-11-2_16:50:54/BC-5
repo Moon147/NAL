@@ -1,0 +1,4 @@
+ardilla --> animal <1.0, 0.9>
+tortuga --> animal <1.0, 0.9>
+ardilla --> omnívora <1.0, 0.9>
+turtuga --> omnívora <1.0, 0.9>
