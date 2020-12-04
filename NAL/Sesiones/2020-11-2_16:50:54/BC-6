@@ -1,9 +1,0 @@
-virus --> ser-vivo <0.5, 0.9>
-virus --> ser-vivo <0.9, 0.3>
-corona-virus --> virus <1.0, 0.9>
-animal --> ser-vivo <1.0, 0.9>
-ave --> animal <1.0, 0.9>
-petirrojo --> ave <1.0, 0.9>
-petirrojo --> animal <1.0, 0.9>
-tigre --> animal <1.0, 0.9>
-tigre --> ave <0.0, 0.9>
