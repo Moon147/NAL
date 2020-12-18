@@ -51,11 +51,13 @@
               (:img :src "logo_ipn3.png" :height "90"))
             (:th :id "titulo" :style "text-align:center;vertical-align:top; padding: 3px"
               (:h1 "NAL-Reasoner"))
-            (:th :id "institucion" :style "text-align:right;width:365px;vertical-align:top;padding:10px"
-              (:h3 "Centro de Investigación en Computación")
-              (:h3 "Laboratorio de Inteligencia Artificial"))
-            (:th :id "logoCIC" :style "text-align:right;width:100px;vertical-align:top;padding: 8px; padding-top: 0px"
-              (:img :src "logo_cic3.png" :height "75")))))
+            (:th :id "institucion" :style "text-align:right;width:260px;vertical-align:top;padding:10px"
+              (:h3 "Instituto Politécnico Nacional")
+              (:h3 "Escuela Superior de Cómputo"))
+            (:th :id "logoESCOM" :style "text-align:right;width:70px;vertical-align:top;padding: 8px; padding-top: 5px"
+              (:img :src "logo_escom.png" :height "50"))
+            (:th :id "logoCIC" :style "text-align:right;width:70px;vertical-align:top;padding: 8px; padding-top: 0px"
+              (:img :src "logo_cic3.png" :height "75")) )))
         (:aside
           (:ul :class "tabs1"
             (:li :class "tabs__item active" :onclick "openTab(event,'TABLA')"
@@ -278,6 +280,6 @@
             (:p (:input  :type "submit" :style "margin-top: 10px"  )) ))
           
         (:footer
-          (:p "Instituto Politécnico Nacional. Centro de Investigación en Computación.")) )
+          (:p "Instituto Politécnico Nacional")) )
 
       (:script :type "text/javascript" :src "funciones.js") ))))

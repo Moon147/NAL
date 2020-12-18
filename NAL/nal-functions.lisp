@@ -265,8 +265,8 @@
 ;;  Consultas tipo ? --> something
 ;;  
 ;;=======================================================================================
-(defvar subjectOptions)
-(defvar predicateOptions)
+(defvar subjectOptions 'nil)
+(defvar predicateOptions 'nil)
 
 (defun espectativa-vv (freq conf)
 	(setq e (+ (* conf (- freq 0.5)) 0.5 )) )
