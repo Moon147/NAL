@@ -73,21 +73,23 @@
                 (:th :id "exp" "Expresión")
                 (:th :id "vv" "Valor de verdad"))
               
-              (cond ((search "?" conocimiento) 
-                      (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
+              (cond ((search "?" conocimiento)
+                      (if (parseq:parseq 'query conocimiento)  
+                        (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
+                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
                       (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                       ;(setq truthv 'nil)
                       )                 ;Se reinician las variables
-                    ((search "(" conocimiento)
+                    ((or (search "(" conocimiento) (search ")" conocimiento))
                       (if (parseq:parseq 'funciones conocimiento) 
                         (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
-                        (insert2 "No es válida la consulta")) )
+                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento))) )
                   (T (parser conocimiento) ))       
 
                 (loop for i from 1 to (- *cont* 1)
                  do 
                   (setf expresion (first (obtiene-expresion (list i))))
-                  (setf valorV (second expresion))
+                  (setf valorV (second (third expresion)))
                   (setf relacion (first (third expresion)))
                     (htm
                      (:tr 
@@ -108,6 +110,12 @@
                    (htm
                       (:p :class "parrafo-salida" "  "(print i) 
                          (print (first expresion)) )) )
+            (when (and statement (not (search "NIL" statement) )) 
+              (htm (:p :class "parrafo-salida" (print statement))
+                   (when e
+                    (htm (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la primera expresión: ~a"  e)))
+                         (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la segunda expresión: ~a"  e2))))) )
+              (setq statement 'nil truthv 'nil e 'nil e2 'nil)) 
             (if (and truthv (or subjectOptions predicateOptions)) 
               (htm
                 (:p :class "parrafo-salida" "  " (print (format 'nil "El resultado de la consulta es: ~a" truthv)) ))) )
@@ -115,17 +123,11 @@
           (:div :class "tabcontent2" :id "DEBUG"
             (when intensionA
               (htm
-                (:p :class "parrafo-salida" "  " (print intensionA) )
-                (:p :class "parrafo-salida" "  " (print extensionA) )
+                (:p :class "parrafo-salida" (print intensionA) )
+                (:p :class "parrafo-salida" (print extensionA) )
                 (:p :class "parrafo-salida" "  " (print intensionB) )
                 (:p :class "parrafo-salida" "  " (print extensionB)) )
               (setq intensionA '() intensionB '() extensionA '() extensionB '())) 
-            (when statement 
-              (htm (:p :class "parrafo-salida" (print statement))
-                   (when e
-                    (htm (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la primera expresión: ~a"  e)))
-                         (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la segunda expresión: ~a"  e2))))) )
-              (setq statement 'nil truthv 'nil e 'nil e2 'nil)) 
             (when (and truthv (or subjectOptions predicateOptions)) 
               (if subjectOptions
                 (htm (:p :class "parrafo-salida"
@@ -136,15 +138,16 @@
 
           ;(print(parseq 'judgement conocimiento))
           (:button :class "simbolo" :onclick "simbolo('-->')" :style "margin-left: 10px" "-->")
-          (:button :onclick "simbolo('<=>')"  :class "simbolo" "<=>")
+          (:button :onclick "simbolo('<=>')"  :class "simbolo" "<->")
           (:button :onclick "simbolo('o->')"  :class "simbolo" "o->")
           (:button :onclick "simbolo('->o')"  :class "simbolo" "->o")
           (:button :onclick "simbolo('o->o')"  :class "simbolo" "o->o")
-          (:button :onclick "simbolo('==>')"  :class "simbolo" "==>")
-          (:button :onclick "simbolo('--')"  :class "simbolo" "--")
-          (:button :onclick "simbolo('||')"  :class "simbolo" "||")
-          (:button :onclick "simbolo('&&')"  :class "simbolo" "&&")
-          (:button :onclick "simbolo('+')"  :class "simbolo" "+")
+          (:button :onclick "simbolo('&')"  :class "simbolo" "&")
+          (:button :onclick "simbolo('|')"  :class "simbolo" "|")
+          (:button :onclick "simbolo('-')"  :class "simbolo" "-")
+          (:button :onclick "simbolo('~')"  :class "simbolo" "~")
+          (:button :onclick "simbolo('*')"  :class "simbolo" "*")
+          (:input :type "checkbox" :name "opcadd" (esc "Agregar resultado a BC"))
           (:p (:form :method :post 
               (htm  
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
@@ -161,7 +164,8 @@
             (:div :class "submenu" :onclick "display_pushbar('.selecciona-BC')"  (:h5 "Seleccionar Base de Conocimiento"))
             (:div :class "submenu" :onclick "display_pushbar('.sube-BC')"  (:h5 "Subir Base de Conocimiento"))
             (:div :class "submenu" :onclick "display_pushbar('.reglas')"  (:h5 "Reglas de Inferencia"))
-            (:button :data-pushbar-target "mypushbar2" :class "btn" (:p "Cerrar sesión")))
+            ;(:button :data-pushbar-target "mypushbar2" :class "btn" (:p "Cerrar sesión"))
+            )
 
           ;;---------------------------------------FORMULARIO POLIÍTICA DE CONTROL------------------------------
           (:section :class "politica sub-menu"
@@ -184,10 +188,10 @@
             (:input 
               :name "kuser"
               :value (or kuser 1))) :br
-          (:p  (:input :type "checkbox"
-                 :name "opcadd"
-                 
-                 (esc "Agregar consulta a BC"))) :br
+          ;(:p  (:input :type "checkbox"
+          ;       :name "opcadd"
+          ;       
+          ;       (esc "Agregar consulta a BC"))) :br
           (:p 
             (:input :type "submit" :class "submit" :value "Enviar datos")
             (:input :type "reset" :value "Restaurar")))

@@ -62,6 +62,20 @@
 				(setf nuevaLista (append nuevaLista (list elemento))) ) ) 
 	(return-from eliminarRepetidos nuevaLista)))
 
+;Calcula intensión y extensión
+(defun I-E (term1 term2)
+	(let (
+		(Ai	(eliminarRepetidos (cons term1 (intension term1 1))) )
+		(Bi	(eliminarRepetidos (cons term2 (intension term2 1))) )
+		(Ae	(eliminarRepetidos (cons term1 (extension term1 1))) ) 
+		(Be	(eliminarRepetidos (cons term2 (extension term2 1))) ) )
+		
+
+		(setq intensionA  (format 'nil "Intensión de ~(~a: ~a~) " term1 Ai)
+		  extensionA  (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae)
+		  intensionB  (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi)
+		  extensionB  (format 'nil "Extensión de ~(~a: ~a~) " term2 Be)) ))
+
 ; Devuelve la expresión de consulta con el valor de verdad calculado "term1 --> term2 <f , c>"
 (defun truth-value (query decimales)
 	(setf cont-message *cont2*)
@@ -93,7 +107,7 @@
 	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
 							" <" (format nil "~f" frequency) ", " (format nil "~f" confidence) ">" ))
 	(insert2 (format 'nil "El resultado de la consulta es: ~(~a --> ~a~) <~a, ~a>" 
-												term1 term2 frequency confidence)) ))
+												term1 term2 frequency confidence)) ))	
 
 ;;======================================================================================= 
 ;;  
@@ -162,6 +176,7 @@
 			  	(seleccion-espectativa-vv (first (second exp1)) (second (second exp1)) 
 			  							  						(first (second exp2)) (second (second exp2)))) ) )) 
 
+	(I-E (first (first exp1)) (third (first exp1)))
 	(setf statement (concatenate 'string (string (first (first exp1))) " --> " (string (third (first exp1))) 
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) ))
 
@@ -174,7 +189,7 @@
 ;Macros del profesor Godoy para extended Boolean operators
 (defmacro ext-not (x) `(- 1 ,x))
 (defmacro ext-and (&rest arguments) `(* ,@arguments))
-(defmacro ext-or (&rest arguments) `(- 1 (reduce #'* (mapcar #'(lambda (x) (- 1 x)) ',arguments))) )
+(defun ext-or (&rest arguments) (- 1 (reduce #'* (mapcar #'(lambda (x) (- 1 x)) arguments))) )
 
 (defun forward-rules-N1 (rule exp1 exp2 &optional decimales)
 	(labels ((deduction (vv1 vv2)
@@ -204,33 +219,117 @@
 	 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
 	 	 	   w  (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) )	 	;w = and(f1 ,c1,f2 ,c2)
 	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
-  			   (float (adjust-precision (/ w (+ w k)) decimales))) ) )) 
+  			   (float (adjust-precision (/ w (+ w k)) decimales))) ) ))
 
-		(cond ((and (equal (first (first exp1)) (third (first exp2))) (string= (string rule) "DEDUCCIÓN")) 
-				 (setq truthv (deduction (second exp1) (second exp2)) 
-				 		expresion (list (first (first exp2))  (third (first exp1))) ))
+  (let ((termA1 (first (first exp1)))
+  			(termA2 (third (first exp1)))
+  			(termB1 (first (first exp2)))
+  			(termB2 (third (first exp2))) 
+				(ruleSintax 'nil) (errorSintax 'nil) ) 
 
-			  ((and (equal (first (first exp1)) (first (first exp2))) (string= (string rule) "INDUCCIÓN")) 
-				 (setq truthv (induction (second exp1) (second exp2)) 
-				 		expresion (list (third (first exp2))  (third (first exp1))) ))
+		(cond ((string= (string rule) "DEDUCCIÓN")
+					(setf ruleSintax "(deducción No-exp1: (M --> P) No-exp2: (S --> M))")
+					(cond 
+						((equal termA1 termB2)
+							(setq truthv (deduction (second exp1) (second exp2)) 
+				 			expresion (list termB1  termA2)))
+						((equal termB1 termA2) 
+				 			(setq truthv (deduction (second exp2) (second exp1)) 
+				 			expresion (list termA1  termB2 )))
+						(T (setf errorSintax 'T)) ))
 
-			  ((and (equal (third (first exp1)) (third (first exp2))) (string= (string rule) "ABDUCCIÓN")) 
-			  	(setq truthv (abduction (second exp1) (second exp2)) 
-				 		expresion (list (first (first exp2))  (first (first exp1))) ) ) 
+			  ((string= (string rule) "INDUCCIÓN")
+					(setf ruleSintax "(inducción No-exp1: (M --> P) No-exp2: (M --> S))")
+					(cond 
+						((equal termA1 termB1)
+							(setq truthv (induction (second exp1) (second exp2)) 
+				 			expresion (list termA2  termB2)))
+						(T (setf errorSintax 'T)) ))
 
-			  ((and (equal (third (first exp1)) (first (first exp2)) ) (string= (string rule) "EJEMPLIFICACIÓN")) 
-				 (setq truthv (exemplification (second exp1) (second exp2)) 
-				 		expresion (list (third (first exp2))  (first (first exp1))) ))
+			  ((string= (string rule) "ABDUCCIÓN")
+					(setf ruleSintax "(inducción No-exp1: (P --> M) No-exp2: (S --> M))")
+					(cond 
+						((equal termA2 termB2)
+							(setq truthv (abduction (second exp1) (second exp2)) 
+				 			expresion (list termA1  termB1)))
+						(T (setf errorSintax 'T)) )) 
+
+			  ((string= (string rule) "EJEMPLIFICACIÓN")
+					(setf ruleSintax "(ejemplificación No-exp1: (M --> P) No-exp2: (S --> M))")
+					(cond 
+						((equal termA1 termB2)
+							(setq truthv (exemplification (second exp1) (second exp2)) 
+				 			expresion (list termA2 termB1)))
+						((equal termB1 termA2) 
+				 			(setq truthv (exemplification (second exp2) (second exp1)) 
+				 			expresion (list termB2 termA1)))
+						(T (setf errorSintax 'T)) ))
 
 			  ((and (string= rule "CONVERSIÓN") (null exp2))
+			  	(setf ruleSintax "(conversión No-exp1: (P --> S) No-exp2: (S --> S))")
 				 (setq truthv (conversion (second exp1)) 
-				 		expresion (list (third (first exp1)) (first (first exp1))) ))
+				 		expresion (list termA2 termA1) ))
 
-			  (T (insert2 "No es válida la consulta") (setf flag-ingresaBC 'nil))) 
+			  (T (insert2 (format 'nil "Error reglas NAL-1. Revise el nombre de la regla que desea usar")) (setf flag-ingresaBC 'nil))) 
 
+			(if errorSintax
+				(insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como el orden para la regla de inferencia ~a con estructura ~a"  rule ruleSintax)))
+		
+			(setf errorSintax 'nil)
+
+		(I-E (first expresion) (second expresion))
 		(setf statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
-							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) ))
+							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )) )
 
+;;======================================================================================= 
+;;  
+;;  Reglas de inferencia NAL2 
+;;  
+;;=======================================================================================
+(defun rules-N2 (rule exp1 exp2 &optional decimales)
+	(labels (
+		(comparasion (vv1 vv2)
+		(let ((w+ 'nil) (w 'nil) ) 
+	 	 (setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
+	 	 	   w  (ext-and (ext-or (first vv1) (first vv2)) (second vv2) (second vv1)) )	 				;w = and(or(f1, f2) , c1 , c2 )
+	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+  			   (float (adjust-precision (/ w (+ w k)) decimales)) ) ))
+
+  	(analogy (vv1 vv2)
+		(list (float (adjust-precision (ext-and (first vv1) (first vv2)) decimales))   ;f = and(f1, f2)
+			  (float (adjust-precision (ext-and (first vv2) (second vv1) (second vv2)) decimales))) ) ;c = and(f2, c1, c2)
+
+  	(resemblance (vv1 vv2)
+		(list (float (adjust-precision (ext-and (first vv1) (first vv2)) decimales))   ;f = and(f1, f2)
+			  (float (adjust-precision (ext-and (ext-or (first vv1) (first vv2)) (second vv1) (second vv2)) decimales))) ) ;c = and(or(f1, f2) , c1 , c2 )
+    ) 
+    
+    (cond ((and (equal (first (first exp1)) (first (first exp2))) (string= (string rule) "COMPARACIÓN")) 
+				 (setq truthv (comparasion (second exp1) (second exp2)) 
+				 		expresion (list (third (first exp2))  (third (first exp1))) )
+				 (setf statement (concatenate 'string (string (first expresion)) " <-> " (string (second expresion)) 
+							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" ))
+				 )
+
+			  ((and (equal (first (first exp1)) (third (first exp2))) (string= (string (second (first exp2))) "<->") (string= (string rule) "ANALOGÍA")) 
+				 (setq truthv (analogy (second exp1) (second exp2)) 
+				 		expresion (list (first (first exp2))  (third (first exp1))) )
+				 (setf statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
+							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" ))
+				 )
+
+
+			  ((and (equal (first (first exp1)) (third (first exp2))) (string= (string (second (first exp1))) "<->") (string= (string (second (first exp2))) "<->") (string= (string rule) "SEMEJANZA")) 
+			  	(setq truthv (resemblance (second exp1) (second exp2)) 
+				 		expresion (list (first (first exp2))  (third (first exp1))) ) 
+			  	(setf statement (concatenate 'string (string (first expresion)) " <-> " (string (second expresion)) 
+							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" ))
+			  	) 
+
+			  (T (insert2 (format 'nil "Error reglas NAL-2. Revise el número de las expresiones que desea usar asi como el orden para la regla de inferencia ~a."  rule)) (setf flag-ingresaBC 'nil))) 
+
+		(I-E (first expresion) (second expresion))
+	))
 
 (defun inference-rules (solicitud decimales)
 	(cond ((and (< (second solicitud) *cont*) (not (numberp (third solicitud))) )
@@ -249,10 +348,13 @@
 				((and (string= (string (first solicitud)) "SELECCIÓN") (numberp (fourth solicitud))) 
 					(local-rules-NAL1 (first solicitud) exp1 exp2 nil (fourth solicitud)))
 
+				((and (not (numberp (fourth solicitud)) ) (or (string= (string (first solicitud)) "COMPARACIÓN") (string= (string (first solicitud)) "ANALOGÍA") (string= (string (first solicitud)) "SEMEJANZA")))
+					(rules-N2 (first solicitud) exp1 exp2 decimales) )
+
 				((not (numberp (fourth solicitud)) )
 					(forward-rules-N1 (first solicitud) exp1 exp2 decimales) )
 
-				(T (insert2 "No es válida la consulta") (setf flag-ingresaBC 'nil))))  ))  
+				(T (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  solicitud)) (setf flag-ingresaBC 'nil))))  ))  
 
 	(when flag-ingresaBC 
 		(cacle:cache-remove *my-cache* (second solicitud))

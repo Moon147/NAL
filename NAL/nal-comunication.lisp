@@ -159,7 +159,7 @@
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )
 	  ((and (equal auxiliar2 'NIL) (not (null aux)) )  ;Si la expresión está mal...
-	    (insert2 (format nil "Error en ~(~a~)" aux)) )  )) ;Agregar como mensaje de error a la cache de errores
+	    (insert2 (format nil "Error en ~(~a~). Revise la estructura de su consulta." aux)) )  )) ;Agregar como mensaje de error a la cache de errores
 
 
 

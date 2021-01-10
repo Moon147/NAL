@@ -65,7 +65,10 @@
                                  "inducción"
                                  "abducción"
                                  "conversión"
-                                 "ejemplificación")
+                                 "ejemplificación"
+                                 "comparación"
+                                 "analogía"
+                                 "semejanza")
         (:lambda (op) (read-from-string op)))
 
 (parseq:defrule formula () (or "0" "1")
