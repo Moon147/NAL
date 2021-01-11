@@ -83,7 +83,9 @@
                     ((or (search "(" conocimiento) (search ")" conocimiento))
                       (if (parseq:parseq 'funciones conocimiento) 
                         (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
-                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento))) )
+                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento))) 
+                      (if var-addexp (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                    )
                   (T (parser conocimiento) ))       
 
                 (loop for i from 1 to (- *cont* 1)
@@ -147,11 +149,16 @@
           (:button :onclick "simbolo('-')"  :class "simbolo" "-")
           (:button :onclick "simbolo('~')"  :class "simbolo" "~")
           (:button :onclick "simbolo('*')"  :class "simbolo" "*")
-          (:input :type "checkbox" :name "opcadd" (esc "Agregar resultado a BC"))
           (:p (:form :method :post 
               (htm  
+                (:input :type "checkbox"
+                 :name "opcadd"
+                 :value "agregar"
+                 :checked (string= "agregar" opcadd)
+                 (print "Agregar consulta a BC"))
+                (:br)
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
-                  :placeholder "Estructura: perro --> animal" ))
+                  :placeholder "Ingrese sus consultas" ))
               (:input :class "botonSubir" :type "submit" :value "Enviar" ))) )
 
         (:div :class "pc" :data-pushbar-target "mypushbar1"

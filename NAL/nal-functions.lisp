@@ -98,7 +98,6 @@
 		  extensionA  (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae)
 		  intensionB  (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi)
 		  extensionB  (format 'nil "Extensión de ~(~a: ~a~) " term2 Be)
-
 		  w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  	; w+ = ||(aE n bE) u (aI n bI)||
 		  w  (+ (length Ae) (length Bi)) 							  	 	; w  = ||aE|| + ||bI|| 
 		  frequency (float (adjust-precision (/ w+ w) decimales)) 			; frequency = w+ / w
@@ -278,6 +277,7 @@
 			(setf errorSintax 'nil)
 
 		(I-E (first expresion) (second expresion))
+		;(I-E termB1 termB1)
 		(setf statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )) )
 

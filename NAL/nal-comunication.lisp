@@ -117,6 +117,32 @@
               (cacle:cache-fetch *mensajes-cache* key :only-if-cached t))
           id))
 
+
+;;======================================================================================= 
+;;  
+;;  Caché para los mensajes en DEBUG
+;;  
+;;=======================================================================================
+
+(defparameter *cont3* 1)
+(defparameter *exprdebug* nil)
+
+(defun proveedor3 (key)
+  (values *exprdebug*
+            key))
+
+(defparameter *mensajes-debug* (cacle:make-cache 10000000 #'proveedor1 :policy :lru))
+
+(defun insert3 (debug)
+  (setf *exprdebug* debug)
+  (cacle:cache-fetch *mensajes-debug* *cont3*)
+  (incf *cont3*))
+
+(defun obtiene-debug(id)
+  (mapcar #'(lambda (key)
+              (cacle:cache-fetch *mensajes-debug* key :only-if-cached t))
+          id))
+
 ;;======================================================================================= 
 ;;  
 ;;  Reiniciar cachés
@@ -128,8 +154,11 @@
 	(setf *exprcon* nil)
 	(setf *cont2* 1)
 	(setf *exprerr* nil)
+  (setf *exprdebug* nil)
+  (setf *cont3* 1)
 	(setf *my-cache* (cacle:make-cache 10000000 #'proveedor1 :policy :lru))
-	(setf *mensajes-cache* (cacle:make-cache 10000000 #'proveedor2 :policy :lru)))
+	(setf *mensajes-cache* (cacle:make-cache 10000000 #'proveedor2 :policy :lru))
+  (setf *mensajes-debug* (cacle:make-cache 10000000 #'proveedor2 :policy :lru)) )
 
 
 ;;======================================================================================= 
@@ -138,7 +167,7 @@
 ;;  
 ;;=======================================================================================
 (defvar auxiliar2 '())
-(defvar confidenceCero (/ 1 2))
+(defvar confidenceCero 0.5)
 (defvar tv 0)
 (defvar contPassParser 0)
 
@@ -155,7 +184,10 @@
 	    (insert (list (first auxiliar2) 
                     (if (= 0 (second tv)) (list (first tv) confidenceCero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
 	       (list (format nil "~(~a ~a ~a~)" (first (first auxiliar2)) (second (first auxiliar2)) (third (first auxiliar2)))
-	       		 (format nil " <~{~a~^, ~}>" (second auxiliar2))) ))  
+	       		 (if (= 0 (second tv)) 
+                (format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
+                (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
+      ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )
 	  ((and (equal auxiliar2 'NIL) (not (null aux)) )  ;Si la expresión está mal...
