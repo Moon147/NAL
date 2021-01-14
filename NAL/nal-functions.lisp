@@ -71,14 +71,16 @@
 		(Ai	(eliminarRepetidos (cons term1 (intension term1 1))) )
 		(Bi	(eliminarRepetidos (cons term2 (intension term2 1))) )
 		(Ae	(eliminarRepetidos (cons term1 (extension term1 1))) ) 
-		(Be	(eliminarRepetidos (cons term2 (extension term2 1))) ) )
+		(Be	(eliminarRepetidos (cons term2 (extension term2 1))) ) 
+		(wp 'nil ) 
+		(w 'nil ) )
 
-		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term1 Ai))
-		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae))
-		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi))
-		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term2 Be)) 
-		(insert3 	 (format 'nil "Evidencia positiva: ~(~a~)" (length (union (intersection Ae Be) (intersection Ai Bi))) ))
-		(insert3 	 (format 'nil "Evidencia total: ~(~a~)" (+ (length Ae) (length Bi)) ))
+		(setq wp (length (union (intersection Ae Be) (intersection Ai Bi)))
+					w (+ (length Ae) (length Bi)) )
+		(insert3   (format 'nil "Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Evidencia positiva: ~(~a~) ~% Evidencia negativa: ~(~a~) ~% Evidencia total: ~(~a~)" 
+			term1 Ai term1 Ae term2 Bi term2 Be wp (- w wp) w 
+			
+			))
 		))
 
 ; Devuelve la expresión de consulta con el valor de verdad calculado "term1 --> term2 <f , c>"
@@ -98,10 +100,7 @@
 	(when (and (equal Bi Be) (= 1 (length Bi)))
 		(insert2 (format nil "El término ~(~a~) es nuevo en esta BC" (first Bi)))  )
 
-		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term1 Ai))
-		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae))
-		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi))
-		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term2 Be))
+		(I-E term1 term2)
 
 	(setq 
 			w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  	; w+ = ||(aE n bE) u (aI n bI)||

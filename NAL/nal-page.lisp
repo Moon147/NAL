@@ -118,7 +118,7 @@
                    do 
                    (setf debug (obtiene-debug (list i)))
                    (htm
-                      (:p :class "parrafo-salida" "  "(print i) 
+                      (:pre :class "parrafo-salida" "  "(print i) 
                          (print (first debug)) )) )
              )
 
@@ -239,13 +239,16 @@
             (:span :class "c2" "Reglas de Inferencia") 
             (:div :style "margin-left: 15px"
               (:u (:b :style "font-size: 18px; display: flex; justify-content: center" "NAL-1"))
-              (:p "-Locales:")
+              (:i :style "font-size: 13px;" "Las premisas a usar deben tener la siguiente estructura según cada regla (el orden en que se usen las premisas es indistinto):") :br :br
+              (:b "-Locales:") :br
+              (:i :style "font-size: 13px;" "El término M y P deben ser comunes en ambas premisas, siendo M el sujeto y P el predicado. Las premisas deben contener valores de verdad diferentes") :br
               (:p :style "margin-left: 5px" "Revisión:" :br 
                   (:p :style "margin-left: 10px" "(revisión No-exp1: (M --> P) No-exp2: (M --> P))")) :br 
               (:p :style "margin-left: 5px" "Selección:" :br 
                   (:p :style "margin-left: 10px" "(selección No-exp1: (M --> P) No-exp2: (M --> P))")) :br ;*(valor-verdad | evidencia acumulada)
               (:hr :style "margin-right: 10px") :br  
-              (:p "-Hacia adelante:")
+              (:b "-Hacia adelante:") :br
+              (:i :style "font-size: 13px;" "M es el término común en ambas premisas, mienstras que P y S son los no comunes") :br
               (:p :style "margin-left: 5px" "Deducción:" :br 
                   (:p :style "margin-left: 10px" "(deducción No-exp1: (M --> P) No-exp2: (S --> M))")) :br 
               (:p :style "margin-left: 5px" "Inducción:" :br 
