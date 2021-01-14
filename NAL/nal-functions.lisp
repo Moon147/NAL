@@ -23,6 +23,9 @@
 (defparameter extensionA 'nil)
 (defparameter intensionB 'nil)
 (defparameter extensionB 'nil)
+(defparameter positiveEvidence 'nil)
+(defparameter negativeEvidence 'nil)
+(defparameter evidence 'nil)
 (defvar var-decimales 2)
 (defvar var-addexp 'nil)
 
@@ -69,16 +72,17 @@
 		(Bi	(eliminarRepetidos (cons term2 (intension term2 1))) )
 		(Ae	(eliminarRepetidos (cons term1 (extension term1 1))) ) 
 		(Be	(eliminarRepetidos (cons term2 (extension term2 1))) ) )
-		
 
-		(setq intensionA  (format 'nil "Intensión de ~(~a: ~a~) " term1 Ai)
-		  extensionA  (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae)
-		  intensionB  (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi)
-		  extensionB  (format 'nil "Extensión de ~(~a: ~a~) " term2 Be)) ))
+		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term1 Ai))
+		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae))
+		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi))
+		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term2 Be)) 
+		(insert3 	 (format 'nil "Evidencia positiva: ~(~a~)" (length (union (intersection Ae Be) (intersection Ai Bi))) ))
+		(insert3 	 (format 'nil "Evidencia total: ~(~a~)" (+ (length Ae) (length Bi)) ))
+		))
 
 ; Devuelve la expresión de consulta con el valor de verdad calculado "term1 --> term2 <f , c>"
 (defun truth-value (query decimales)
-	(setf cont-message *cont2*)
 	(setq term1 (first query)
 	      term2 (third query)) 
 	(let ( (w+ '()) (w '()) (confidence 0) (frequency 0)
@@ -94,18 +98,20 @@
 	(when (and (equal Bi Be) (= 1 (length Bi)))
 		(insert2 (format nil "El término ~(~a~) es nuevo en esta BC" (first Bi)))  )
 
-	(setq intensionA  (format 'nil "Intensión de ~(~a: ~a~) " term1 Ai)
-		  extensionA  (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae)
-		  intensionB  (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi)
-		  extensionB  (format 'nil "Extensión de ~(~a: ~a~) " term2 Be)
-		  w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  	; w+ = ||(aE n bE) u (aI n bI)||
+		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term1 Ai))
+		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term1 Ae))
+		(insert3   (format 'nil "Intensión de ~(~a: ~a~) " term2 Bi))
+		(insert3   (format 'nil "Extensión de ~(~a: ~a~) " term2 Be))
+
+	(setq 
+			w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  	; w+ = ||(aE n bE) u (aI n bI)||
 		  w  (+ (length Ae) (length Bi)) 							  	 	; w  = ||aE|| + ||bI|| 
 		  frequency (float (adjust-precision (/ w+ w) decimales)) 			; frequency = w+ / w
 		  confidence (float (adjust-precision (/ w (+ w k)) decimales)) ) 	; confidence = w / (w + k)
 
 	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
 							" <" (format nil "~f" frequency) ", " (format nil "~f" confidence) ">" ))
-	(insert2 (format 'nil "El resultado de la consulta es: ~(~a --> ~a~) <~a, ~a>" 
+	(insert2 (format 'nil "~(~a --> ~a~) <~a, ~a>" 
 												term1 term2 frequency confidence)) ))	
 
 ;;======================================================================================= 
@@ -177,7 +183,10 @@
 
 	(I-E (first (first exp1)) (third (first exp1)))
 	(setf statement (concatenate 'string (string (first (first exp1))) " --> " (string (third (first exp1))) 
-							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) ))
+							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
+
+	(if (and statement (not (search "NIL" statement) ))  (insert2 statement)) 
+	(setq statement 'nil truthv 'nil e 'nil e2 'nil) ))
 
 ;;======================================================================================= 
 ;;  
@@ -246,7 +255,7 @@
 						(T (setf errorSintax 'T)) ))
 
 			  ((string= (string rule) "ABDUCCIÓN")
-					(setf ruleSintax "(inducción No-exp1: (P --> M) No-exp2: (S --> M))")
+					(setf ruleSintax "(abducción No-exp1: (P --> M) No-exp2: (S --> M))")
 					(cond 
 						((equal termA2 termB2)
 							(setq truthv (abduction (second exp1) (second exp2)) 
@@ -265,7 +274,7 @@
 						(T (setf errorSintax 'T)) ))
 
 			  ((and (string= rule "CONVERSIÓN") (null exp2))
-			  	(setf ruleSintax "(conversión No-exp1: (P --> S) No-exp2: (S --> S))")
+			  	(setf ruleSintax "(conversión No-exp1: (P --> S))")
 				 (setq truthv (conversion (second exp1)) 
 				 		expresion (list termA2 termA1) ))
 
@@ -279,7 +288,10 @@
 		(I-E (first expresion) (second expresion))
 		;(I-E termB1 termB1)
 		(setf statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
-							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )) )
+							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
+
+		(if (and statement (not (search "NIL" statement) ))  (insert2 statement))  
+		(setq statement 'nil truthv 'nil e 'nil e2 'nil) )) )
 
 ;;======================================================================================= 
 ;;  
@@ -328,6 +340,9 @@
 
 			  (T (insert2 (format 'nil "Error reglas NAL-2. Revise el número de las expresiones que desea usar asi como el orden para la regla de inferencia ~a."  rule)) (setf flag-ingresaBC 'nil))) 
 
+			(if (and statement (not (search "NIL" statement) )) 
+						(insert2 statement))
+			(setq statement 'nil truthv 'nil e 'nil e2 'nil)
 		(I-E (first expresion) (second expresion))
 	))
 
@@ -405,7 +420,8 @@
 						(if (> espectativa maxEspectativa) 
 							(setq subject (third (second expresion)) maxEspectativa espectativa) ) ))
 				(setq truthv subject  subjectOptions (mapcar #'(lambda (x) (third (second x))) subjectOptions) )) )
-))
+
+		(insert2 (format 'nil "Lista de coincidencias: ~a" subjectOptions)) ))
 
 ;;======================================================================================= 
 ;;  
@@ -438,7 +454,8 @@
 						(if (> espectativa maxEspectativa) 
 							(setq predicate (third (second expresion)) maxEspectativa espectativa) ) ))
 				(setq truthv predicate predicateOptions (mapcar #'(lambda (x) (third (second x))) predicateOptions) )) )
-	))
+	
+	(insert2 (format 'nil "Lista de coincidencias: ~a" predicateOptions))	))
 
 ;;======================================================================================= 
 ;;  

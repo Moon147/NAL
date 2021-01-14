@@ -3,7 +3,7 @@
 (define-easy-handler (index :uri "/NAL-Reasoner/index.html"
                                 :default-request-type :post)
 
-      (conocimiento valorV relacion expresion (selectbc :parameter-type 'integer)
+      (conocimiento valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
         comportamiento (decimales :parameter-type 'integer)
         (kuser :parameter-type 'integer)
@@ -23,7 +23,7 @@
   (with-html
     (:html
      (:head 
-      (:title "NAL-Reasoner")
+      (:title "NAL-Inference")
       (:link :rel "stylesheet" :type "text/css" :href "pushbar.css")
       (:link :rel "stylesheet" :type "text/css" :href "estilo.css")
       (:meta :charset "UTF-8")
@@ -50,7 +50,7 @@
             (:th :id "logoIPN" :style "width:100px;vertical-align:top"
               (:img :src "logo_ipn3.png" :height "90"))
             (:th :id "titulo" :style "text-align:center;vertical-align:top; padding: 3px"
-              (:h1 "NAL-Reasoner"))
+              (:h1 "NAL-Inference"))
             (:th :id "institucion" :style "text-align:right;width:260px;vertical-align:top;padding:10px"
               (:h3 "Instituto Politécnico Nacional")
               (:h3 "Escuela Superior de Cómputo"))
@@ -106,37 +106,21 @@
             (:li :class "tabs__item2" :onclick "openTab2(event,'DEBUG')"
               (:h4 "DEBUG")))
           (:div :class "tabcontent2 active" :id "informacion"
-            (loop for i from cont-message to (- *cont2* 1) 
+            (loop for i from 1 to (- *cont2* 1) 
                    do 
                    (setf expresion (obtiene-mensaje (list i)))
                    (htm
                       (:p :class "parrafo-salida" "  "(print i) 
-                         (print (first expresion)) )) )
-            (when (and statement (not (search "NIL" statement) )) 
-              (htm (:p :class "parrafo-salida" (print statement))
-                   (when e
-                    (htm (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la primera expresión: ~a"  e)))
-                         (:p :class "parrafo-salida" (print (format 'nil "Espectativa de la segunda expresión: ~a"  e2))))) )
-              (setq statement 'nil truthv 'nil e 'nil e2 'nil)) 
-            (if (and truthv (or subjectOptions predicateOptions)) 
-              (htm
-                (:p :class "parrafo-salida" "  " (print (format 'nil "El resultado de la consulta es: ~a" truthv)) ))) )
+                         (print (first expresion)) )) ) )
 
           (:div :class "tabcontent2" :id "DEBUG"
-            (when intensionA
-              (htm
-                (:p :class "parrafo-salida" (print intensionA) )
-                (:p :class "parrafo-salida" (print extensionA) )
-                (:p :class "parrafo-salida" "  " (print intensionB) )
-                (:p :class "parrafo-salida" "  " (print extensionB)) )
-              (setq intensionA '() intensionB '() extensionA '() extensionB '())) 
-            (when (and truthv (or subjectOptions predicateOptions)) 
-              (if subjectOptions
-                (htm (:p :class "parrafo-salida"
-                 (print (format 'nil "Lista de coincidencias: ~a" subjectOptions)) ) )
-                (htm (:p :class "parrafo-salida" 
-                 (print (format 'nil "Lista de coincidencias: ~a" predicateOptions )) )) )
-              (setq truthv 'nil subjectOptions 'nil predicateOptions 'nil) ))
+            (loop for i from 1 to (- *cont3* 1)
+                   do 
+                   (setf debug (obtiene-debug (list i)))
+                   (htm
+                      (:p :class "parrafo-salida" "  "(print i) 
+                         (print (first debug)) )) )
+             )
 
           ;(print(parseq 'judgement conocimiento))
           (:button :class "simbolo" :onclick "simbolo('-->')" :style "margin-left: 10px" "-->")
@@ -159,7 +143,7 @@
                 (:br)
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
                   :placeholder "Ingrese sus consultas" ))
-              (:input :class "botonSubir" :type "submit" :value "Enviar" ))) )
+              (:input :class "botonSubir" :onclick "scroll()" :type "submit" :value "Enviar" ))) )
 
         (:div :class "pc" :data-pushbar-target "mypushbar1"
           (:i :class "fas fa-angle-double-left"))
@@ -254,17 +238,24 @@
           (:section :class "reglas sub-menu"
             (:span :class "c2" "Reglas de Inferencia") 
             (:div :style "margin-left: 15px"
-              (:u "NAL-1")
+              (:u (:b :style "font-size: 18px; display: flex; justify-content: center" "NAL-1"))
               (:p "-Locales:")
-              (:p :style "margin-left: 20px" "Revisión:  (revisión No-exp1 No-exp2)")
-              (:p :style "margin-left: 20px" "Selección: (selección No-exp1 No-exp2 *(valor-verdad | evidencia acumulada))") :br
+              (:p :style "margin-left: 5px" "Revisión:" :br 
+                  (:p :style "margin-left: 10px" "(revisión No-exp1: (M --> P) No-exp2: (M --> P))")) :br 
+              (:p :style "margin-left: 5px" "Selección:" :br 
+                  (:p :style "margin-left: 10px" "(selección No-exp1: (M --> P) No-exp2: (M --> P))")) :br ;*(valor-verdad | evidencia acumulada)
+              (:hr :style "margin-right: 10px") :br  
               (:p "-Hacia adelante:")
-              (:p :style "margin-left: 20px" "Deducción: (deducción No-exp1 No-exp2)")
-              (:p :style "margin-left: 20px" "Inducción: (inducción No-exp1 No-exp2)")
-              (:p :style "margin-left: 20px" "Abducción: (abducción No-exp1 No-exp2)")
-              (:p :style "margin-left: 20px" "Ejemplificación (ejemplificación No-exp1 No-exp2)")
-              (:p :style "margin-left: 20px" "Conversión (conversión No-exp)") :br
-              (:p "-Hacia atrás:")) )
+              (:p :style "margin-left: 5px" "Deducción:" :br 
+                  (:p :style "margin-left: 10px" "(deducción No-exp1: (M --> P) No-exp2: (S --> M))")) :br 
+              (:p :style "margin-left: 5px" "Inducción:" :br 
+                  (:p :style "margin-left: 10px" "(inducción No-exp1: (M --> P) No-exp2: (M --> S))")) :br 
+              (:p :style "margin-left: 5px" "Abducción:" :br 
+                  (:p :style "margin-left: 10px" "(abducción No-exp1: (P --> M) No-exp2: (S --> M))")) :br 
+              (:p :style "margin-left: 5px" "Ejemplificación:" :br 
+                  (:p :style "margin-left: 10px" "(ejemplificación No-exp1: (M --> P) No-exp2: (S --> M))")) :br 
+              (:p :style "margin-left: 5px" "Conversión:" :br 
+                  (:p :style "margin-left: 10px" "(conversión No-exp1: (P --> S))")) ) )
 
         );/section data-pushbar-id 
 

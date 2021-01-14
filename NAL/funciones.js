@@ -225,4 +225,12 @@ function back(){
 }
 
 
-
+// ----------------------SCROLL--------
+function scroll()
+{
+    //Obtengo el div
+    var e = document.getElementById('TABLA');
+    //Llevo el scroll al fondo
+    var objDiv = document.getElementById("TABLA");
+    objDiv.scrollTop = objDiv.scrollHeight;
+}

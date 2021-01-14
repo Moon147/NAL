@@ -49,7 +49,7 @@ aside{
 }
 #aside{
 	background: white;
-	height: 95%;
+	height: 97%;
 	width: 100%;
 }
 
@@ -62,7 +62,7 @@ aside{
 
 #TABLA{
 	text-align: center;
-	height: 80%;
+	height: 85%;
 	overflow-y: scroll;
 	background-color: rgb(201, 201, 201 , 0.7);
 	display: flex;
@@ -144,6 +144,7 @@ aside{
 }
 #DEBUG{
 	background: white;
+	overflow-y: scroll;
 	height: 72.7%;
 	display: none;
 	position: relative;
@@ -247,8 +248,8 @@ aside{
 	text-align: center;
 }
 
-.submenu h5{ margin-top: 20px;
-		  margin-bottom: 5px; }
+.submenu h5{ margin-top: 30px;
+		  margin-bottom: 30px; }
 .regresar{
 	display: none;
 }

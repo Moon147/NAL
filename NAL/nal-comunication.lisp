@@ -99,7 +99,6 @@
 
 (defparameter *cont2* 1)
 (defparameter *exprerr* nil)
-(defparameter cont-message 1)
 
 (defun proveedor2 (key)
 	(values *exprerr*
@@ -131,7 +130,7 @@
   (values *exprdebug*
             key))
 
-(defparameter *mensajes-debug* (cacle:make-cache 10000000 #'proveedor1 :policy :lru))
+(defparameter *mensajes-debug* (cacle:make-cache 10000000 #'proveedor3 :policy :lru))
 
 (defun insert3 (debug)
   (setf *exprdebug* debug)
@@ -158,7 +157,7 @@
   (setf *cont3* 1)
 	(setf *my-cache* (cacle:make-cache 10000000 #'proveedor1 :policy :lru))
 	(setf *mensajes-cache* (cacle:make-cache 10000000 #'proveedor2 :policy :lru))
-  (setf *mensajes-debug* (cacle:make-cache 10000000 #'proveedor2 :policy :lru)) )
+  (setf *mensajes-debug* (cacle:make-cache 10000000 #'proveedor3 :policy :lru)) )
 
 
 ;;======================================================================================= 
@@ -268,12 +267,11 @@
     		;Cuando el usuario ha selccionado un archivo existente
     (cond ((numberp var-selectbc)
             (setq path-selectbc (format nil "Sesiones/~a/BC-~A" logfecha (if flag-BC0 (- var-selectbc 1) var-selectbc))
-                 flag-reset 'T flag-selectbc 'T  cont-message *cont2*)  ) 
+                 flag-reset 'T flag-selectbc 'T )  ) 
     		;Cuando se ha subido uno nuevo
           (T (setq path (first (second *files*) )
                    flag-selectbc '())
-              (incf flag-files)
-              (setq cont-message 1))) )
+              (incf flag-files) )) )
 
   	;Pasos para sobreescribir archivos y leer nuevos 
   (when flag-reset
