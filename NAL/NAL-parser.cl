@@ -52,9 +52,9 @@
 
 (parseq:defrule sentence () (or judgement query))
 
-(parseq:defrule funciones () (or (and "(" operacion sp int sp")" )
-                                      (and "(" operacion sp int sp int sp")" ) 
-                                      (and "(selección" sp int sp int sp formula sp")" ))  (:choose 1 3 5 7) )
+(parseq:defrule funciones () (or (and "(" operacion sp decimalpart sp")" )
+                                      (and "(" operacion sp decimalpart sp decimalpart sp")" ) 
+                                      (and "(selección" sp decimalpart sp decimalpart sp formula sp")" ))  (:choose 1 3 5 7) )
 
 
 ;(parseq:defrule funciones () (and "(" operacion sp int sp int sp formula ")") (:choose 1 3 5 7) )
@@ -154,7 +154,7 @@
 
 (parseq:defrule int () (decimalpart)
             (:lambda (&rest arguments) 
-            (read-from-string (apply #'concatenate 'string  arguments))))
+             (read-from-string (apply #'concatenate 'string  arguments))))
 
 
 ;; ================================================================================================

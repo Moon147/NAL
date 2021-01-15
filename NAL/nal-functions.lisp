@@ -126,6 +126,7 @@
 (defvar e '())
 (defvar e2 '())
 (defparameter flag-ingresaBC 'nil)	;Bandera para eliminar las expresiones usadas en las consultas
+(defvar errorSintax-local-n1 'nil)
 
 (defun local-rules-NAL1 (rule exp1 exp2 &optional decimales formula) 
 	(labels ((revision (vv1 vv2)       							;regla de inferencia NAL1 local: revisión
@@ -150,7 +151,7 @@
 				(Ai2	(eliminarRepetidos (cons term3 (intension term3 1))) )
 				(Bi2	(eliminarRepetidos (cons term4 (intension term4 1))) )
 				(Ae2	(eliminarRepetidos (cons term3 (extension term3 1))) ) 
-				(Be2	(eliminarRepetidos (cons term4 (extension term4 1))) ) )
+				(Be2	(eliminarRepetidos (cons term4 (extension term4 1))) )  )
 
 	 		(setq w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  		; w+ = ||(aE n bE) u (aI n bI)||
  				  w  (+ (length Ae) (length Bi))
@@ -168,27 +169,34 @@
 		 			(setf truthv (second exp1))
 		 			(setq exp1 exp2 truthv (second exp2))) )  )
 
-	(cond ((string= (string rule) "REVISIÓN") 
-					;(setf statement (list (first exp1) (revision (second exp1) (second exp2)) (third exp1))) 
-					(setf truthv (revision (second exp1) (second exp2))) 
-					;(parser statement) 
-					)
-			  ((string= (string rule) "SELECCIÓN")
-			  		(cond ((equal (first exp1) (first exp2)) 
-			  				(setf truthv (seleccion-confianza (second exp1) (second exp2))))
-			  			  ((= formula 0) 
-			  			  	(seleccion-espectativa-ea (first (first exp1)) (third (first exp1)) 
-  																					(first (first exp2)) (third (first exp2))) )
-			  (T
-			  	(seleccion-espectativa-vv (first (second exp1)) (second (second exp1)) 
-			  							  						(first (second exp2)) (second (second exp2)))) ) )) 
+	(cond ( (and (equal (first exp1) (first exp2))
+						(not (equal (second exp1) (second exp2))) )
+
+					(cond ((string= (string rule) "REVISIÓN") 
+						;(setf statement (list (first exp1) (revision (second exp1) (second exp2)) (third exp1))) 
+						(setf truthv (revision (second exp1) (second exp2))) 
+						;(parser statement) 
+						)
+				  ((string= (string rule) "SELECCIÓN")
+				  		(cond ((equal (first exp1) (first exp2)) 
+				  				(setf truthv (seleccion-confianza (second exp1) (second exp2))))
+				  			  ((= formula 0) 
+				  			  	(seleccion-espectativa-ea (first (first exp1)) (third (first exp1)) 
+	  																					(first (first exp2)) (third (first exp2))) )
+				  (T
+				  	(seleccion-espectativa-vv (first (second exp1)) (second (second exp1)) 
+				  							  						(first (second exp2)) (second (second exp2)))) ) ))
+				)
+	
+				(T (insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como la estructura para la regla de inferencia ~a con estructura en las premisas: No-exp1: (M --> P) <f1,c1> No-exp2: (M --> P) <f2,c2>"  
+					rule )) (setf errorSintax-local-n1 'T)) ) 	
 
 	(I-E (first (first exp1)) (third (first exp1)))
 	(setf statement (concatenate 'string (string (first (first exp1))) " --> " (string (third (first exp1))) 
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
 
-	(if (and statement (not (search "NIL" statement) ))  (insert2 statement)) 
-	(setq e 'nil e2 'nil) ))
+	(if (and statement (not (search "NIL" statement) ) (not errorSintax-local-n1))  (insert2 statement)) 
+	(setq e 'nil e2 'nil errorSintax-local-n1 'nil) ))
 
 ;;======================================================================================= 
 ;;  
@@ -349,21 +357,26 @@
 	))
 
 (defun inference-rules (solicitud decimales)
-	(cond ((and (< (second solicitud) *cont*) (not (numberp (third solicitud))) )
-		(let ((exp1 (first (obtiene-expresion (list (second solicitud)))) )) 
+	(let ( (noExp1 (parse-integer (second solicitud)) ) 
+			  (noExp2 (if (string= ")" (third solicitud))  'nil (parse-integer (third solicitud)) )) )
+	
+	(cond ((and (< noExp1 *cont*) (not (numberp noExp2)) )
+		(let ((exp1 (first (obtiene-expresion (list noExp1))) )) 
 			(forward-rules-N1 (first solicitud) exp1 'nil decimales) ))
 
-		 ((and (< (second solicitud) *cont*) (< (third solicitud) *cont*))
+		 ((and (< noExp1 *cont*) (< noExp2 *cont*))
 		 	
-			(let ((exp1 (first (obtiene-expresion (list (second solicitud)))) ) 
-			  	  (exp2 (first (obtiene-expresion (list (third  solicitud))))  ))
+			(let ((exp1 (first (obtiene-expresion (list noExp1))) ) 
+			  	  (exp2 (first (obtiene-expresion (list noExp2)))  ))
 
-			(cond ((and (equal (first exp1) (first exp2))
-						(not (equal (second exp1) (second exp2))) (not (numberp (fourth solicitud))) ) 
-					(local-rules-NAL1 (first solicitud) exp1 exp2 decimales))
 
-				((and (string= (string (first solicitud)) "SELECCIÓN") (numberp (fourth solicitud))) 
+			(cond ((and (string= (string (first solicitud)) "SELECCIÓN") (numberp (fourth solicitud))) 
 					(local-rules-NAL1 (first solicitud) exp1 exp2 nil (fourth solicitud)))
+
+				((or (string= (string (first solicitud)) "SELECCIÓN") (string= (string (first solicitud)) "REVISIÓN"))
+					;(and (equal (first exp1) (first exp2))
+					;	(not (equal (second exp1) (second exp2))) (not (numberp (fourth solicitud))) ) 
+					(local-rules-NAL1 (first solicitud) exp1 exp2 decimales))
 
 				((and (not (numberp (fourth solicitud)) ) (or (string= (string (first solicitud)) "COMPARACIÓN") (string= (string (first solicitud)) "ANALOGÍA") (string= (string (first solicitud)) "SEMEJANZA")))
 					(rules-N2 (first solicitud) exp1 exp2 decimales) )
@@ -371,8 +384,11 @@
 				((not (numberp (fourth solicitud)) )
 					(forward-rules-N1 (first solicitud) exp1 exp2 decimales) )
 
-				(T (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  solicitud)) (setf flag-ingresaBC 'nil))))  ))  
+				(T (insert2 (format 'nil "Error en: ~a. Revise la estructura y el nombre de las reglas de inferencia"  solicitud)) (setf flag-ingresaBC 'nil))))  )
 
+		 ((or (>= noExp1 *cont*) (>= noExp2 *cont*))  
+		 	(insert2 (format 'nil "Error en: ~a. Números fuera de la base de conocimiento"  solicitud)) ))  
+	)
 	(when flag-ingresaBC 
 		(cacle:cache-remove *my-cache* (second solicitud))
 		(cacle:cache-remove *my-cache* (third solicitud))
