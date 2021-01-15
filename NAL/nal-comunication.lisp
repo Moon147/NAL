@@ -79,7 +79,7 @@
 	(values *exprcon*
             key))
 
-(defparameter *my-cache* (cacle:make-cache 10000000 #'proveedor1 :policy :lru))
+(defparameter *my-cache* (cacle:make-cache 1000 #'proveedor1 :policy :lru))
 
 (defun insert(knowledge)
 	(setf *exprcon* knowledge)
@@ -104,7 +104,7 @@
 	(values *exprerr*
             key))
 
-(defparameter *mensajes-cache* (cacle:make-cache 10000000 #'proveedor2 :policy :lru))
+(defparameter *mensajes-cache* (cacle:make-cache 1000 #'proveedor2 :policy :lru))
 
 (defun insert2(message)
 	(setf *exprerr* message)
@@ -130,7 +130,7 @@
   (values *exprdebug*
             key))
 
-(defparameter *mensajes-debug* (cacle:make-cache 10000000 #'proveedor3 :policy :lru))
+(defparameter *mensajes-debug* (cacle:make-cache 1000 #'proveedor3 :policy :lru))
 
 (defun insert3 (debug)
   (setf *exprdebug* debug)

@@ -23,7 +23,7 @@
   (with-html
     (:html
      (:head 
-      (:title "NAL-Inference")
+      (:title "Inferencia No-axiomática")
       (:link :rel "stylesheet" :type "text/css" :href "pushbar.css")
       (:link :rel "stylesheet" :type "text/css" :href "estilo.css")
       (:meta :charset "UTF-8")
@@ -48,9 +48,9 @@
           (:table :style "width:100%"
           (:tr
             (:th :id "logoIPN" :style "width:100px;vertical-align:top"
-              (:img :src "logo_ipn3.png" :height "90"))
+              (:img :src "logo_ipn3.png" :height "80"))
             (:th :id "titulo" :style "text-align:center;vertical-align:top; padding: 3px"
-              (:h1 "NAL-Inference"))
+              (:h1 "Inferencia No-axiomática"))
             (:th :id "institucion" :style "text-align:right;width:260px;vertical-align:top;padding:10px"
               (:h3 "Instituto Politécnico Nacional")
               (:h3 "Escuela Superior de Cómputo"))
@@ -78,13 +78,14 @@
                         (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
                         (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
                       (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                      ;(setq truthv 'nil)
+                      (setq truthv 'nil)
                       )                 ;Se reinician las variables
                     ((or (search "(" conocimiento) (search ")" conocimiento))
                       (if (parseq:parseq 'funciones conocimiento) 
                         (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
                         (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento))) 
-                      (if var-addexp (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                      (if opcadd (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                      (setq statement 'nil)
                     )
                   (T (parser conocimiento) ))       
 
@@ -102,9 +103,9 @@
         (:section :id "contenido"
           (:ul :class "tabs2"
             (:li :class "tabs__item2 active" :onclick "openTab2(event,'informacion')"
-              (:h4 "OUTPUT"))
+              (:h4 "SALIDA"))
             (:li :class "tabs__item2" :onclick "openTab2(event,'DEBUG')"
-              (:h4 "DEBUG")))
+              (:h4 "RASTREO")))
           (:div :class "tabcontent2 active" :id "informacion"
             (loop for i from 1 to (- *cont2* 1) 
                    do 
@@ -139,7 +140,7 @@
                  :name "opcadd"
                  :value "agregar"
                  :checked (string= "agregar" opcadd)
-                 (print "Agregar consulta a BC"))
+                 (print "Agregar resultado a la Base de Conocimiento"))
                 (:br)
                 (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
                   :placeholder "Ingrese sus consultas" ))

@@ -108,6 +108,9 @@
 		  frequency (float (adjust-precision (/ w+ w) decimales)) 			; frequency = w+ / w
 		  confidence (float (adjust-precision (/ w (+ w k)) decimales)) ) 	; confidence = w / (w + k)
 
+	(if (equal term1 term2) 
+		(setq frequency 1.0 confidence 0.9) )
+
 	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
 							" <" (format nil "~f" frequency) ", " (format nil "~f" confidence) ">" ))
 	(insert2 (format 'nil "~(~a --> ~a~) <~a, ~a>" 
@@ -185,7 +188,7 @@
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
 
 	(if (and statement (not (search "NIL" statement) ))  (insert2 statement)) 
-	(setq statement 'nil truthv 'nil e 'nil e2 'nil) ))
+	(setq e 'nil e2 'nil) ))
 
 ;;======================================================================================= 
 ;;  
@@ -290,7 +293,7 @@
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
 
 		(if (and statement (not (search "NIL" statement) ))  (insert2 statement))  
-		(setq statement 'nil truthv 'nil e 'nil e2 'nil) )) )
+		(setq e 'nil e2 'nil) )) )
 
 ;;======================================================================================= 
 ;;  
@@ -341,7 +344,7 @@
 
 			(if (and statement (not (search "NIL" statement) )) 
 						(insert2 statement))
-			(setq statement 'nil truthv 'nil e 'nil e2 'nil)
+			(setq e 'nil e2 'nil)
 		(I-E (first expresion) (second expresion))
 	))
 
@@ -465,7 +468,7 @@
 (defun query-NAL1 (query decimales)
 	(if (not (null query))
 		(cond ((listp (first query)) ; a --> b ?
-			      (truth-value (first query) decimales))     ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+			      (truth-value (first query) decimales) )     ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
 			    ((string= (first query) #\?)                ; ? --> b 
 			      (subject? query))
 			    (T                ; a --> ?)
