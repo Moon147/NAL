@@ -52,9 +52,9 @@
 
 (parseq:defrule sentence () (or judgement query))
 
-(parseq:defrule funciones () (or (and "(" operacion sp decimalpart sp")" )
-                                      (and "(" operacion sp decimalpart sp decimalpart sp")" ) 
-                                      (and "(selección" sp decimalpart sp decimalpart sp formula sp")" ))  (:choose 1 3 5 7) )
+(parseq:defrule funciones () (or (and "(" operacion sp decimalpart sp ")" )
+                                      (and "(" operacion sp decimalpart sp decimalpart sp ")" ) 
+                                      (and "(selección" sp decimalpart sp decimalpart sp formula sp ")" ))  (:choose 1 3 5 7) )
 
 
 ;(parseq:defrule funciones () (and "(" operacion sp int sp int sp formula ")") (:choose 1 3 5 7) )
@@ -74,11 +74,11 @@
 (parseq:defrule formula () (or "0" "1")
         (:lambda (form) (read-from-string form)))
 
-(parseq:defrule judgement () (and statement sp (? truthvalue)) (:choose 0 2))
+(parseq:defrule judgement () (and "(" sp statement sp (? truthvalue) sp ")") (:choose 2 4))
 
-(parseq:defrule query () (or (and statement sp "?") 
-                             (and term sp "-->" sp "?")
-                             (and "?" sp "-->" sp term)) (:choose 0 2 4))
+(parseq:defrule query () (or (and "(" sp statement sp "?" sp ")") 
+                             (and "(" sp term sp "-->" sp "?" sp ")")
+                             (and "(" sp ? sp "-->" sp term sp ")")) (:choose 2 4 6))
 
 ;; ===========================================================
 ;;  Agregé :choose en lugar de :string  

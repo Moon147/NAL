@@ -226,7 +226,7 @@
 	 												año mes dia horas minutos segundos )))
 (defvar *directory*
   (pathname 
-	(format 'nil "/home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/" logfecha)))
+	(format 'nil "/home/local/PRAXISIT/gopo/Documentos/NAL/NAL/Sesiones/~a/" logfecha)))
 
 (defparameter *log* 'nil) 		;Variable para guardar las sesiones 
 
@@ -246,7 +246,7 @@
       (setq path (format 'nil "Sesiones/~a/BC-0" logfecha))
       (writefile path)
       (setq *files* (list (first *files*) 
-        (list (pathname (format 'nil "/home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/BC-0" logfecha))
+        (list (pathname (format 'nil "/home/local/PRAXISIT/gopo/Documentos/NAL/NAL/Sesiones/~a/BC-0" logfecha))
         	"BC-0.txt" "text/plain") )
         flag-BC0 'T)
       (incf flag-files))) )
