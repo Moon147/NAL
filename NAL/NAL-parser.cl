@@ -74,11 +74,14 @@
 (parseq:defrule formula () (or "0" "1")
         (:lambda (form) (read-from-string form)))
 
-(parseq:defrule judgement () (and "(" sp statement sp (? truthvalue) sp ")") (:choose 2 4))
+(parseq:defrule judgement () (or (and "(" sp statement sp (? truthvalue) sp ")")
+                                 (and "(" sp "{" sp statement sp "}" sp "-->" sp statement sp (? truthvalue) sp ")")
+                                 (and "(" sp statement sp "-->" sp "[" sp statement sp "]" sp (? truthvalue) sp ")")
+                                 (and "(" sp "{" sp statement sp "}" sp "-->" sp "[" sp statement sp "]" sp (? truthvalue) sp ")")) (:choose 2 4 6 8 10 12 14 16))
 
 (parseq:defrule query () (or (and "(" sp statement sp "?" sp ")") 
                              (and "(" sp term sp "-->" sp "?" sp ")")
-                             (and "(" sp ? sp "-->" sp term sp ")")) (:choose 2 4 6))
+                             (and "(" sp "?" sp "-->" sp term sp ")")) (:choose 2 4 6))
 
 ;; ===========================================================
 ;;  Agregé :choose en lugar de :string  
