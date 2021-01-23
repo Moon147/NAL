@@ -5,7 +5,8 @@
 
       (conocimiento valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
-        comportamiento (decimales :parameter-type 'integer)
+        ;comportamiento 
+        (decimales :parameter-type 'integer)
         (kuser :parameter-type 'integer)
         (opcjoin :parameter-type 'string) 
         (opcadd :parameter-type 'string))
@@ -164,14 +165,14 @@
             (:span :class "c2" "Política de Control")
           (:form :method :post :style "margin-left: 15px"
           (:legend "Valor de verdad") :br
-          (:p "Decimales: "
-            (:select :name "comportamiento"
-             (loop for (value option) in '((:redondear "Redondear")
-                                           (:truncar "Truncar"))
-                   do (htm
-                       (:option :value value
-                        :selected (eq value comportamiento)
-                        (str option)))) )) :br
+          ;(:p "Decimales: "
+          ;  (:select :name "comportamiento"
+          ;   (loop for (value option) in '((:redondear "Redondear")
+          ;                                 (:truncar "Truncar"))
+          ;         do (htm
+          ;             (:option :value value
+          ;              :selected (eq value comportamiento)
+          ;              (str option)))) )) :br
           (:p "Cantidad de decimales: " :br :t 
             (:input 
               :name "decimales"
