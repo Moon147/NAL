@@ -52,7 +52,14 @@ html.pushbar_locked .pushbar_overlay{
 	transform: translateZ(0) translateX(100%);
 }
 
-
+.pushbar.from_left{
+	top: 0;
+	left: 0;
+	width: 70%;
+	height: 85%;
+	margin-top:  50px;
+	transform: translateZ(0) translateX(100%);
+}
 
 /*LOGGIN */
 .pushbar.from_center{

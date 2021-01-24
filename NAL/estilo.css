@@ -70,6 +70,13 @@ aside{
 	border-collapse: collapse;
 }
 
+.spanBC{
+	display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
 #TABLA th, td {
     border-spacing: 0;
 }

@@ -59,16 +59,18 @@
               (:img :src "logo_escom.png" :height "50"))
             (:th :id "logoCIC" :style "text-align:right;width:70px;vertical-align:top;padding: 8px; padding-top: 0px"
               (:img :src "logo_cic3.png" :height "75")) )))
-        (:aside
+        (:aside 
           (:ul :class "tabs1"
-            (:li :class "tabs__item active" :onclick "openTab(event,'TABLA')"
+            (:li :class "tabs__item active" :onclick "openTab(event,'TABLA')" 
               (:h4 "BC"))
             (:li :class "tabs__item" :onclick "openTab(event,'BC');"
               (:h4 "TABLA")))
 
           (:div :id "aside"
-            (:span :class "c1" "Base de Conocimiento")
-            (:table :id "TABLA" :class "tabcontent active"
+            (:div :class "spanBC" (:span :class "c1" "Base de Conocimiento")
+            (:div :data-pushbar-target "mypushbar3"
+                (:i :class "fas fa-angle-double-right")) )
+            (:table :id "TABLA" :class "tabcontent active" :data-pushbar-id "mypushbar3" :class "pushbar from_left"
               (:tr 
                 (:th :id "num" "No")
                 (:th :id "exp" "Expresión")
