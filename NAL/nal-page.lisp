@@ -80,14 +80,12 @@
                         (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
                       (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                       (setq truthv 'nil)
-                      )                 ;Se reinician las variables
-                    ((or (search "(" conocimiento) (search ")" conocimiento))
-                      (if (parseq:parseq 'funciones conocimiento) 
+                      )                 ;Se reinician las variables                    
+                    ((parseq:parseq 'funciones conocimiento) 
                         (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
-                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento))) 
+                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) 
                       (if opcadd (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                      (setq statement 'nil)
-                    )
+                      (setq statement 'nil))
                   (T (parser conocimiento) ))       
 
                 (loop for i from 1 to (- *cont* 1)
