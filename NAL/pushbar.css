@@ -58,7 +58,7 @@ html.pushbar_locked .pushbar_overlay{
 	width: 70%;
 	height: 85%;
 	margin-top:  50px;
-	transform: translateZ(0) translateX(100%);
+	transform: translateZ(0) translateX(-100%);
 }
 
 /*LOGGIN */

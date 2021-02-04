@@ -65,11 +65,11 @@
               (:h4 "BC"))
             (:li :class "tabs__item" :onclick "openTab(event,'BC');"
               (:h4 "TABLA")))
-
+(:div :data-pushbar-target "mypushbar3"
+                (:i :class "fas fa-angle-double-right"))
           (:div :id "aside"
             (:div :class "spanBC" (:span :class "c1" "Base de Conocimiento")
-            (:div :data-pushbar-target "mypushbar3"
-                (:i :class "fas fa-angle-double-right")) )
+             )
             (:table :id "TABLA" :class "tabcontent active" :data-pushbar-id "mypushbar3" :class "pushbar from_left"
               (:tr 
                 (:th :id "num" "No")
