@@ -93,6 +93,30 @@
 
 ;;======================================================================================= 
 ;;  
+;;  Caché para agente
+;;  
+;;=======================================================================================
+
+(defparameter *cont4* 1)
+(defparameter *expragente* nil)
+
+(defun proveedor4 (key)
+  (values *expragente*
+            key))
+
+(defparameter *mensajes-agente* (cacle:make-cache 1000 #'proveedor4 :policy :lru))
+
+(defun insert4 (agente)
+  (setf *expragente* agente)
+  (cacle:cache-fetch *mensajes-agente* *cont4*)
+  (incf *cont4*))
+
+(defun obtiene-agente(id)
+  (mapcar #'(lambda (key)
+              (cacle:cache-fetch *mensajes-agente* key :only-if-cached t)) id))
+
+;;======================================================================================= 
+;;  
 ;;  Caché para los mensajes de error
 ;;  
 ;;=======================================================================================
@@ -154,10 +178,12 @@
 	(setf *cont2* 1)
 	(setf *exprerr* nil)
   (setf *exprdebug* nil)
-  (setf *cont3* 1)
-	(setf *my-cache* (cacle:make-cache 1000 #'proveedor1 :policy :lru))
-	(setf *mensajes-cache* (cacle:make-cache 1000 #'proveedor2 :policy :lru))
-  (setf *mensajes-debug* (cacle:make-cache 1000 #'proveedor3 :policy :lru)) )
+  (setf *cont3* 1)  
+  (setf *cont4* 1)
+	(setf *my-cache* (cacle:make-cache 10000 #'proveedor1 :policy :lru))
+  (setf *mensajes-agente* (cacle:make-cache 10000 #'proveedor4 :policy :lru)) 
+	(setf *mensajes-cache* (cacle:make-cache 10000 #'proveedor2 :policy :lru))
+  (setf *mensajes-debug* (cacle:make-cache 10000 #'proveedor3 :policy :lru)) )
 
 
 ;;======================================================================================= 
@@ -169,6 +195,7 @@
 (defvar confidenceCero 0.5)
 (defvar tv 0)
 (defvar contPassParser 0)
+(defvar expresionLista 'nil)
 
 (defun parser (aux)  						
 	(setf auxiliar2 (parseq:parseq 'judgement aux))
@@ -180,12 +207,14 @@
 	    ;Agrega la estructura de la expresión a la cache de BC
 	    ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv"))
       (setf tv (second auxiliar2))      ;tv valor de verdad (frequency confidence)
-	    (insert (list (first auxiliar2) 
+	    (setf expresionLista (list (first auxiliar2) 
                     (if (= 0 (second tv)) (list (first tv) confidenceCero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
 	       (list (format nil "~(~a ~a ~a~)" (first (first auxiliar2)) (second (first auxiliar2)) (third (first auxiliar2)))
 	       		 (if (= 0 (second tv)) 
                 (format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
                 (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
+      (insert expresionLista)
+      (insert4 expresionLista)
       ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )

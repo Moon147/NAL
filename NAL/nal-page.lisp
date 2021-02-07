@@ -60,47 +60,66 @@
             (:th :id "logoCIC" :style "text-align:right;width:70px;vertical-align:top;padding: 8px; padding-top: 0px"
               (:img :src "logo_cic3.png" :height "75")) )))
         (:aside 
-          (:ul :class "tabs1"
-            (:li :class "tabs__item active" :onclick "openTab(event,'TABLA')" 
-              (:h4 "BC"))
-            (:li :class "tabs__item" :onclick "openTab(event,'BC');"
-              (:h4 "TABLA")))
-(:div :data-pushbar-target "mypushbar3"
-                (:i :class "fas fa-angle-double-right"))
-          (:div :id "aside"
-            (:div :class "spanBC" (:span :class "c1" "Base de Conocimiento")
-             )
-            (:table :id "TABLA" :class "tabcontent active" :data-pushbar-id "mypushbar3" :class "pushbar from_left"
-              (:tr 
-                (:th :id "num" "No")
-                (:th :id "exp" "Expresión")
-                (:th :id "vv" "Valor de verdad"))
-              
-              (cond ((search "?" conocimiento)
-                      (if (parseq:parseq 'query conocimiento)  
-                        (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
-                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
-                      (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                      (setq truthv 'nil)
-                      )                 ;Se reinician las variables                    
-                    ((parseq:parseq 'funciones conocimiento) 
-                        (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
-                        (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) 
-                      (if opcadd (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                      (setq statement 'nil))
-                  (T (parser conocimiento) ))       
+          (:div :id "collapse" :class "aside-close"
+            (:ul :class "tabs1"
+                      (:li :class "tabs__item active" :onclick "openTab(event,'TABLA')" 
+                        (:h4 "CONOCIMIENTO USUARIO"))
+                      (:li :class "tabs__item" :onclick "openTab(event,'BC');"
+                        (:h4 "CONOCIMIENTO AGENTE")))
+                    (:div :id "aside"
+                      (:div :class "spanBC" 
+                        (:span :class "c1" "Base de Conocimiento")
+                        (:div  :class "collapse" 
+                          (:i :class "openCollapse fas fa-angle-double-right" :id "openCollapse" :onclick  "collapse()")
+                          (:i :class "closeCollapse fas fa-window-close " :id "closeCollapse" :onclick "collapseOff()"))
+                       )
+                      (:table :id "TABLA" :class "tabcontent active"
+                        (:tr 
+                          (:th :class "num" "No")
+                          (:th :class "exp" "Expresión")
+                          (:th :class "vv" "Valor de verdad"))
+                        
+                        (cond ((search "?" conocimiento)
+                                (if (parseq:parseq 'query conocimiento)  
+                                  (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
+                                  (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
+                                (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                                (setq truthv 'nil)
+                                )                 ;Se reinician las variables                    
+                              ((parseq:parseq 'funciones conocimiento) 
+                                  (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
+                                  (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) 
+                                (if opcadd (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                                (setq statement 'nil))
+                            (T (parser conocimiento) ))       
+          
+                          (loop for i from 1 to (- *cont* 1)
+                           do 
+                            (setf expresion (first (obtiene-expresion (list i))))
+                            (setf valorV (second (third expresion)))
+                            (setf relacion (first (third expresion)))
+                              (htm
+                               (:tr 
+                                (:td (print i))
+                                (:td (print relacion))
+                                (:td (print valorV))))) )
+                      (:table :id "BC" :class "tabcontent"
+                        (:tr 
+                          (:th :class "num" "No")
+                          (:th :class "exp" "Expresión")
+                          (:th :class "vv" "Valor de verdad")) 
+                        (loop for i from 1 to (- *cont4* 1)
+                           do 
+                            (setf expresion (first (obtiene-agente (list i))))
+                            (setf valorV (second (third expresion)))
+                            (setf relacion (first (third expresion)))
+                              (htm
+                               (:tr 
+                                (:td (print i))
+                                (:td (print relacion))
+                                (:td (print valorV))))) ) ))
+          )
 
-                (loop for i from 1 to (- *cont* 1)
-                 do 
-                  (setf expresion (first (obtiene-expresion (list i))))
-                  (setf valorV (second (third expresion)))
-                  (setf relacion (first (third expresion)))
-                    (htm
-                     (:tr 
-                      (:td (print i))
-                      (:td (print relacion))
-                      (:td (print valorV))))) )
-            (:div :id "BC" :class "tabcontent")))
         (:section :id "contenido"
           (:ul :class "tabs2"
             (:li :class "tabs__item2 active" :onclick "openTab2(event,'informacion')"

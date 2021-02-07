@@ -234,3 +234,32 @@ function scroll()
     var objDiv = document.getElementById("TABLA");
     objDiv.scrollTop = objDiv.scrollHeight;
 }
+
+//---------------------------------------------TABLA COLLAPSE--------------------------------------------------
+function collapse() {
+  const aside = document.getElementById("collapse");
+  const close = document.getElementById("closeCollapse");
+  const open = document.getElementById("openCollapse");
+  const Root = document.querySelector('html');
+  Root.classList.add('pushbar_locked');
+  aside.classList.remove("aside-close");
+  aside.classList.add("aside-open");
+  open.classList.add("closeCollapse");
+  open.classList.remove("openCollapse");
+  close.classList.add("openCollapse");
+  close.classList.remove("closeCollapse");
+}
+
+function collapseOff() {
+  const aside = document.getElementById("collapse");
+  const close = document.getElementById("closeCollapse");
+  const open = document.getElementById("openCollapse");
+  const Root = document.querySelector('html');
+  Root.classList.remove('pushbar_locked');
+  aside.classList.add("aside-close");
+  aside.classList.remove("aside-open");
+  close.classList.add("closeCollapse");
+  close.classList.remove("openCollapse");
+  open.classList.add("openCollapse");
+  open.classList.remove("closeCollapse");
+}
