@@ -185,6 +185,50 @@
 	(setf *mensajes-cache* (cacle:make-cache 10000 #'proveedor2 :policy :lru))
   (setf *mensajes-debug* (cacle:make-cache 10000 #'proveedor3 :policy :lru)) )
 
+;;======================================================================================= 
+;;  
+;;  Función para agregar a cache de agente
+;;  
+;;=======================================================================================
+(defun bcAgente (expresion)
+  (let ((lista (first expresion))
+        (vv (second expresion))
+        (expString (third expresion)) 
+        (newExpresion nil))
+    (cond 
+      ((string= "<->"(string (second lista)))
+        (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
+          (list (list (first lista) (read-from-string "-->") (third lista)) 
+                vv 
+                (list (concatenate 'string (string (first lista)) " --> " (string (third lista))) (second expString)) )
+          (list (list (third lista) (read-from-string "-->") (first lista)) 
+                vv 
+                (list (concatenate 'string (string (third lista)) " --> " (string (first lista))) (second expString)) ) ))
+        (insert4 newExpresion))
+
+      ((string= "O->"(string (second lista)))
+        (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
+          (list (list (first lista) (read-from-string "-->") (third lista)) 
+                vv 
+                (list (concatenate 'string "{" (string (first lista)) "} --> " (string (third lista))) (second expString)) ))
+        (insert4 newExpresion))
+
+      ((string= "->O"(string (second lista)))
+        (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
+          (list (list (first lista) (read-from-string "-->") (third lista)) 
+                vv 
+                (list (concatenate 'string (string (first lista)) " --> [" (string (third lista)) "]") (second expString)) ))
+        (insert4 newExpresion))
+
+      ((string= "O->O"(string (second lista)))
+        (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
+          (list (list (first lista) (read-from-string "-->") (third lista)) 
+                vv 
+                (list (concatenate 'string "{" (string (first lista)) "} --> [" (string (third lista)) "]") (second expString)) ))
+        (insert4 newExpresion))
+
+      (T (insert4 expresion)) )) )
+
 
 ;;======================================================================================= 
 ;;  
@@ -214,7 +258,7 @@
                 (format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
                 (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
       (insert expresionLista)
-      (insert4 expresionLista)
+      (bcAgente expresionLista)
       ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )

@@ -87,8 +87,8 @@
                                 (setq truthv 'nil)
                                 )                 ;Se reinician las variables                    
                               ((parseq:parseq 'funciones conocimiento) 
-                                  (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
-                                  (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) 
+                                  (if (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
+                                  (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) )
                                 (if opcadd (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                                 (setq statement 'nil))
                             (T (parser conocimiento) ))       
@@ -111,14 +111,31 @@
                         (loop for i from 1 to (- *cont4* 1)
                            do 
                             (setf expresion (first (obtiene-agente (list i))))
-                            (setf valorV (second (third expresion)))
-                            (setf relacion (first (third expresion)))
-                              (htm
-                               (:tr 
-                                (:td (print i))
-                                (:td (print relacion))
-                                (:td (print valorV))))) ) ))
-          )
+                            (cond 
+                              ((third expresion)  ;-----------------------EXPRESIÓN CON CÓPULAS --> O-> ->O O->O
+                                (setf valorV (second (third expresion)))
+                                (setf relacion (first (third expresion))) 
+                                (htm
+                                 (:tr 
+                                  (:td (print i))
+                                  (:td (print relacion))
+                                  (:td (print valorV)))) ) 
+                              (T                   ;-----------------------EXPRESIÓN CON CÓPULA <-> SE IMPREMEN LAS 2 VERSIONES DE LA BC DE AGENTE
+                                (setf valorV (second (third (first expresion))))
+                                (setf relacion (first (third (first expresion)))) 
+                                (htm
+                                 (:tr 
+                                  (:td (print i))
+                                  (:td (print relacion))
+                                  (:td (print valorV))))
+                                (setf valorV (second (third (second expresion))))
+                                (setf relacion (first (third (second expresion)))) 
+                                (htm
+                                 (:tr 
+                                  (:td (print i))
+                                  (:td (print relacion))
+                                  (:td (print valorV)))) )) )) ))
+          );aside
 
         (:section :id "contenido"
           (:ul :class "tabs2"
