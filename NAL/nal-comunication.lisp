@@ -229,6 +229,35 @@
 
       (T (insert4 expresion)) )) )
 
+(defun bcUsuario (expresion)
+  (let ((lista (first expresion))
+        (vv (second expresion))
+        (expString (third expresion)) 
+        (newExpresion nil))
+    (cond 
+      ((and (search "{" (string (first lista))) (search "[" (string (third lista))))
+        (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
+          (list (list (first lista) (read-from-string "o->o") (third lista)) 
+                vv 
+                (list (concatenate 'string (string (first lista)) " o->o " (string (third lista))) (second expString)) ))
+        (insert newExpresion))
+
+      ((search "{" (string (first lista)))
+        (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
+          (list (list (first lista) (read-from-string "o->") (third lista)) 
+                vv 
+                (list (concatenate 'string (string (first lista)) " o-> " (string (third lista))) (second expString)) ))
+        (insert newExpresion))
+
+      ((search "[" (string (third lista)))
+        (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
+          (list (list (first lista) (read-from-string "->o") (third lista)) 
+                vv 
+                (list (concatenate 'string (string (first lista)) " ->o" (string (third lista))) (second expString)) ))
+        (insert newExpresion))
+
+      (T (insert expresion)) )) )
+
 
 ;;======================================================================================= 
 ;;  
@@ -257,7 +286,7 @@
 	       		 (if (= 0 (second tv)) 
                 (format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
                 (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
-      (insert expresionLista)
+      (bcUsuario expresionLista)
       (bcAgente expresionLista)
       ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
       ;Agregar a variable contPassParser los que fueron agregados a la caché
