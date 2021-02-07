@@ -75,9 +75,7 @@
         (:lambda (form) (read-from-string form)))
 
 (parseq:defrule judgement () (or (and "(" sp statement sp (? truthvalue) sp ")")
-                                 (and "(" sp "{" sp statement sp "}" sp "-->" sp statement sp (? truthvalue) sp ")")
-                                 (and "(" sp statement sp "-->" sp "[" sp statement sp "]" sp (? truthvalue) sp ")")
-                                 (and "(" sp "{" sp statement sp "}" sp "-->" sp "[" sp statement sp "]" sp (? truthvalue) sp ")")) (:choose 2 4 6 8 10 12 14 16))
+				  (and "(" sp statementNal2 sp (? truthvalue) sp ")")) (:choose 2 4))
 
 (parseq:defrule query () (or (and "(" sp statement sp "?" sp ")") 
                              (and "(" sp term sp "-->" sp "?" sp ")")
@@ -95,7 +93,13 @@
 ;;  Agregé :lambda después de :string
 ;;  para  entregar en forma de símbolo (17-abril-2020)
 ;; ===========================================================
-(parseq:defrule term () (or anyword variable compound-term) 
+(parseq:defrule term () (or anyword variable compound-term
+			     (and "{" sp anyword sp "}")
+			     (and "{" sp variable sp "}")
+			     (and "{" sp compound-term sp "}")
+			     (and "[" sp anyword sp "]")
+			     (and "[" sp variable sp "]")
+			     (and "[" sp compound-term sp "]")) 
                     (:string)
                     (:lambda (term) (read-from-string term)) )
 
@@ -178,3 +182,7 @@
 
 (parseq:defrule sp () (* (or #\space #\tab #\newline))) ;espacio opcional (cerradura transitiva)
 (parseq:defrule sp+ () (+ (or #\space #\tab #\newline)))  ;espacio obligatorio (cerrradura positiva)
+
+;; ================================================================================================
+;; Cópulas especiales para NAL2  
+;; ================================================================================================
