@@ -65,9 +65,9 @@
           (:div :id "collapse" :class "aside-close"
             (:ul :class "tabs1"
                       (:li :class "tabs__item active" :onclick "openTab(event,'TABLA')" 
-                        (:h4 "CONOCIMIENTO USUARIO"))
+                        (:h4 "BC USUARIO"))
                       (:li :class "tabs__item" :onclick "openTab(event,'BC');"
-                        (:h4 "CONOCIMIENTO AGENTE")))
+                        (:h4 "BC AGENTE")))
                     (:div :id "aside"
                       (:div :class "spanBC" 
                         (:span :class "c1" "Base de Conocimiento")
@@ -99,12 +99,12 @@
                            do 
                             (setf expresion (first (obtiene-expresion (list i))))
                             (setf valorV (second (third expresion)))
-                            (setf relacion (first (third expresion)))
+                            (setf relacion (string-downcase (first (third expresion))))
                               (htm
                                (:tr 
                                 (:td (print i))
-                                (:td (print relacion))
-                                (:td (print valorV))))) )
+                                (:td (format t "~a" relacion))
+                                (:td (format t "~a" valorV))))) )
                       (:table :id "BC" :class "tabcontent"
                         (:tr 
                           (:th :class "num" "No")
@@ -116,27 +116,27 @@
                             (cond 
                               ((third expresion)  ;-----------------------EXPRESIÓN CON CÓPULAS --> O-> ->O O->O
                                 (setf valorV (second (third expresion)))
-                                (setf relacion (first (third expresion))) 
+                                (setf relacion (string-downcase (first (third expresion)))) 
                                 (htm
                                  (:tr 
                                   (:td (print i))
-                                  (:td (print relacion))
-                                  (:td (print valorV)))) ) 
+                                  (:td (format t "~a" relacion))
+                                  (:td (format t "~a" valorV)))) ) 
                               (T                   ;-----------------------EXPRESIÓN CON CÓPULA <-> SE IMPREMEN LAS 2 VERSIONES DE LA BC DE AGENTE
                                 (setf valorV (second (third (first expresion))))
-                                (setf relacion (first (third (first expresion)))) 
+                                (setf relacion (string-downcase (first (third (first expresion)))) )
                                 (htm
                                  (:tr 
                                   (:td (print i))
-                                  (:td (print relacion))
-                                  (:td (print valorV))))
+                                  (:td (format t "~a" relacion))
+                                  (:td (format t "~a" valorV))))
                                 (setf valorV (second (third (second expresion))))
-                                (setf relacion (first (third (second expresion)))) 
+                                (setf relacion (string-downcase (first (third (second expresion)))) )
                                 (htm
                                  (:tr 
                                   (:td (print i))
-                                  (:td (print relacion))
-                                  (:td (print valorV)))) )) )) ))
+                                  (:td (format t "~a" relacion))
+                                  (:td (format t "~a" valorV)))) )) )) ))
           );aside
 
         (:section :id "contenido"
@@ -153,7 +153,7 @@
                    (setf expresion (obtiene-mensaje (list i)))
                    (htm
                       (:p :class "parrafo-salida" "  "(print i) 
-                         (print (first expresion)) )) ) )
+                         (format t "~a" (first expresion)) )) ) )
 
           (:div :class "tabcontent2" :id "DEBUG"              
             (loop for i from 1 to (- *cont3* 1)
@@ -161,7 +161,7 @@
                    (setf debug (obtiene-debug (list i)))
                    (htm
                       (:pre :class "parrafo-salida" "  "(print i) 
-                         (print (first debug)) )) )
+                         (format t "~a" (first debug)) )) )
              )
 
           ;(print(parseq 'judgement conocimiento))
@@ -257,7 +257,7 @@
                              :name "opcjoin"
                              :value "agregar"
                              :checked (or (string= "agregar" opcjoin) var-addexp)
-                             (print "Unir bases de conocimiento")) )
+                             (format t "~a" "Unir bases de conocimiento")) )
 
                   ;Muestra archivos de BC
                   (when *files* 

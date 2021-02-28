@@ -114,7 +114,7 @@
 	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
 							" <" (format nil "~f" frequency) ", " (format nil "~f" confidence) ">" ))
 	(insert2 (format 'nil "~(~a --> ~a~) <~a, ~a>" 
-												term1 term2 frequency confidence)) ))	
+												(string-downcase term1) (string-downcase term2) frequency confidence)) ))	
 
 ;;======================================================================================= 
 ;;  
@@ -192,7 +192,7 @@
 					rule )) (setf errorSintax-local-n1 'T)) ) 	
 
 	(I-E (first (first exp1)) (third (first exp1)))
-	(setf statement (concatenate 'string (string (first (first exp1))) " --> " (string (third (first exp1))) 
+	(setf statement (concatenate 'string (string-downcase (string (first (first exp1)))) " --> " (string-downcase (string (third (first exp1)))) 
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
 
 	(if (and statement (not (search "NIL" statement) ) (not errorSintax-local-n1))  (insert2 statement)) 
@@ -297,7 +297,7 @@
 
 		(I-E (first expresion) (second expresion))
 		;(I-E termB1 termB1)
-		(setf statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
+		(setf statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
 
 		(if (and statement (not (search "NIL" statement) ))  (insert2 statement))  
@@ -340,12 +340,12 @@
 						((equal termA1 termB1)
 							(setq truthv (comparasion (second exp1) (second exp2)) 
 							 			expresion (list termB2  termA2)
-							 			statement (concatenate 'string (string (first expresion)) " <-> " (string (second expresion)) 
+							 			statement (concatenate 'string (string-downcase (string (first expresion))) " <-> " (string-downcase (string (second expresion))) 
 										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
 						((equal termB2 termA2) 
 				 			(setq truthv (comparasion (second exp2) (second exp1)) 
 				 						expresion (list termB1  termA1 )
-				 						statement (concatenate 'string (string (first expresion)) " <-> " (string (second expresion)) 
+				 						statement (concatenate 'string (string-downcase (string (first expresion))) " <-> " (string-downcase (string (second expresion))) 
 										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
 						(T (setf errorSintax 'T)) ))
 
@@ -356,17 +356,17 @@
 									(not (equal copulaA copulaB)))    ;M --> P  S <-> M s->p  ;m <-> p  s --> m s->p
 							(setq truthv (analogy (second exp1) (second exp2)) 
 							 			expresion (list termB1  termA2)
-							 			statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
+							 			statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
 										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
 						((and (equal termA2 termB2) (string= (string copulaB) "<->"))  ;p->m s<->m = p->s 
 							(setq truthv (analogy (second exp1) (second exp2)) 
 							 			expresion (list termA1  termB1)
-							 			statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
+							 			statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
 										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
 						((and (equal termA1 termB1) (string= (string copulaA) "<->"))  ;m<->p m->s = p->s
 							(setq truthv (analogy (second exp1) (second exp2)) 
 							 			expresion (list termA2  termB2)
-							 			statement (concatenate 'string (string (first expresion)) " --> " (string (second expresion)) 
+							 			statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
 										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
 						(T (setf errorSintax 'T)) ))
 
@@ -375,7 +375,7 @@
 			  (cond ((and (equal termA1 termB2) (string= (string copulaA) "<->") (string= (string copulaB) "<->"))
 			  			(setq truthv (resemblance (second exp1) (second exp2)) 
 								 		expresion (list termB1  termA2)  
-							  	  statement (concatenate 'string (string (first expresion)) " <-> " (string (second expresion)) 
+							  	  statement (concatenate 'string (string-downcase (string (first expresion))) " <-> " (string-downcase (string (second expresion))) 
 											" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) ) 
 			  		(T (setf errorSintax 'T)) )) 
 
