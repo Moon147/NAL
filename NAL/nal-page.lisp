@@ -6,6 +6,7 @@
       (conocimiento valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
         ;comportamiento 
+        (comportamiento :parameter-type 'string)
         (decimales :parameter-type 'integer)
         (kuser :parameter-type 'integer)
         (opcjoin :parameter-type 'string) 
@@ -27,6 +28,7 @@
       (:title "Inferencia No-axiomática")
       (:link :rel "stylesheet" :type "text/css" :href "pushbar.css")
       (:link :rel "stylesheet" :type "text/css" :href "estilo.css")
+      (:script :src "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
       (:meta :charset "UTF-8")
       (:link :rel "stylesheet" 
         :href "https://fonts.googleapis.com/css?family=Libre+Franklin&display=swap")
@@ -43,7 +45,7 @@
     (if opcadd (setf var-addexp 'T))
     (if (numberp kuser) (setf k kuser))
     ;------------------------------------------- 
-     (:body
+     (:body :onload "recuperarPolitica()"
       (:div :id "contenedor"
         (:header
           (:table :style "width:100%"
@@ -144,6 +146,8 @@
             (:li :class "tabs__item2" :onclick "openTab2(event,'DEBUG')"
               (:h4 "RASTREO")))
           (:div :class "tabcontent2 active" :id "informacion"
+	     
+             ;(format t " comportamiento: ~A ~% decimales: ~A ~% kuser: ~A ~% opcadd: ~A " comportamiento decimales kuser opcadd)
             (loop for i from 1 to (- *cont2* 1) 
                    do 
                    (setf expresion (obtiene-mensaje (list i)))
@@ -151,7 +155,7 @@
                       (:p :class "parrafo-salida" "  "(print i) 
                          (print (first expresion)) )) ) )
 
-          (:div :class "tabcontent2" :id "DEBUG"
+          (:div :class "tabcontent2" :id "DEBUG"              
             (loop for i from 1 to (- *cont3* 1)
                    do 
                    (setf debug (obtiene-debug (list i)))
@@ -173,15 +177,13 @@
           (:button :onclick "simbolo('*')"  :class "simbolo" "*")
           (:p (:form :method :post 
               (htm  
-                (:input :type "checkbox"
-                 :name "opcadd"
-                 :value "agregar"
-                 :checked (string= "agregar" opcadd)
-                 (print "Agregar resultado a la Base de Conocimiento"))
-                (:br)
-                (:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
+		(:input :style "display:none;" :id "comportamiento" :name "comportamiento")
+		(:input :style "display:none;" :id "decimales" :name "decimales")              
+		(:input :style "display:none;" :id "kuser" :name "kuser")              
+		(:input :style "display:none;" :id "opcadd" :name "opcadd")
+		(:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
                   :placeholder "Ingrese sus consultas" ))
-              (:input :class "botonSubir" :onclick "scroll()" :type "submit" :value "Enviar" ))) )
+		(:input :class "botonSubir" :onclick "scroll()" :type "submit" :value "Enviar" ))))
 
         (:div :class "pc" :data-pushbar-target "mypushbar1"
           (:i :class "fas fa-angle-double-left"))
@@ -199,33 +201,35 @@
           ;;---------------------------------------FORMULARIO POLIÍTICA DE CONTROL------------------------------
           (:section :class "politica sub-menu"
             (:span :class "c2" "Política de Control")
-          (:form :method :post :style "margin-left: 15px"
+          (:form :method :post :style "margin-left: 15px" :id "politica" :name "politica"
           (:legend "Valor de verdad") :br
-          ;(:p "Decimales: "
-          ;  (:select :name "comportamiento"
-          ;   (loop for (value option) in '((:redondear "Redondear")
-          ;                                 (:truncar "Truncar"))
-          ;         do (htm
-          ;             (:option :value value
-          ;              :selected (eq value comportamiento)
-          ;              (str option)))) )) :br
+          (:p "Decimales: "
+            (:select :id "lpcomportamiento" :name "lpcomportamiento"
+             (loop for (value option) in '((:redondear "Redondear")
+                                           (:truncar "Truncar"))
+                   do (htm
+                       (:option :value value
+                        :selected (eq value comportamiento)
+                        (str option)))) )) :br
           (:p "Cantidad de decimales: " :br :t 
             (:input 
-              :name "decimales"
+              :id "lpdecimales"
+              :name "lpdecimales"
               :value (or decimales 2))) :br
           (:p "Parámetro k: " :br :t 
             (:input 
-              :name "kuser"
+              :id "lpkuser"
+              :name "lpkuser"
               :value (or kuser 1))) :br
-          ;(:p  (:input :type "checkbox"
-          ;       :name "opcadd"
-          ;       
-          ;       (esc "Agregar consulta a BC"))) :br
+          (:p  (:input :type "checkbox"
+                 :name "lpopcadd"
+                 :value "off"
+                 :id "lpopcadd"
+                 (format t "Agregar resultado a la Base de Conocimiento")))
+                             :br
           (:p 
-            (:input :type "submit" :class "submit" :value "Enviar datos")
-            (:input :type "reset" :value "Restaurar")))
-
-          )
+            (:input :type "button" :id "save" :class "submit" :value "Guardar datos")
+            (:input :type "reset" :value "Restaurar"))))
 
           ;---------------------------------------SUBIR BASE DE CONOCIMIENTO-----------------------------------------
           (:section :class "sube-BC sub-menu"

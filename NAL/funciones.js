@@ -263,3 +263,47 @@ function collapseOff() {
   open.classList.add("openCollapse");
   open.classList.remove("closeCollapse");
 }
+
+function recuperarPolitica(){
+var politicaControl = new Object();
+console.log("Obteniendo política");
+objSerialized = localStorage.getItem('politica'); 
+
+politicaControl = JSON.parse(objSerialized);
+if(politicaControl.agregar =="on"){
+	$("#lpopcadd").prop("checked", true);
+}else{
+	$("#lpopcadd").prop("checked", false);
+}
+document.getElementById("lpdecimales").value=politicaControl.decimales;
+document.getElementById("lpkuser").value=politicaControl.k;
+document.getElementById("lpcomportamiento").value=politicaControl.comportamiento;
+
+document.getElementById("comportamiento").value=politicaControl.comportamiento;
+document.getElementById("decimales").value=politicaControl.decimales;
+document.getElementById("kuser").value=politicaControl.k;
+document.getElementById("opcadd").value=politicaControl.agregar;
+}
+
+$("#lpopcadd").change(function() {
+	if(document.politica.lpopcadd.checked){
+		document.getElementById("lpopcadd").value = "on";
+	}else {
+		document.getElementById("lpopcadd").value="off";}
+	console.log(document.getElementById("lpopcadd").value);		
+});
+
+jQuery(document).ready(function() {
+  var politicaControl = new Object();
+  jQuery('#save').on('click',function() {    
+    politicaControl.agregar = document.getElementById("lpopcadd").value;
+    politicaControl.decimales = document.getElementById("lpdecimales").value;
+    politicaControl.k = document.getElementById("lpkuser").value;
+    politicaControl.comportamiento = document.getElementById("lpcomportamiento").value;
+    objSerialized = JSON.stringify(politicaControl);
+    localStorage.setItem('politica', objSerialized);
+    location.reload();
+
+  });
+
+});
