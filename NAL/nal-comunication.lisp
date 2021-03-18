@@ -187,7 +187,7 @@
 
 ;;======================================================================================= 
 ;;  
-;;  Función para agregar a cache de agente
+;;  Función para agregar a cache de agente y de usuario
 ;;  
 ;;=======================================================================================
 (defun bcAgente (expresion)
@@ -236,25 +236,34 @@
         (newExpresion nil))
     (cond 
       ((and (search "{" (string (first lista))) (search "[" (string (third lista))))
+        (let ((term1 (string (first lista))) (term2 (string (third lista))) (newLastPosTerm1 0) (newLastPosTerm2 0) (newTerm1 nil) (newTerm2 nil))
+        (setf newLastPosTerm1  (- (length term1) 1) newLastPosTerm2  (- (length term2) 1))
+        (setf newTerm1 (subseq term1 1 newLastPosTerm1) newTerm2 (subseq term2 1 newLastPosTerm2)) ;Rescorta las llaves
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "o->o") (third lista)) 
+          (list (list (read-from-string newTerm1) (read-from-string "o->o") (read-from-string newTerm2)) 
                 vv 
-                (list (concatenate 'string (string (first lista)) " o->o " (string (third lista))) (second expString)) ))
-        (insert newExpresion))
+                (list (concatenate 'string newTerm1 " o->o " newTerm2) (second expString)) ))
+        (insert newExpresion) ))
 
       ((search "{" (string (first lista)))
+        (let ((term1 (string (first lista))) (newLastPos 0) (newTerm1 nil))
+        (setf newLastPos  (- (length term1) 1))
+        (setf newTerm1 (subseq term1 1 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "o->") (third lista)) 
+          (list (list (read-from-string newTerm1) (read-from-string "o->") (third lista)) 
                 vv 
-                (list (concatenate 'string (string (first lista)) " o-> " (string (third lista))) (second expString)) ))
-        (insert newExpresion))
+                (list (concatenate 'string newTerm1 " o-> " (string (third lista))) (second expString)) ))
+        (insert newExpresion) ))
 
       ((search "[" (string (third lista)))
+        (let ((term2 (string (third lista))) (newLastPos 0) (newTerm2 nil))
+        (setf newLastPos  (- (length term2) 1))
+        (setf newTerm2 (subseq term2 1 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "->o") (third lista)) 
+          (list (list (first lista) (read-from-string "->o") (read-from-string newTerm2)) 
                 vv 
-                (list (concatenate 'string (string (first lista)) " ->o" (string (third lista))) (second expString)) ))
-        (insert newExpresion))
+                (list (concatenate 'string (string (first lista)) " ->o " newTerm2) (second expString)) ))
+        (insert newExpresion) ))
 
       (T (insert expresion)) )) )
 
@@ -265,7 +274,7 @@
 ;;  
 ;;=======================================================================================
 (defvar auxiliar2 '())
-(defvar confidenceCero 0.5)
+(defvar confidenceZero 0.5)
 (defvar tv 0)
 (defvar contPassParser 0)
 (defvar expresionLista 'nil)
@@ -281,14 +290,14 @@
 	    ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv"))
       (setf tv (second auxiliar2))      ;tv valor de verdad (frequency confidence)
 	    (setf expresionLista (list (first auxiliar2) 
-                    (if (= 0 (second tv)) (list (first tv) confidenceCero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
+                    (if (= 0 (second tv)) (list (first tv) confidenceZero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
 	       (list (format nil "~(~a ~a ~a~)" (first (first auxiliar2)) (second (first auxiliar2)) (third (first auxiliar2)))
 	       		 (if (= 0 (second tv)) 
-                (format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
+                (format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
                 (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
       (bcUsuario expresionLista)
       (bcAgente expresionLista)
-      ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceCero))
+      ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )
 	  ((and (equal auxiliar2 'NIL) (not (null aux)) )  ;Si la expresión está mal...

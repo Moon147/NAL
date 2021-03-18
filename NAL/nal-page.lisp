@@ -85,13 +85,13 @@
                                 (if (parseq:parseq 'query conocimiento)  
                                   (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
-                                (if opcadd (parser  truthv))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                                (if opcadd (parser  (concatenate 'string "(" (string truthv) ")") ))       ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                                 (setq truthv 'nil)
                                 )                 ;Se reinician las variables                    
                               ((parseq:parseq 'funciones conocimiento) 
                                   (if (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) )
-                                (if opcadd (parser  statement))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                                (if opcadd (parser  (concatenate 'string "(" (string statement) ")")))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                                 (setq statement 'nil))
                             (T (parser conocimiento) ))       
           
