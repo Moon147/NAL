@@ -2,6 +2,7 @@
 
 (define-easy-handler (index :uri "/NAL-Reasoner/index.html"
                                 :default-request-type :post)
+      
 
       (conocimiento valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
@@ -21,6 +22,8 @@
   (when (post-parameter "clean")
     (clean-tmp-dir)
     (setq post-parameter-p t)))
+
+    (log:config :info)
 
   (with-html
     (:html

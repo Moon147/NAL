@@ -390,7 +390,46 @@
 		(I-E (first expresion) (second expresion))
 	)) )
 
+(defun recorre-Registros (registro cache)
+	
+	(let ((total (cacle:cache-count cache)))
+		(cacle:cache-remove cache registro)	
+		(loop for i from registro to total do
+			(cacle:cache-remove cache i)
+			(setf *exprcon* (cacle:cache-fetch cache (+ i 1)))
+			(proveedor1 i)
+			(cacle:cache-fetch cache i)
+			(cacle:cache-remove cache (+ i 1))
+			(setf *exprcon* nil))))
+
+(defun elimina-Registros (expresion cache)
+	(let ((total (cacle:cache-count cache)))
+		(loop for i from 1 to total do
+			(cond ((equal expresion (cacle:cache-fetch cache i))
+				(cacle:cache-remove cache i ))
+				(T )))))
+
+(defun elimina-Vacios (cache)
+	(let ((total (cacle:cache-count cache)))
+		(loop for i from 1 to (+ total 5) do
+		(log:info "~d: ~a" i (cacle:cache-fetch cache i :only-if-cached t)))))
+
+(defun menor (n1 n2)
+	(let ((men 0))
+		(cond ((< n1 n2)
+			(setf men n1))
+			(T (setf men n2)))
+			men))
+
+(defun mayor (n1 n2)
+	(let ((men 0))
+		(cond ((> n1 n2)
+			(setf men n1))
+			(T (setf men n2)))
+			men))
+
 (defun inference-rules (solicitud decimales)
+	
 	(let ( (noExp1 (parse-integer (second solicitud)) ) 
 			  (noExp2 (if (string= ")" (third solicitud))  'nil (parse-integer (third solicitud)) )) )
 	
@@ -405,12 +444,22 @@
 
 
 			(cond ((and (string= (string (first solicitud)) "SELECCIÓN") (numberp (fourth solicitud))) 
-					(local-rules-NAL1 (first solicitud) exp1 exp2 nil (fourth solicitud)))
+					(local-rules-NAL1 (first solicitud) exp1 exp2 nil (fourth solicitud))
+					)
 
 				((or (string= (string (first solicitud)) "SELECCIÓN") (string= (string (first solicitud)) "REVISIÓN"))
 					;(and (equal (first exp1) (first exp2))
-					;	(not (equal (second exp1) (second exp2))) (not (numberp (fourth solicitud))) ) 
-					(local-rules-NAL1 (first solicitud) exp1 exp2 decimales))
+					;	(not (equal (second exp1) (second exp2))) (not (numberp (fourth solicitud))) )
+					(let ((aexp1 (first (obtiene-expresion (list (parse-integer (second solicitud))))))
+						(aexp2 (first (obtiene-expresion (list (parse-integer (third solicitud)))))))
+						(elimina-Registros aexp2 *my-cache*)
+						(elimina-Registros aexp1 *my-cache*)
+						(recorre-Registros (mayor (parse-integer (third solicitud)) (parse-integer (second solicitud))) *my-cache*)
+						(recorre-Registros (menor (parse-integer (third solicitud)) (parse-integer (second solicitud))) *my-cache*)) 
+						(setf *cont* (- *cont* 2))
+						;(elimina-Vacios *my-cache*)
+					(local-rules-NAL1 (first solicitud) exp1 exp2 decimales)
+					(setq flag-ingresaBC T))
 
 				((and (not (numberp (fourth solicitud)) ) (or (string= (string (first solicitud)) "COMPARACIÓN") (string= (string (first solicitud)) "ANALOGÍA") (string= (string (first solicitud)) "SEMEJANZA")))
 					(rules-N2 (first solicitud) exp1 exp2 decimales) )
@@ -424,9 +473,16 @@
 		 	(insert2 (format 'nil "Error en: ~a. Números fuera de la base de conocimiento"  solicitud)) ))  
 	)
 	(when flag-ingresaBC 
-		(cacle:cache-remove *my-cache* (second solicitud))
-		(cacle:cache-remove *my-cache* (third solicitud))
-		(parser statement)) 
+
+		(log:info (cacle:cache-count *my-cache*))
+
+		(parser (concatenate 'string "(" (string statement) ")"))
+
+		(loop for i from 1 to (+ (cacle:cache-count *my-cache*) 5) do
+		(log:info "~d: ~a" i (cacle:cache-fetch *my-cache* i :only-if-cached t)))	
+			
+		(setq flag-ingresaBC nil))
+		 
 	)
 
 ;;======================================================================================= 
