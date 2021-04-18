@@ -459,7 +459,7 @@
 						(setf *cont* (- *cont* 2))
 						;(elimina-Vacios *my-cache*)
 					(local-rules-NAL1 (first solicitud) exp1 exp2 decimales)
-					(setq flag-ingresaBC T))
+					)
 
 				((and (not (numberp (fourth solicitud)) ) (or (string= (string (first solicitud)) "COMPARACIÓN") (string= (string (first solicitud)) "ANALOGÍA") (string= (string (first solicitud)) "SEMEJANZA")))
 					(rules-N2 (first solicitud) exp1 exp2 decimales) )
@@ -472,16 +472,6 @@
 		 ((or (>= noExp1 *cont*) (>= noExp2 *cont*))  
 		 	(insert2 (format 'nil "Error en: ~a. Números fuera de la base de conocimiento"  solicitud)) ))  
 	)
-	(when flag-ingresaBC 
-
-		(log:info (cacle:cache-count *my-cache*))
-
-		(parser (concatenate 'string "(" (string statement) ")"))
-
-		(loop for i from 1 to (+ (cacle:cache-count *my-cache*) 5) do
-		(log:info "~d: ~a" i (cacle:cache-fetch *my-cache* i :only-if-cached t)))	
-			
-		(setq flag-ingresaBC nil))
 		 
 	)
 
