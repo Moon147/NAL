@@ -115,17 +115,17 @@
 ;; ===========================================================                    
 
                     
-(parseq:defrule compound-statement () (or (and "(--" sp statement ")")     ;;Negation NAL-5
-           (and "(||" sp statement sp+ statement "+)")      ;;Disjunction NAL-5
-           (and "(&&" sp statement sp+ statement "+)")))    ;;Conjunction NAL-5
+(parseq:defrule compound-statement () (or (and "(--" sp statement ")")     ;;Negation NAL-3
+           (and "(||" sp statement sp+ statement "+)")      ;;Disjunction NAL-3
+           (and "(&&" sp statement sp+ statement "+)")))    ;;Conjunction NAL-3
 
 (parseq:defrule compound-term () (or (and "{" term "+}") ;;SetExt NAL-2
         (and "[" term "+]") ;;SetInt NAL-2
-        (and "(&" sp+ term sp+ term "+)")      ;;IntersectionExt NAL-3
-        (and "(|" sp+ term sp+ term "+)")      ;;IntersectionInt NAL-3
-        (and "(-" sp+ term sp+ term ")")       ;;DifferenceExt NAL-3
-        (and "(~" sp+ term sp+ term ")")       ;;DifferenceInt NAL-3
-        (and "(*" sp+ term sp+ term "+)")      ;;Product NAL-4
+        (and "(" sp term sp "&" sp term sp "+)")      ;;IntersectionExt NAL-3
+        (and "(" sp term sp "|" sp term sp "+)")      ;;IntersectionInt NAL-3
+        (and "(" sp term sp "-" sp term sp ")")       ;;DifferenceExt NAL-3
+        (and "(" sp term sp "~" sp term sp ")")       ;;DifferenceInt NAL-3
+        (and "(" sp term sp "*" sp term sp "+)")      ;;Product NAL-4
         (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
         (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
 

@@ -191,11 +191,15 @@
 ;;  
 ;;=======================================================================================
 (defun bcAgente (expresion)
+  
   (let ((lista (first expresion))
         (vv (second expresion))
         (expString (third expresion)) 
         (newExpresion nil))
     (cond 
+      ((or (listp (third lista)) (listp (first lista)))
+      
+          (insert4 expresion))
       ((string= "<->"(string (second lista)))
         (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
           (list (list (first lista) (read-from-string "-->") (third lista)) 
@@ -234,7 +238,9 @@
         (vv (second expresion))
         (expString (third expresion)) 
         (newExpresion nil))
-    (cond 
+    (cond ((or (listp (third lista)) (listp (first lista)))
+          ;;(log:info "bcUsuario-LISTP: ~A" expresion)
+          (insert expresion))
       ((and (search "{" (string (first lista))) (search "[" (string (third lista))))
         (let ((term1 (string (first lista))) (term2 (string (third lista))) (newLastPosTerm1 0) (newLastPosTerm2 0) (newTerm1 nil) (newTerm2 nil))
         (setf newLastPosTerm1  (- (length term1) 1) newLastPosTerm2  (- (length term2) 1))
@@ -265,7 +271,8 @@
                 (list (concatenate 'string (string (first lista)) " ->o " newTerm2) (second expString)) ))
         (insert newExpresion) ))
 
-      (T (insert expresion)) )) )
+      (T
+      (insert expresion)) )) )
 
 
 ;;======================================================================================= 
@@ -337,7 +344,7 @@
 	 												año mes dia horas minutos segundos )))
 (defvar *directory*
   (pathname 
-	(format 'nil "/home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/" logfecha)))
+	(format 'nil "/home/moon/Documentos/NAL/NAL/Sesiones/~a/" logfecha)))
 
 (defparameter *log* 'nil) 		;Variable para guardar las sesiones 
 
@@ -357,7 +364,7 @@
       (setq path (format 'nil "Sesiones/~a/BC-0" logfecha))
       (writefile path)
       (setq *files* (list (first *files*) 
-        (list (pathname (format 'nil "home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/BC-0" logfecha))
+        (list (pathname (format 'nil "home/moon/Documentos/NAL/NAL/Sesiones/~a/BC-0" logfecha))
         	"BC-0.txt" "text/plain") )
         flag-BC0 'T)
       (incf flag-files))) )
