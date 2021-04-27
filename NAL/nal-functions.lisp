@@ -169,8 +169,7 @@
 		 			(setf truthv (second exp1))
 		 			(setq exp1 exp2 truthv (second exp2))) )  )
 
-	(cond ( (and (equal (first exp1) (first exp2))
-						(not (equal (second exp1) (second exp2))) )
+	(cond ((equal (first exp1) (first exp2))
 
 					(cond ((string= (string rule) "REVISIÓN") 
 						;(setf statement (list (first exp1) (revision (second exp1) (second exp2)) (third exp1))) 
@@ -179,11 +178,14 @@
 						)
 				  ((string= (string rule) "SELECCIÓN")
 				  		(cond ((equal (first exp1) (first exp2)) 
+				  				(print "uno")
 				  				(setf truthv (seleccion-confianza (second exp1) (second exp2))))
 				  			  ((= formula 0) 
+				  			  	(print "uno-dos")
 				  			  	(seleccion-espectativa-ea (first (first exp1)) (third (first exp1)) 
 	  																					(first (first exp2)) (third (first exp2))) )
 				  (T
+				  	(print "uno-tres")
 				  	(seleccion-espectativa-vv (first (second exp1)) (second (second exp1)) 
 				  							  						(first (second exp2)) (second (second exp2)))) ) ))
 				)
@@ -526,7 +528,8 @@
 (defun elimina-Vacios (cache)
 	(let ((total (cacle:cache-count cache)))
 		(loop for i from 1 to (+ total 5) do
-		(log:info "~d: ~a" i (cacle:cache-fetch cache i :only-if-cached t)))))
+		(log:info "~d: ~a" i (cacle:cache-fetch cache i :only-if-cached t))
+		)))
 
 (defun menor (n1 n2)
 	(let ((men 0))
