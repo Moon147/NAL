@@ -292,12 +292,12 @@
       (setf relacion (first expresion))
       (setf repetidos (list= relacion newRel :test #'equal))
       (cond (repetidos
-        (print expresion)
-        (print newExp)
-        (local-rules-NAL1 "SELECCIÓN" expresion newExp) 
-        (print statement)) )
-      )
-  ))
+        (eliminar i)
+        (local-rules-NAL1 "SELECCIÓN" expresion newExp)
+        ;(concatenate 'string "(" (string statement) ")")
+        (setf statement (parseq:parseq 'judgement (concatenate 'string "(" (string statement) ")") ))
+        (print statement) ) )
+  ) (not repetidos) ))
 
 
 ;;======================================================================================= 
@@ -328,9 +328,9 @@
                 (format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
                 (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
       ;LLAMAR A SELECCIÓN O REVISIÓN EN AUTOMÁTICO CADA QUE HAY UNA NUEVO EXPRESIÓN
-      (noRepetidosAuto expresionLista)
-      (bcUsuario expresionLista)
-      (bcAgente expresionLista)
+      (cond ((noRepetidosAuto expresionLista) ;Si no existe la expresión 
+        (bcUsuario expresionLista)
+        (bcAgente expresionLista) ))
       ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )
