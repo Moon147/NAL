@@ -4,6 +4,7 @@
 (ql:quickload "parenscript")
 (ql:quickload "parseq")
 (ql:quickload "cacle")
+(ql:quickload "log4cl")
 (setq cl-who:*attribute-quote-char* #\")
 (load "packages.lisp")
 (load "test-handlers.lisp")
