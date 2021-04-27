@@ -174,7 +174,7 @@
 
 					(cond ((string= (string rule) "REVISIÓN") 
 						;(setf statement (list (first exp1) (revision (second exp1) (second exp2)) (third exp1))) 
-						(setf truthv (revision (second exp1) (second exp2))) 
+						(setf truthv (revision (second exp1) (second exp2)) ) 
 						;(parser statement) 
 						)
 				  ((string= (string rule) "SELECCIÓN")
@@ -188,8 +188,7 @@
 				  							  						(first (second exp2)) (second (second exp2)))) ) ))
 				)
 	
-				(T (insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como la estructura para la regla de inferencia ~a con estructura en las premisas: No-exp1: (M --> P) <f1,c1> No-exp2: (M --> P) <f2,c2>"  
-					rule )) (setf errorSintax-local-n1 'T)) ) 	
+		(T (insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como la estructura para la regla de inferencia ~a con estructura en las premisas: No-exp1: (M --> P) <f1,c1> No-exp2: (M --> P) <f2,c2>"  rule )) (setf errorSintax-local-n1 'T)) ) 	
 
 	(I-E (first (first exp1)) (third (first exp1)))
 	(setf statement (concatenate 'string (string-downcase (string (first (first exp1)))) " --> " (string-downcase (string (third (first exp1)))) 
@@ -208,6 +207,113 @@
 (defmacro ext-not (x) `(- 1 ,x))
 (defmacro ext-and (&rest arguments) `(* ,@arguments))
 (defun ext-or (&rest arguments) (- 1 (reduce #'* (mapcar #'(lambda (x) (- 1 x)) arguments))) )
+
+(defun isEquivalentExpresion (expresion)
+	(equal (length expresion) 2))
+(defun getVV (expresion)
+	(if (isEquivalentExpresion expresion) 
+		(second (first expresion))
+		(second expresion)) )
+(defun isEqualTerms (exp1 exp2 comp1 comp2)  ;isEqualTerms exp1 exp2 A1 B2
+	(let 
+		((termA11 (if (isEquivalentExpresion exp1) (first (first (first exp1))) (first (first exp1))) )
+		(termA12  (if (isEquivalentExpresion exp1) (third (first (first exp1))) (third (first exp1))) )
+		(termA21  (if (isEquivalentExpresion exp1) (first (first (second exp1))) (first (first exp1))) )
+		(termA22  (if (isEquivalentExpresion exp1) (third (first (second exp1))) (third (first exp1))) )
+		(termB11  (if (isEquivalentExpresion exp2) (first (first (first exp2))) (first (first exp2))) )
+		(termB12  (if (isEquivalentExpresion exp2) (third (first (first exp2))) (third (first exp2))) ) 
+		(termB21  (if (isEquivalentExpresion exp2) (first (first (second exp2))) (first (first exp2))) )
+		(termB22  (if (isEquivalentExpresion exp2) (third (first (second exp2))) (third (first exp2))) ))
+
+		(cond 
+			((and (string= comp1 "A1") (string= comp2 "B1"))
+				(or (equal termA11 termB11) (equal termA21 termB11) (equal termA11 termB21) (equal termA21 termB21)) ) 
+			((and (string= comp1 "A2") (string= comp2 "B1"))
+				(or (equal termA12 termB11) (equal termA22 termB11) (equal termA12 termB21) (equal termA22 termB21)) ) 
+			((and (string= comp1 "A1") (string= comp2 "B2"))
+				(or (equal termA11 termB12) (equal termA21 termB12) (equal termA11 termB22) (equal termA21 termB22)) )
+			((and (string= comp1 "A2") (string= comp2 "B2"))
+				(or (equal termA12 termB12) (equal termA22 termB12) (equal termA12 termB22) (equal termA22 termB22)) )) ))
+
+(defun secondList (exp1 exp2)
+	(let 
+		((termA11 (if (isEquivalentExpresion exp1) (first (first (first exp1))) (first (first exp1))) )
+		(termA12  (if (isEquivalentExpresion exp1) (third (first (first exp1))) (third (first exp1))) )
+		(termA21  (if (isEquivalentExpresion exp1) (first (first (second exp1))) (first (first exp1))) )
+		(termA22  (if (isEquivalentExpresion exp1) (third (first (second exp1))) (third (first exp1))) )
+		(termB11  (if (isEquivalentExpresion exp2) (first (first (first exp2))) (first (first exp2))) )
+		(termB12  (if (isEquivalentExpresion exp2) (third (first (first exp2))) (third (first exp2))) ) 
+		(termB21  (if (isEquivalentExpresion exp2) (first (first (second exp2))) (first (first exp2))) )
+		(termB22  (if (isEquivalentExpresion exp2) (third (first (second exp2))) (third (first exp2))) ))
+
+		(cond 
+			((equal termA11 termB11)
+				(list termA12 termB12))
+			((equal termA11 termB12)
+				(list termA12 termB11)) 
+			((equal termA11 termB21)
+				(list termA12 termB11))
+			((equal termA11 termB22)
+				(list termA12 termB12))
+
+			((equal termA12 termB11)
+				(list termA11 termB12))
+			((equal termA12 termB12)
+				(list termA11 termB11)) 
+			((equal termA12 termB21)
+				(list termA11 termB11))
+			((equal termA12 termB22)
+				(list termA11 termB12)) 
+
+			((equal termB12 termA11)
+				(list termB11 termA12))
+			((equal termB12 termA12)
+				(list termB11 termA11)) 
+			((equal termB12 termA21)
+				(list termB11 termA11))
+			((equal termB12 termA22)
+				(list termB11 termA12)) 
+
+			((equal termB11 termA11)
+				(list termB12 termA12))
+			((equal termB11 termA12)
+				(list termB12 termA11)) 
+			((equal termB11 termA21)
+				(list termB12 termA11))
+			((equal termB11 termA22)
+				(list termB12 termA12))) ))
+(defun basicList (exp1 exp2 comp1 comp2)
+	(let 
+		((termA1 (first (first exp1)) )
+		(termA2  (third (first exp1)) )
+		(termB1  (first (first exp2)) )
+		(termB2  (third (first exp2)) ))
+
+		(cond 
+			((and (string= comp1 "A1") (string= comp2 "B1"))
+				(list termA1 termB1) ) 
+			((and (string= comp1 "A2") (string= comp2 "B1"))
+				(list termA2 termB1) ) 
+			((and (string= comp1 "A1") (string= comp2 "B2"))
+				(list termA1 termB2) )
+			((and (string= comp1 "A2") (string= comp2 "B2"))
+				(list termA2 termB2) )
+			((and (string= comp1 "B1") (string= comp2 "A1"))
+				(list termB1 termA1) ) 
+			((and (string= comp1 "B2") (string= comp2 "A1"))
+				(list termB2 termA1) ) 
+			((and (string= comp1 "B1") (string= comp2 "A2"))
+				(list termB1 termA2) )
+			((and (string= comp1 "B2") (string= comp2 "A2"))
+				(list termB2 termA2) )) ))
+		
+(defun newList (exp1 exp2 back1 back2)
+	(cond 
+		((and (not (isEquivalentExpresion exp1)) (not (isEquivalentExpresion exp2)))
+			(basicList exp1 exp2 back1 back2))
+		(T
+			(secondList exp1 exp2) ))
+	)
 
 (defun forward-rules-N1 (rule exp1 exp2 &optional decimales)
 	(labels ((deduction (vv1 vv2)
@@ -239,54 +345,53 @@
 	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
   			   (float (adjust-precision (/ w (+ w k)) decimales))) ) ))
 
-  (let ((termA1 (first (first exp1)))
-  			(termA2 (third (first exp1)))
-  			(termB1 (first (first exp2)))
-  			(termB2 (third (first exp2))) 
-				(ruleSintax 'nil) (errorSintax 'nil) ) 
+	
+  	(let ((exp1VV (getVV exp1)) 
+  			(exp2VV (getVV exp2)) 
+			(ruleSintax 'nil) (errorSintax 'nil)) 
 
 		(cond ((string= (string rule) "DEDUCCIÓN")
 					(setf ruleSintax "(deducción No-exp1: (M --> P) No-exp2: (S --> M))")
 					(cond 
-						((equal termA1 termB2)
-							(setq truthv (deduction (second exp1) (second exp2)) 
-				 			expresion (list termB1  termA2)))
-						((equal termB1 termA2) 
-				 			(setq truthv (deduction (second exp2) (second exp1)) 
-				 			expresion (list termA1  termB2 )))
+						((isEqualTerms exp1 exp2 "A1" "B2")
+							(setq truthv (deduction exp1VV exp2VV) 
+				 			expresion (newList exp1 exp2 "B1" "A2") ))
+						((isEqualTerms exp1 exp2  "A2" "B1")
+				 			(setq truthv (deduction exp2VV exp1VV) 
+				 			expresion (newList exp1 exp2 "A1" "B2") ))
 						(T (setf errorSintax 'T)) ))
 
 			  ((string= (string rule) "INDUCCIÓN")
 					(setf ruleSintax "(inducción No-exp1: (M --> P) No-exp2: (M --> S))")
 					(cond 
-						((equal termA1 termB1)
-							(setq truthv (induction (second exp1) (second exp2)) 
-				 			expresion (list termA2  termB2)))
+						((isEqualTerms exp1 exp2 "A1" "B1")
+							(setq truthv (induction exp1VV exp2VV) 
+				 			expresion (newList exp1 exp2 "A2" "B2")))
 						(T (setf errorSintax 'T)) ))
 
 			  ((string= (string rule) "ABDUCCIÓN")
 					(setf ruleSintax "(abducción No-exp1: (P --> M) No-exp2: (S --> M))")
 					(cond 
-						((equal termA2 termB2)
-							(setq truthv (abduction (second exp1) (second exp2)) 
-				 			expresion (list termA1  termB1)))
+						((isEqualTerms exp1 exp2 "A2" "B2")
+							(setq truthv (abduction exp1VV exp2VV) 
+				 			expresion (newList exp1 exp2 "A1" "B1")))
 						(T (setf errorSintax 'T)) )) 
 
 			  ((string= (string rule) "EJEMPLIFICACIÓN")
 					(setf ruleSintax "(ejemplificación No-exp1: (M --> P) No-exp2: (S --> M))")
 					(cond 
-						((equal termA1 termB2)
-							(setq truthv (exemplification (second exp1) (second exp2)) 
-				 			expresion (list termA2 termB1)))
-						((equal termB1 termA2) 
-				 			(setq truthv (exemplification (second exp2) (second exp1)) 
-				 			expresion (list termB2 termA1)))
+						((isEqualTerms exp1 exp2 "A1" "B2")
+							(setq truthv (exemplification exp1VV exp2VV) 
+				 			expresion (newList exp1 exp2 "A2" "B1")))
+						((isEqualTerms exp1 exp2 "B1" "A2") 
+				 			(setq truthv (exemplification exp1VV exp2VV) 
+				 			expresion (newList exp1 exp2 "B2" "A1")))
 						(T (setf errorSintax 'T)) ))
 
-			  ((and (string= rule "CONVERSIÓN") (null exp2))
+			  ((and (string= rule "CONVERSIÓN") (null exp2) (not (isEquivalentExpresion exp1)))
 			  	(setf ruleSintax "(conversión No-exp1: (P --> S))")
-				 (setq truthv (conversion (second exp1)) 
-				 		expresion (list termA2 termA1) ))
+				 (setq truthv (conversion exp1VV) 
+				 		expresion (list (third (first exp1))  (first (first exp1)) ) ))
 
 			  (T (insert2 (format 'nil "Error reglas NAL-1. Revise el nombre de la regla que desea usar")) (setf flag-ingresaBC 'nil))) 
 
@@ -308,7 +413,7 @@
 ;;  Reglas de inferencia NAL2 
 ;;  
 ;;=======================================================================================
-(defun rules-N2 (rule exp1 exp2 &optional decimales)
+(defun rules-N2 (rule noExp1 noExp2 &optional decimales)
 	(labels (
 		(comparasion (vv1 vv2)
 		(let ((w+ 'nil) (w 'nil) ) 
@@ -326,13 +431,22 @@
 			  (float (adjust-precision (ext-and (ext-or (first vv1) (first vv2)) (second vv1) (second vv2)) decimales))) ) ;c = and(or(f1, f2) , c1 , c2 )
     )
 
-    (let ((termA1 (first (first exp1)))
-  			(termA2 (third (first exp1)))
-  			(copulaA (second (first exp1)))
-  			(termB1 (first (first exp2)))
-  			(termB2 (third (first exp2))) 
-  			(copulaB (second (first exp2)))
-				(ruleSintax 'nil) (errorSintax 'nil) )  
+    (let ((exp1 (first (obtiene-expresion (list noExp1))) ) 
+			(exp2 (first (obtiene-expresion (list noExp2))) )
+    		(termA1 'nil)
+  			(termA2 'nil)
+  			(copulaA 'nil)
+  			(termB1 'nil)
+  			(termB2 'nil) 
+  			(copulaB 'nil)
+			(ruleSintax 'nil) (errorSintax 'nil) )
+
+		(setq termA1 (first (first exp1))
+				termA2 (third (first exp1)) 
+				copulaA (second (first exp1))
+				termB1 (first (first exp2))
+				termB2 (third (first exp2)) 
+				copulaB (second (first exp2)) )
     
     (cond ((string= (string rule) "COMPARACIÓN")
 					(setf ruleSintax "(comparación No-exp1: (M --> P) No-exp2: (M --> S))")
@@ -400,8 +514,8 @@
 
 		 ((and (< noExp1 *cont*) (< noExp2 *cont*))
 		 	
-			(let ((exp1 (first (obtiene-expresion (list noExp1))) ) 
-			  	  (exp2 (first (obtiene-expresion (list noExp2)))  ))
+			(let ((exp1 (first (obtiene-agente (list noExp1))) ) 
+			  	  (exp2 (first (obtiene-agente (list noExp2)))  ))
 
 
 			(cond ((and (string= (string (first solicitud)) "SELECCIÓN") (numberp (fourth solicitud))) 
@@ -413,7 +527,7 @@
 					(local-rules-NAL1 (first solicitud) exp1 exp2 decimales))
 
 				((and (not (numberp (fourth solicitud)) ) (or (string= (string (first solicitud)) "COMPARACIÓN") (string= (string (first solicitud)) "ANALOGÍA") (string= (string (first solicitud)) "SEMEJANZA")))
-					(rules-N2 (first solicitud) exp1 exp2 decimales) )
+					(rules-N2 (first solicitud) noExp1 noExp2 decimales) )
 
 				((not (numberp (fourth solicitud)) )
 					(forward-rules-N1 (first solicitud) exp1 exp2 decimales) )
