@@ -274,6 +274,31 @@
       (T
       (insert expresion)) )) )
 
+;;======================================================================================= 
+;;  
+;;  Selección automática
+;;  
+;;=======================================================================================
+(defun list= (l1 l2 &key (test #'eql))
+  (loop for i in l1
+     for j in l2
+     always (funcall test i j)))
+
+(defun noRepetidosAuto (newExp)
+  (let ((newRel (first newExp)) (expresion 'nil) (relacion 'nil) (repetidos 'nil))
+  (loop for i from 1 to (- *cont* 1)
+    do 
+      (setf expresion (first (obtiene-expresion (list i))))
+      (setf relacion (first expresion))
+      (setf repetidos (list= relacion newRel :test #'equal))
+      (cond (repetidos
+        (eliminar i)
+        (local-rules-NAL1 "SELECCIÓN" expresion newExp)
+        ;(concatenate 'string "(" (string statement) ")")
+        (setf statement (parseq:parseq 'judgement (concatenate 'string "(" (string statement) ")") ))
+        (print statement) ) )
+  ) (not repetidos) ))
+
 
 ;;======================================================================================= 
 ;;  
@@ -302,8 +327,10 @@
 	       		 (if (= 0 (second tv)) 
                 (format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
                 (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
-      (bcUsuario expresionLista)
-      (bcAgente expresionLista)
+      ;LLAMAR A SELECCIÓN O REVISIÓN EN AUTOMÁTICO CADA QUE HAY UNA NUEVO EXPRESIÓN
+      (cond ((noRepetidosAuto expresionLista) ;Si no existe la expresión 
+        (bcUsuario expresionLista)
+        (bcAgente expresionLista) ))
       ;(format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )
@@ -344,7 +371,7 @@
 	 												año mes dia horas minutos segundos )))
 (defvar *directory*
   (pathname 
-	(format 'nil "/home/moon/Documentos/NAL/NAL/Sesiones/~a/" logfecha)))
+	(format 'nil "/home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/" logfecha)))
 
 (defparameter *log* 'nil) 		;Variable para guardar las sesiones 
 
@@ -364,7 +391,7 @@
       (setq path (format 'nil "Sesiones/~a/BC-0" logfecha))
       (writefile path)
       (setq *files* (list (first *files*) 
-        (list (pathname (format 'nil "home/moon/Documentos/NAL/NAL/Sesiones/~a/BC-0" logfecha))
+        (list (pathname (format 'nil "home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/BC-0" logfecha))
         	"BC-0.txt" "text/plain") )
         flag-BC0 'T)
       (incf flag-files))) )

@@ -23,7 +23,7 @@
     (clean-tmp-dir)
     (setq post-parameter-p t)))
 
-    (log:config :info)
+  ;  (log:config :info)
 
   (with-html
     (:html
