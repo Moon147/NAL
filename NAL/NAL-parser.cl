@@ -74,8 +74,7 @@
 (parseq:defrule formula () (or "0" "1")
         (:lambda (form) (read-from-string form)))
 
-(parseq:defrule judgement () (or (and "(" sp statement sp (? truthvalue) sp ")")
-				  (and "(" sp statementNal2 sp (? truthvalue) sp ")")) (:choose 2 4))
+(parseq:defrule judgement () (and "(" sp statement sp (? truthvalue) sp ")") (:choose 2 4))
 
 (parseq:defrule query () (or (and "(" sp statement sp "?" sp ")") 
                              (and "(" sp term sp "-->" sp "?" sp ")")
@@ -93,8 +92,8 @@
 ;;  Agregé :lambda después de :string
 ;;  para  entregar en forma de símbolo (17-abril-2020)
 ;; ===========================================================
-(parseq:defrule term () (or anyword variable compound-term
-			     (and "{" sp anyword sp "}")
+(parseq:defrule term () (or anyword variable compound-term 
+                             (and "{" sp anyword sp "}")
 			     (and "{" sp variable sp "}")
 			     (and "{" sp compound-term sp "}")
 			     (and "[" sp anyword sp "]")
@@ -121,11 +120,11 @@
 
 (parseq:defrule compound-term () (or (and "{" term "+}") ;;SetExt NAL-2
         (and "[" term "+]") ;;SetInt NAL-2
-        (and "(" sp term sp "&" sp term sp "+)")      ;;IntersectionExt NAL-3
-        (and "(" sp term sp "|" sp term sp "+)")      ;;IntersectionInt NAL-3
-        (and "(" sp term sp "-" sp term sp ")")       ;;DifferenceExt NAL-3
-        (and "(" sp term sp "~" sp term sp ")")       ;;DifferenceInt NAL-3
-        (and "(" sp term sp "*" sp term sp "+)")      ;;Product NAL-4
+        (and "(&" sp term sp term sp ")")      ;;IntersectionExt NAL-3
+        (and "(|" sp term sp term sp ")")      ;;IntersectionInt NAL-3
+        (and "(-" sp term sp term sp ")")       ;;DifferenceExt NAL-3
+        (and "(~" sp term sp term sp ")")       ;;DifferenceInt NAL-3
+        (and "(*" sp term sp term sp ")")      ;;Product NAL-4
         (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
         (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
 
