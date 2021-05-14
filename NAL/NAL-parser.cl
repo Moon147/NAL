@@ -47,7 +47,7 @@
 ;;                      por corchetes triangulares y separado por coma.
 ;;=================================================================================================
 
-(ql:quickload :parseq)
+;(ql:quickload :parseq)
 (in-package :nal)
 
 (parseq:defrule sentence () (or judgement query))
@@ -100,7 +100,8 @@
 			     (and "[" sp variable sp "]")
 			     (and "[" sp compound-term sp "]")) 
                     (:string)
-                    (:lambda (term) (read-from-string term)) )
+                    ;(:lambda (term) (read-from-string term)) 
+                    )
 
 (parseq:defrule relation () (or "<->"      ;;Similarity NAL-2
                          "<=>"      ;;Equivalence NAL-5
@@ -114,12 +115,14 @@
 ;; ===========================================================                    
 
                     
-(parseq:defrule compound-statement () (or (and "(--" sp statement ")")     ;;Negation NAL-3
-           (and "(||" sp statement sp+ statement "+)")      ;;Disjunction NAL-3
-           (and "(&&" sp statement sp+ statement "+)")))    ;;Conjunction NAL-3
+(parseq:defrule compound-statement () (or (and "(--" sp statement ")")     ;;Negation NAL-4
+           (and "(||" sp statement sp+ statement ")")      ;;Disjunction NAL-4
+           (and "(&&" sp statement sp+ statement ")")))    ;;Conjunction NAL-4
 
-(parseq:defrule compound-term () (or (and "{" term "+}") ;;SetExt NAL-2
-        (and "[" term "+]") ;;SetInt NAL-2
+(parseq:defrule compound-term () (or 
+        (and "{" (+ (and sp term (? ","))) "}") ;;conjunto
+        (and "{" term "}") ;;SetExt NAL-2        
+        (and "[" term "]") ;;SetInt NAL-2
         (and "(&" sp term sp term sp ")")      ;;IntersectionExt NAL-3
         (and "(|" sp term sp term sp ")")      ;;IntersectionInt NAL-3
         (and "(-" sp term sp term sp ")")       ;;DifferenceExt NAL-3
@@ -181,7 +184,3 @@
 
 (parseq:defrule sp () (* (or #\space #\tab #\newline))) ;espacio opcional (cerradura transitiva)
 (parseq:defrule sp+ () (+ (or #\space #\tab #\newline)))  ;espacio obligatorio (cerrradura positiva)
-
-;; ================================================================================================
-;; Cópulas especiales para NAL2  
-;; ================================================================================================
