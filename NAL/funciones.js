@@ -278,7 +278,9 @@ if(politicaControl.agregar =="on"){
 document.getElementById("lpdecimales").value=politicaControl.decimales;
 document.getElementById("lpkuser").value=politicaControl.k;
 document.getElementById("lpcomportamiento").value=politicaControl.comportamiento;
+document.getElementById("lprepetidos").value=politicaControl.inferenciaRepetidos;
 
+document.getElementById("inferenciaRepetidos").value=politicaControl.inferenciaRepetidos;
 document.getElementById("comportamiento").value=politicaControl.comportamiento;
 document.getElementById("decimales").value=politicaControl.decimales;
 document.getElementById("kuser").value=politicaControl.k;
@@ -300,6 +302,7 @@ jQuery(document).ready(function() {
     politicaControl.decimales = document.getElementById("lpdecimales").value;
     politicaControl.k = document.getElementById("lpkuser").value;
     politicaControl.comportamiento = document.getElementById("lpcomportamiento").value;
+    politicaControl.inferenciaRepetidos = document.getElementById("lprepetidos").value;
     objSerialized = JSON.stringify(politicaControl);
     localStorage.setItem('politica', objSerialized);
     location.reload();

@@ -279,24 +279,41 @@
 ;;  Selección automática
 ;;  
 ;;=======================================================================================
-(defun list= (l1 l2 &key (test #'eql))
+(defvar expresionLista 'nil)
+(defvar confidenceZero 0.5)
+(defvar tv 0)
+(defvar contPassParser 0)
+(defvar infRep "REVISIÓN")
+
+(defun list= (l1 l2 &key (test #'equal))
   (loop for i in l1
      for j in l2
      always (funcall test i j)))
 
 (defun noRepetidosAuto (newExp)
-  (let ((newRel (first newExp)) (expresion 'nil) (relacion 'nil) (repetidos 'nil))
+  (let ((newRel (first newExp)) (expresion 'nil) (relacion 'nil) (repetidos 'nil) (result 'nil))
   (loop for i from 1 to (- *cont* 1)
     do 
       (setf expresion (first (obtiene-expresion (list i))))
       (setf relacion (first expresion))
-      (setf repetidos (list= relacion newRel :test #'equal))
+      (setf repetidos (and relacion (list= relacion newRel :test #'equal)))
       (cond (repetidos
         (eliminar i)
-        (local-rules-NAL1 "SELECCIÓN" expresion newExp)
-        ;(concatenate 'string "(" (string statement) ")")
-        (setf statement (parseq:parseq 'judgement (concatenate 'string "(" (string statement) ")") ))
-        (print statement) ) )
+        (local-rules-NAL1 infRep expresion newExp 2)
+        (setf result (parseq:parseq 'judgement (concatenate 'string "(" (string statementRep) ")") ))
+        
+        (setf tv (second result))      ;tv valor de verdad (frequency confidence)
+        (setf expresionLista (list (first result) 
+                    (if (= 0 (second tv)) (list (first tv) confidenceZero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
+          (list (format nil "~(~a ~a ~a~)" (first (first result)) (second (first result)) (third (first result)))
+             (if (= 0 (second tv)) 
+                (format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
+                (format nil " <~{~a~^, ~}>" (second result)) )) ))
+        (bcUsuario expresionLista)
+        (bcAgente expresionLista)
+        (insert2 (format nil "Conflicto detectado, se aplicó ~(~a~)." infRep))
+        (incf i)
+        (setf statementRep 'nil) ))
   ) (not repetidos) ))
 
 
@@ -306,10 +323,6 @@
 ;;  
 ;;=======================================================================================
 (defvar auxiliar2 '())
-(defvar confidenceZero 0.5)
-(defvar tv 0)
-(defvar contPassParser 0)
-(defvar expresionLista 'nil)
 
 (defun parser (aux)  						
 	(setf auxiliar2 (parseq:parseq 'judgement aux))

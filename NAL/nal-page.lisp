@@ -8,6 +8,7 @@
         (selectlog :parameter-type 'integer)
         ;comportamiento 
         (comportamiento :parameter-type 'string)
+        (inferenciaRepetidos :parameter-type 'string)
         (decimales :parameter-type 'integer)
         (kuser :parameter-type 'integer)
         (opcjoin :parameter-type 'string) 
@@ -46,6 +47,7 @@
       (manage-files)))
     (cond ((numberp decimales) (setf var-decimales decimales)))
     (if opcadd (setf var-addexp 'T))
+    (if inferenciaRepetidos (setf infRep  inferenciaRepetidos))
     (if (numberp kuser) (setf k kuser))
     ;------------------------------------------- 
      (:body :onload "recuperarPolitica()"
@@ -180,7 +182,8 @@
           (:button :onclick "simbolo('*')"  :class "simbolo" "*")
           (:p (:form :method :post 
               (htm  
-		(:input :style "display:none;" :id "comportamiento" :name "comportamiento")
+		(:input :style "display:none;" :id "inferenciaRepetidos" :name "inferenciaRepetidos")
+    (:input :style "display:none;" :id "comportamiento" :name "comportamiento")
 		(:input :style "display:none;" :id "decimales" :name "decimales")              
 		(:input :style "display:none;" :id "kuser" :name "kuser")              
 		(:input :style "display:none;" :id "opcadd" :name "opcadd")
@@ -224,6 +227,14 @@
               :id "lpkuser"
               :name "lpkuser"
               :value (or kuser 1))) :br
+          (:p "Inferencia automática al existir repetición: "
+            (:select :id "lprepetidos" :name "lprepetidos"
+             (loop for (value option) in '((:redondear "REVISIÓN")
+                                           (:truncar "SELECCIÓN"))
+                   do (htm
+                       (:option :value value
+                        :selected (eq value inferenciaRepetidos)
+                        (str option)))) )) :br
           (:p  (:input :type "checkbox"
                  :name "lpopcadd"
                  :value "off"

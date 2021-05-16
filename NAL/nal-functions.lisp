@@ -122,6 +122,7 @@
 ;;  
 ;;=======================================================================================
 (defvar statement 'nil)
+(defvar statementRep 'nil)
 (defvar expresion 'nil)
 (defvar e '())
 (defvar e2 '())
@@ -190,10 +191,9 @@
 		(T (insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como la estructura para la regla de inferencia ~a con estructura en las premisas: No-exp1: (M --> P) <f1,c1> No-exp2: (M --> P) <f2,c2>"  rule )) (setf errorSintax-local-n1 'T)) ) 	
 
 	(I-E (first (first exp1)) (third (first exp1)))
-	(setf statement (concatenate 'string (string-downcase (string (first (first exp1)))) " --> " (string-downcase (string (third (first exp1)))) 
+	(setf statementRep (concatenate 'string (string-downcase (string (first (first exp1)))) " --> " (string-downcase (string (third (first exp1)))) 
 							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
 
-	(if (and statement (not (search "NIL" statement) ) (not errorSintax-local-n1))  (insert2 statement)) 
 	(setq e 'nil e2 'nil errorSintax-local-n1 'nil) ))
 
 ;;======================================================================================= 
