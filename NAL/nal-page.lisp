@@ -24,7 +24,7 @@
     (clean-tmp-dir)
     (setq post-parameter-p t)))
 
-  ;  (log:config :info)
+  ;(log:config :info)
 
   (with-html
     (:html
@@ -46,7 +46,9 @@
       (setf opcjoin 'nil)
       (manage-files)))
     (cond ((numberp decimales) (setf var-decimales decimales)))
-    (if opcadd (setf var-addexp 'T))
+    ;(log:info "opcadd: ~s" opcadd)
+    ;(log:info "(eq opcadd on): ~s" (eq opcadd "on"))
+    (if (equal opcadd "on") (setf var-addexp 'T))
     (if inferenciaRepetidos (setf infRep  inferenciaRepetidos))
     (if (numberp kuser) (setf k kuser))
     ;------------------------------------------- 
@@ -90,13 +92,13 @@
                                 (if (parseq:parseq 'query conocimiento)  
                                   (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
-                                (if opcadd (parser  (concatenate 'string "(" (string truthv) ")") ))       ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                                (if (equal opcadd "on") (parser  (concatenate 'string "(" (string truthv) ")") ))       ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                                 (setq truthv 'nil)
                                 )                 ;Se reinician las variables                    
                               ((parseq:parseq 'funciones conocimiento) 
                                   (if (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) )
-                                (if opcadd (parser  (concatenate 'string "(" (string statement) ")")))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
+                                (if (equal opcadd "on") (parser  (concatenate 'string "(" (string statement) ")")))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                                 (setq statement 'nil))
                             (T (parser conocimiento) ))       
           
@@ -229,12 +231,12 @@
               :value (or kuser 1))) :br
           (:p "Inferencia automática al existir repetición: "
             (:select :id "lprepetidos" :name "lprepetidos"
-             (loop for (value option) in '((:redondear "REVISIÓN")
-                                           (:truncar "SELECCIÓN"))
+             (loop for (value1 option1) in '((:revision "REVISIÓN")
+                                           (:seleccion "SELECCIÓN"))
                    do (htm
-                       (:option :value value
-                        :selected (eq value inferenciaRepetidos)
-                        (str option)))) )) :br
+                       (:option :value value1
+                        :selected (eq value1 inferenciaRepetidos)
+                        (str option1)))) )) :br
           (:p  (:input :type "checkbox"
                  :name "lpopcadd"
                  :value "off"
