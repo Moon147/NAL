@@ -122,7 +122,6 @@
 ;;  
 ;;=======================================================================================
 (defvar statement 'nil)
-(defvar statementRep 'nil)
 (defvar expresion 'nil)
 (defvar e '())
 (defvar e2 '())

@@ -121,8 +121,8 @@
 
 (parseq:defrule compound-term () (or 
         (and "{" (+ (and sp term (? ","))) "}") ;;conjunto
-        (and "{" term "}") ;;SetExt NAL-2        
-        (and "[" term "]") ;;SetInt NAL-2
+        (and "*{" term "}*") ;;SetExt NAL-2        
+        (and "*[" term "]*") ;;SetInt NAL-2
         (and "(&" sp term sp term sp ")")      ;;IntersectionExt NAL-3
         (and "(|" sp term sp term sp ")")      ;;IntersectionInt NAL-3
         (and "(-" sp term sp term sp ")")       ;;DifferenceExt NAL-3

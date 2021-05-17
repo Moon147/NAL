@@ -238,10 +238,10 @@
         (vv (second expresion))
         (expString (third expresion)) 
         (newExpresion nil))
-    (cond ((or (listp (third lista)) (listp (first lista)))
+    (cond ((or (listp (third lista)) (listp (first lista)) (< (length (string (first lista))) 4))
           ;;(log:info "bcUsuario-LISTP: ~A" expresion)
           (insert expresion))
-      ((and (search "{" (string (first lista))) (search "[" (string (third lista))))
+      ((and (search "*{" (string (first lista))) (search "*[" (string (third lista))))
         (let ((term1 (string (first lista))) (term2 (string (third lista))) (newLastPosTerm1 0) (newLastPosTerm2 0) (newTerm1 nil) (newTerm2 nil))
         (setf newLastPosTerm1  (- (length term1) 1) newLastPosTerm2  (- (length term2) 1))
         (setf newTerm1 (subseq term1 1 newLastPosTerm1) newTerm2 (subseq term2 1 newLastPosTerm2)) ;Rescorta las llaves
@@ -251,7 +251,7 @@
                 (list (concatenate 'string newTerm1 " o->o " newTerm2) (second expString)) ))
         (insert newExpresion) ))
 
-      ((search "{" (string (first lista)))
+      ((string= "*{" (subseq (string (first lista)) 0 2))
         (let ((term1 (string (first lista))) (newLastPos 0) (newTerm1 nil))
         (setf newLastPos  (- (length term1) 1))
         (setf newTerm1 (subseq term1 1 newLastPos))
@@ -261,7 +261,7 @@
                 (list (concatenate 'string newTerm1 " o-> " (string (third lista))) (second expString)) ))
         (insert newExpresion) ))
 
-      ((search "[" (string (third lista)))
+      ((string= "*[" (subseq (string (third lista)) 0 2))
         (let ((term2 (string (third lista))) (newLastPos 0) (newTerm2 nil))
         (setf newLastPos  (- (length term2) 1))
         (setf newTerm2 (subseq term2 1 newLastPos))
@@ -284,6 +284,7 @@
 (defvar tv 0)
 (defvar contPassParser 0)
 (defvar infRep "REVISIÓN")
+(defvar statementRep 'nil)
 
 (defun list= (l1 l2 &key (test #'equal))
   (loop for i in l1
@@ -291,6 +292,7 @@
      always (funcall test i j)))
 
 (defun noRepetidosAuto (newExp)
+  (print infRep)
   (let ((newRel (first newExp)) (expresion 'nil) (relacion 'nil) (repetidos 'nil) (result 'nil))
   (loop for i from 1 to (- *cont* 1)
     do 

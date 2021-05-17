@@ -6,7 +6,6 @@
 
       (conocimiento valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
-        ;comportamiento 
         (comportamiento :parameter-type 'string)
         (inferenciaRepetidos :parameter-type 'string)
         (decimales :parameter-type 'integer)
@@ -244,7 +243,7 @@
                  (format t "Agregar resultado a la Base de Conocimiento")))
                              :br
           (:p 
-            (:input :type "button" :id "save" :class "submit" :value "Guardar datos")
+            (:input :type "button" :style "width: 120px" :id "save" :class "submit" :value "Guardar datos")
             (:input :type "reset" :value "Restaurar"))))
 
           ;---------------------------------------SUBIR BASE DE CONOCIMIENTO-----------------------------------------
