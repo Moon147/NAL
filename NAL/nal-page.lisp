@@ -7,7 +7,7 @@
       (conocimiento valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
         (comportamiento :parameter-type 'string)
-        (inferenciaRepetidos :parameter-type 'string)
+        (inferenciarepetidos :parameter-type 'string)
         (decimales :parameter-type 'integer)
         (kuser :parameter-type 'integer)
         (opcjoin :parameter-type 'string) 
@@ -48,7 +48,7 @@
     ;(log:info "opcadd: ~s" opcadd)
     ;(log:info "(eq opcadd on): ~s" (eq opcadd "on"))
     (if (equal opcadd "on") (setf var-addexp 'T))
-    (if inferenciaRepetidos (setf infRep  inferenciaRepetidos))
+    (if (equal inferenciarepetidos "SELECCION") (setf infRep  "SELECCIÓN") (setf infRep "REVISIÓN"))
     (if (numberp kuser) (setf k kuser))
     ;------------------------------------------- 
      (:body :onload "recuperarPolitica()"
@@ -183,7 +183,7 @@
           (:button :onclick "simbolo('*')"  :class "simbolo" "*")
           (:p (:form :method :post 
               (htm  
-		(:input :style "display:none;" :id "inferenciaRepetidos" :name "inferenciaRepetidos")
+		(:input :style "display:none;" :id "inferenciarepetidos" :name "inferenciarepetidos")
     (:input :style "display:none;" :id "comportamiento" :name "comportamiento")
 		(:input :style "display:none;" :id "decimales" :name "decimales")              
 		(:input :style "display:none;" :id "kuser" :name "kuser")              
@@ -234,7 +234,7 @@
                                            (:seleccion "SELECCIÓN"))
                    do (htm
                        (:option :value value1
-                        :selected (eq value1 inferenciaRepetidos)
+                        :selected (eq value1 inferenciarepetidos)
                         (str option1)))) )) :br
           (:p  (:input :type "checkbox"
                  :name "lpopcadd"

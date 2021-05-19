@@ -271,7 +271,7 @@ function recuperarPolitica(){
 
   if(objSerialized == null){
     
-    document.getElementById("inferenciaRepetidos").value=document.getElementById("lprepetidos").value;
+    document.getElementById("inferenciarepetidos").value=document.getElementById("lprepetidos").value;
     document.getElementById("comportamiento").value=document.getElementById("lpcomportamiento").value;
     document.getElementById("decimales").value=document.getElementById("lpdecimales").value;
     document.getElementById("kuser").value=document.getElementById("lpkuser").value;
@@ -281,7 +281,7 @@ function recuperarPolitica(){
     politicaControl.decimales = document.getElementById("lpdecimales").value;
     politicaControl.k = document.getElementById("lpkuser").value;
     politicaControl.comportamiento = document.getElementById("lpcomportamiento").value;
-    politicaControl.inferenciaRepetidos = document.getElementById("lprepetidos").value;
+    politicaControl.inferenciarepetidos = document.getElementById("lprepetidos").value;
     objSerialized = JSON.stringify(politicaControl);
     localStorage.setItem('politica', objSerialized);
 
@@ -295,9 +295,9 @@ function recuperarPolitica(){
     document.getElementById("lpdecimales").value=politicaControl.decimales;
     document.getElementById("lpkuser").value=politicaControl.k;
     document.getElementById("lpcomportamiento").value=politicaControl.comportamiento;
-    document.getElementById("lprepetidos").value=politicaControl.inferenciaRepetidos;
+    document.getElementById("lprepetidos").value=politicaControl.inferenciarepetidos;
 
-    document.getElementById("inferenciaRepetidos").value=politicaControl.inferenciaRepetidos;
+    document.getElementById("inferenciarepetidos").value=politicaControl.inferenciarepetidos;
     document.getElementById("comportamiento").value=politicaControl.comportamiento;
     document.getElementById("decimales").value=politicaControl.decimales;
     document.getElementById("kuser").value=politicaControl.k;
@@ -320,10 +320,9 @@ jQuery(document).ready(function() {
     politicaControl.decimales = document.getElementById("lpdecimales").value;
     politicaControl.k = document.getElementById("lpkuser").value;
     politicaControl.comportamiento = document.getElementById("lpcomportamiento").value;
-    politicaControl.inferenciaRepetidos = document.getElementById("lprepetidos").value;
+    politicaControl.inferenciarepetidos = document.getElementById("lprepetidos").value;
     objSerialized = JSON.stringify(politicaControl);
     localStorage.setItem('politica', objSerialized);
-    location.reload();
 
   });
 

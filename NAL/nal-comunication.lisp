@@ -292,7 +292,6 @@
      always (funcall test i j)))
 
 (defun noRepetidosAuto (newExp)
-  (print infRep)
   (let ((newRel (first newExp)) (expresion 'nil) (relacion 'nil) (repetidos 'nil) (result 'nil))
   (loop for i from 1 to (- *cont* 1)
     do 
