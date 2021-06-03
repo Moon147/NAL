@@ -47,8 +47,8 @@
 ;;                      por corchetes triangulares y separado por coma.
 ;;=================================================================================================
 
-;(ql:quickload :parseq)
-(in-package :nal)
+(ql:quickload :parseq)
+;(in-package :nal)
 
 (parseq:defrule sentence () (or judgement query))
 
@@ -85,9 +85,10 @@
 ;;  para separar los elementos de la lista (17-abril-2020)
 ;; ===========================================================
 (parseq:defrule statement () (or (and term sp relation sp term)
-                      compound-statement 
-                      term) 
-                      (:choose 0 2 4))
+                                 (and term sp relation sp term2) ;conjuntos
+                                 compound-statement 
+                                 term) 
+                                (:choose 0 2 4))
 ;; ===========================================================
 ;;  Agregé :lambda después de :string
 ;;  para  entregar en forma de símbolo (17-abril-2020)
@@ -100,8 +101,7 @@
 			     (and "[" sp variable sp "]")
 			     (and "[" sp compound-term sp "]")) 
                     (:string)
-                    ;(:lambda (term) (read-from-string term)) 
-                    )
+                    (:lambda (term) (read-from-string term)))
 
 (parseq:defrule relation () (or "<->"      ;;Similarity NAL-2
                          "<=>"      ;;Equivalence NAL-5
@@ -119,17 +119,26 @@
            (and "(||" sp statement sp+ statement ")")      ;;Disjunction NAL-4
            (and "(&&" sp statement sp+ statement ")")))    ;;Conjunction NAL-4
 
+(parseq:defrule conjunto () (+ (and sp term (? ",")))(:string))
+
+(parseq:defrule term2 () (and "{" conjunto "}")  
+                    (:string))
+
 (parseq:defrule compound-term () (or 
-        (and "{" (+ (and sp term (? ","))) "}") ;;conjunto
-        (and "*{" term "}*") ;;SetExt NAL-2        
-        (and "*[" term "]*") ;;SetInt NAL-2
+        ;(and "{" conjunto "}") ;;conjunto
+        (and "{" term "}") ;;SetExt NAL-2        
+        (and "[" term "]") ;;SetInt NAL-2
         (and "(&" sp term sp term sp ")")      ;;IntersectionExt NAL-3
         (and "(|" sp term sp term sp ")")      ;;IntersectionInt NAL-3
         (and "(-" sp term sp term sp ")")       ;;DifferenceExt NAL-3
         (and "(~" sp term sp term sp ")")       ;;DifferenceInt NAL-3
         (and "(*" sp term sp term sp ")")      ;;Product NAL-4
-        (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
-        (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
+        ;(and "(/" sp+ term "+" sp+ "_" sp+ term ")")      ;;ImageExt NAL-4
+        ;(and "(\\" sp+ term "+" sp+ "_" sp+ term ")")))   ;; ImageInt NAL-4
+        (and "(/" sp+ term sp+ "°" sp+ term sp ")")      ;;ImageExt NAL-4
+        (and "(/" sp+ term sp+ term sp+ "°" sp ")")      ;;ImageExt NAL-4
+        (and "(" slash sp+ term sp+ "°" sp+ term sp ")")   ;; ImageInt NAL-4
+        (and "(" slash sp+ term sp+ term sp+ "°" sp ")")))   ;; ImageInt NAL-4
 
 (parseq:defrule variable () (or independent-var
                          dependent-var
@@ -184,3 +193,4 @@
 
 (parseq:defrule sp () (* (or #\space #\tab #\newline))) ;espacio opcional (cerradura transitiva)
 (parseq:defrule sp+ () (+ (or #\space #\tab #\newline)))  ;espacio obligatorio (cerrradura positiva)
+(parseq:defrule slash () (* #\backslash)) ;diagonal invertida

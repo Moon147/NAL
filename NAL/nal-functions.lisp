@@ -10,6 +10,13 @@
     (let ((div-part (expt 10 precision)))
         (/ (round (* number div-part)) div-part)))
 
+
+(defun split-by-comma (string)
+    (loop for i = 0 then (1+ j)
+          as j = (position #\, string :start i)
+          collect (subseq string i j)
+          while j))
+
 ;;======================================================================================= 
 ;;  
 ;;  CÁLCULO VALOR DE VERDAD
