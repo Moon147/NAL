@@ -110,6 +110,22 @@ aside{
 	position: relative;
 }
 
+#del{
+	width: 350px;
+	height: 35px;
+}
+#bEliminar{
+	background:#BEB8B8;
+	width: 80px;
+	height: 35px;
+	border-bottom: 5px solid #5E5E5E;
+	border-right: 5px solid #5E5E5E;
+    border-radius: 10px;
+	cursor: pointer;
+	color: black;
+	font-size: 15px;
+}
+
 .tabs1{
 	list-style: none;
 	margin-top: 0;
@@ -342,7 +358,7 @@ aside{
 	display: none !important;
 }
 .openCollapse{
-	display: inline-block; !important;
+	display: inline-block !important;
 }
 
 

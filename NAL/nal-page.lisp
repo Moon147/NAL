@@ -46,20 +46,19 @@
       (setf opcjoin 'nil)
       (manage-files)))
     (cond ((numberp decimales) (setf var-decimales decimales)))
-    ;(log:info "opcadd: ~s" opcadd)
-    ;(log:info "(eq opcadd on): ~s" (eq opcadd "on"))
     (if (equal opcadd "on") (setf var-addexp 'T))
     (if (equal inferenciarepetidos "SELECCION") (setf infRep  "SELECCIÓN") (setf infRep "REVISIÓN"))
     (if (numberp kuser) (setf k kuser))
 
-    (setf expr (split-by-comma (remove #\space del)))
-
-    ;(log:info "del: ~a" del)
-    ;(log:info "expr: ~a" expr)
-
-    (if (not (equal del 'nil))
-      (loop for i in expr do       
-        (eliminar (parse-integer i))))    
+    ;Elimina de la bc
+    (cond ((or (not (equal del 'nil)))
+            (setf expr (split-by-comma (remove #\space del)))
+            (loop for i in expr do       
+              (eliminar (parse-integer i)))
+            (setf del 'nil)
+            (setf expr 'nil))
+          (T))
+    
     ;------------------------------------------- 
      (:body :onload "recuperarPolitica()"
       (:div :id "contenedor"
@@ -158,9 +157,9 @@
                                   (:td (format t "~a" valorV)))) )) )) 
               (:form :method :post 
             (htm  
-              (:input :type :text :id "del"  :name "del"  
-                            :placeholder "Ingrese en número de las expresiones a eliminar" ))
-              (:input :type "submit" :value "Eliminar" ))))          
+              (:input :type :text :id "del"  :name "del" :required "true"
+                            :placeholder "Ingrese el número de las expresiones a eliminar"  ))
+              (:input :type "submit" :value "Eliminar" :id "bEliminar" ))))          
           ;(format t "eliminar: ~a" delete)
           );aside
 
@@ -208,7 +207,7 @@
 		(:input :style "display:none;" :id "kuser" :name "kuser")              
 		(:input :style "display:none;" :id "opcadd" :name "opcadd")
 		(:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
-                  :placeholder "Ingrese sus consultas" ))
+                  :placeholder "Ingrese sus consultas" :required "true" ))
 		(:input :class "botonSubir" :onclick "scroll()" :type "submit" :value "Enviar" ))))
 
         (:div :class "pc" :data-pushbar-target "mypushbar1"

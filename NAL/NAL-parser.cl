@@ -47,8 +47,8 @@
 ;;                      por corchetes triangulares y separado por coma.
 ;;=================================================================================================
 
-(ql:quickload :parseq)
-;(in-package :nal)
+;(ql:quickload :parseq)
+(in-package :nal)
 
 (parseq:defrule sentence () (or judgement query))
 
@@ -86,6 +86,7 @@
 ;; ===========================================================
 (parseq:defrule statement () (or (and term sp relation sp term)
                                  (and term sp relation sp term2) ;conjuntos
+                                 (and term2 sp relation sp term) ;conjuntos
                                  compound-statement 
                                  term) 
                                 (:choose 0 2 4))
@@ -102,6 +103,9 @@
 			     (and "[" sp compound-term sp "]")) 
                     (:string)
                     (:lambda (term) (read-from-string term)))
+
+(parseq:defrule term2 () (and "{" conjunto "}")  
+                    (:string))
 
 (parseq:defrule relation () (or "<->"      ;;Similarity NAL-2
                          "<=>"      ;;Equivalence NAL-5
@@ -121,8 +125,7 @@
 
 (parseq:defrule conjunto () (+ (and sp term (? ",")))(:string))
 
-(parseq:defrule term2 () (and "{" conjunto "}")  
-                    (:string))
+
 
 (parseq:defrule compound-term () (or 
         ;(and "{" conjunto "}") ;;conjunto
