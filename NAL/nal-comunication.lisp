@@ -198,8 +198,20 @@
         (newExpresion nil))
     (cond 
       ((or (listp (third lista)) (listp (first lista)))
-      
-          (insert4 expresion))
+
+          ;(((* WATER SALT) --> DISSOLVE) (1.0 0.9) ("(* water salt) --> dissolve" " <1.0, 0.9>"))
+          
+          (cond ((string= "*" (string (first (first lista))) )
+            (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
+                          expresion ;(* water salt) --> dissolve
+                  (list (list (second (first lista)) (read-from-string "-->") (third lista) ) ; water --> (/ dissolve ° salt)
+                    vv 
+                    (list (concatenate 'string (string (first lista)) " --> " (string (third lista))) (second expString)) ) 
+                          ))
+            
+            (insert4 newExpresion)) 
+            (T (insert4 expresion))   )  )
+
       ((string= "<->"(string (second lista)))
         (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
           (list (list (first lista) (read-from-string "-->") (third lista)) 
@@ -243,8 +255,8 @@
           (insert expresion))
       ((and (search "*{" (string (first lista))) (search "*[" (string (third lista))))
         (let ((term1 (string (first lista))) (term2 (string (third lista))) (newLastPosTerm1 0) (newLastPosTerm2 0) (newTerm1 nil) (newTerm2 nil))
-        (setf newLastPosTerm1  (- (length term1) 1) newLastPosTerm2  (- (length term2) 1))
-        (setf newTerm1 (subseq term1 1 newLastPosTerm1) newTerm2 (subseq term2 1 newLastPosTerm2)) ;Rescorta las llaves
+        (setf newLastPosTerm1  (- (length term1) 2) newLastPosTerm2  (- (length term2) 2))
+        (setf newTerm1 (subseq term1 2 newLastPosTerm1) newTerm2 (subseq term2 2 newLastPosTerm2)) ;Rescorta las llaves
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
           (list (list (read-from-string newTerm1) (read-from-string "o->o") (read-from-string newTerm2)) 
                 vv 
@@ -253,8 +265,8 @@
 
       ((string= "*{" (subseq (string (first lista)) 0 2))
         (let ((term1 (string (first lista))) (newLastPos 0) (newTerm1 nil))
-        (setf newLastPos  (- (length term1) 1))
-        (setf newTerm1 (subseq term1 1 newLastPos))
+        (setf newLastPos  (- (length term1) 2))
+        (setf newTerm1 (subseq term1 2 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
           (list (list (read-from-string newTerm1) (read-from-string "o->") (third lista)) 
                 vv 
@@ -263,8 +275,8 @@
 
       ((string= "*[" (subseq (string (third lista)) 0 2))
         (let ((term2 (string (third lista))) (newLastPos 0) (newTerm2 nil))
-        (setf newLastPos  (- (length term2) 1))
-        (setf newTerm2 (subseq term2 1 newLastPos))
+        (setf newLastPos  (- (length term2) 2))
+        (setf newTerm2 (subseq term2 2 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
           (list (list (first lista) (read-from-string "->o") (read-from-string newTerm2)) 
                 vv 

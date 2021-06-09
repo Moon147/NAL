@@ -85,6 +85,7 @@
 
 ; Devuelve la expresión de consulta con el valor de verdad calculado "term1 --> term2 <f , c>"
 (defun truth-value (query decimales)
+	;(print query)
 	(setq term1 (first query)
 	      term2 (third query)) 
 	(let ( (w+ '()) (w '()) (confidence 0) (frequency 0)

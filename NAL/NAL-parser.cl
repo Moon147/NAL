@@ -100,7 +100,7 @@
 			     (and "[" sp variable sp "]")
 			     (and "[" sp compound-term sp "]")) 
                     (:string)
-                    ;(:lambda (term) (read-from-string term)) 
+                    (:lambda (term) (read-from-string term)) 
                     )
 
 (parseq:defrule relation () (or "<->"      ;;Similarity NAL-2
@@ -128,8 +128,12 @@
         (and "(-" sp term sp term sp ")")       ;;DifferenceExt NAL-3
         (and "(~" sp term sp term sp ")")       ;;DifferenceInt NAL-3
         (and "(*" sp term sp term sp ")")      ;;Product NAL-4
-        (and "(/" sp+ term "+" sp+ "_" sp+ term "*)")      ;;ImageExt NAL-4
-        (and "(\\" sp+ term "+" sp+ "_" sp+ term "*)")))   ;; ImageInt NAL-4
+        ;(and "(/" sp+ term "+" sp+ "_" sp+ term ")")      ;;ImageExt NAL-4
+        ;(and "(\\" sp+ term "+" sp+ "_" sp+ term ")")))   ;; ImageInt NAL-4
+        (and "(/" sp+ term sp+ "°" sp+ term sp ")")      ;;ImageExt NAL-4
+        (and "(/" sp+ term sp+ term sp+ "°" sp ")")      ;;ImageExt NAL-4
+        (and "(" slash sp+ term sp+ "°" sp+ term sp ")")   ;; ImageInt NAL-4
+        (and "(" slash sp+ term sp+ term sp+ "°" sp ")")))   ;; ImageInt NAL-4
 
 (parseq:defrule variable () (or independent-var
                          dependent-var
@@ -184,3 +188,4 @@
 
 (parseq:defrule sp () (* (or #\space #\tab #\newline))) ;espacio opcional (cerradura transitiva)
 (parseq:defrule sp+ () (+ (or #\space #\tab #\newline)))  ;espacio obligatorio (cerrradura positiva)
+(parseq:defrule slash () #\backslash) ;diagonal invertida

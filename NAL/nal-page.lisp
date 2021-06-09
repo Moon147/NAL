@@ -95,7 +95,8 @@
                                 (setq truthv 'nil)
                                 )                 ;Se reinician las variables                    
                               ((parseq:parseq 'funciones conocimiento) 
-                                  (if (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
+                                  (if (parseq:parseq 'funciones conocimiento)
+                                  (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) )
                                 (if (equal opcadd "on") (parser  (concatenate 'string "(" (string statement) ")")))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                                 (setq statement 'nil))
@@ -180,7 +181,7 @@
           (:button :onclick "simbolo('|')"  :class "simbolo" "|")
           (:button :onclick "simbolo('-')"  :class "simbolo" "-")
           (:button :onclick "simbolo('~')"  :class "simbolo" "~")
-          (:button :onclick "simbolo('*')"  :class "simbolo" "*")
+          (:button :onclick "simbolo('&times')"  :class "simbolo" "&times")
           (:p (:form :method :post 
               (htm  
 		(:input :style "display:none;" :id "inferenciarepetidos" :name "inferenciarepetidos")
@@ -288,7 +289,7 @@
                                       (with-open-file (in path)
                                         (file-length in)) ))
                                "&nbsp;Bytes"))))))))   
-            (:p (:input  :type "submit" :style "margin-top: 10px"  )) ) ) ;fin formulario- section
+            (:p (:input  :type "submit" :style "margin-top: 10px" :value "Seleccionar"  )) ) ) ;fin formulario- section
 
 
           ;;---------------------------------------REGLAS DE INFERENCIA-------------------------------------------
