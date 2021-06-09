@@ -318,10 +318,10 @@
         
         (setf tv (second result))      ;tv valor de verdad (frequency confidence)
         (setf expresionLista (list (first result) 
-                    (if (= 0 (second tv)) (list (first tv) confidenceZero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
+                    (if (= 0.5 (first tv)) (list 0.5 0) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
           (list (format nil "~(~a ~a ~a~)" (first (first result)) (second (first result)) (third (first result)))
-             (if (= 0 (second tv)) 
-                (format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
+             (if (= 0.5 (first tv))
+                (format nil " <~{~a~^, ~}>" (list 0.5 0))
                 (format nil " <~{~a~^, ~}>" (second result)) )) ))
         (bcUsuario expresionLista)
         (bcAgente expresionLista)
@@ -349,10 +349,10 @@
 	    ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv"))
       (setf tv (second auxiliar2))      ;tv valor de verdad (frequency confidence)
 	    (setf expresionLista (list (first auxiliar2) 
-                    (if (= 0 (second tv)) (list (first tv) confidenceZero) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
+                    (if (= 0.5 (first tv)) (list 0.5 0) tv)  ;Si la confianza es 0, se asigna 1/2 de confianza
 	       (list (format nil "~(~a ~a ~a~)" (first (first auxiliar2)) (second (first auxiliar2)) (third (first auxiliar2)))
-	       		 (if (= 0 (second tv)) 
-                (format nil " <~{~a~^, ~}>" (list (first tv) confidenceZero))
+	       		 (if (= 0.5 (first tv))
+                (format nil " <~{~a~^, ~}>" (list 0.5 0))
                 (format nil " <~{~a~^, ~}>" (second auxiliar2)) )) ))  
       ;LLAMAR A SELECCIÓN O REVISIÓN EN AUTOMÁTICO CADA QUE HAY UNA NUEVO EXPRESIÓN
       (cond ((noRepetidosAuto expresionLista) ;Si no existe la expresión 

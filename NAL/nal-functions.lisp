@@ -113,16 +113,16 @@
 	(setq 
 			w+ (length (union (intersection Ae Be) (intersection Ai Bi)))  	; w+ = ||(aE n bE) u (aI n bI)||
 		  w  (+ (length Ae) (length Bi)) 							  	 	; w  = ||aE|| + ||bI|| 
-		  frequency (float (adjust-precision (/ w+ w) decimales)) 			; frequency = w+ / w
+		  frequency (float (adjust-precision (if (= w 0) 0 (/ w+ w)) decimales)) 			; frequency = w+ / w
 		  confidence (float (adjust-precision (/ w (+ w k)) decimales)) ) 	; confidence = w / (w + k)
 
 	(if (equal term1 term2) 
 		(setq frequency 1.0 confidence 0.9) )
 
 	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
-							" <" (format nil "~f" frequency) ", " (format nil "~f" confidence) ">" ))
+							" <" (format nil "~f"  frequency) ", " (format nil "~f" (if (= frequency 0.5) 0 confidence)) ">" ))
 	(insert2 (format 'nil "~(~a --> ~a~) <~a, ~a>" 
-												(string-downcase term1) (string-downcase term2) frequency confidence)) ))	
+												(string-downcase term1) (string-downcase term2) frequency (if (= frequency 0.5) 0 confidence))) ))	
 
 ;;======================================================================================= 
 ;;  
@@ -199,7 +199,7 @@
 
 	(I-E (first (first exp1)) (third (first exp1)))
 	(setf statementRep (concatenate 'string (string-downcase (string (first (first exp1)))) " --> " (string-downcase (string (third (first exp1)))) 
-							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
+							" <" (format nil "~f"  (first truthv)) ", " (format nil "~f"  (if (= (first truthv) 0.5) 0 (second truthv))) ">" )) 
 
 	(setq e 'nil e2 'nil errorSintax-local-n1 'nil) ))
 
@@ -332,7 +332,7 @@
 	 	(let ((w+ 'nil) (w 'nil) ) 
 	 	 (setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
 	 	 	   w  (ext-and (first vv2) (second vv2) (second vv1)) )	 				;w = and(f2 , c2 , c1 )
-	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+	 	 (list (float (adjust-precision (if (= w 0) 0 (/ w+ w)) decimales)) 			
   			   (float (adjust-precision (/ w (+ w k)) decimales)) ) )) 
 
 	 (abduction (vv1 vv2)
@@ -340,7 +340,7 @@
 	 	(let ((w+ 'nil) (w 'nil) ) 
 	 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
 	 	 	   w  (ext-and (first vv1) (second vv1) (second vv2)) )	 				;w = and(f1 ,c1 ,c2)
-	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+	 	 (list (float (adjust-precision (if (= w 0) 0 (/ w+ w)) decimales)) 			
   			   (float (adjust-precision (/ w (+ w k)) decimales))) ))
 	 
 	 (conversion (vv1)
@@ -353,7 +353,7 @@
 	 	(let ((w+ 'nil) (w 'nil) ) 
 	 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
 	 	 	   w  (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) )	 	;w = and(f1 ,c1,f2 ,c2)
-	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+	 	 (list (float (adjust-precision (if (= w 0) 0 (/ w+ w)) decimales)) 			
   			   (float (adjust-precision (/ w (+ w k)) decimales))) ) ))
 
 	
@@ -416,7 +416,7 @@
 		(I-E (first expresion) (second expresion))
 		;(I-E termB1 termB1)
 		(setf statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
-							" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) 
+							" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv))) ">" )) 
 
 		(if (and statement (not (search "NIL" statement) ))  (insert2 statement))  
 		(setq e 'nil e2 'nil) )) )
@@ -432,7 +432,7 @@
 		(let ((w+ 'nil) (w 'nil) ) 
 	 	 (setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
 	 	 	   w  (ext-and (ext-or (first vv1) (first vv2)) (second vv2) (second vv1)) )	 				;w = and(or(f1, f2) , c1 , c2 )
-	 	 (list (float (adjust-precision (/ w+ w) decimales)) 			
+	 	 (list (float (adjust-precision (if (= w 0) 0 (/ w+ w)) decimales)) 			
   			   (float (adjust-precision (/ w (+ w k)) decimales)) ) ))
 
   	(analogy (vv1 vv2)
@@ -468,12 +468,12 @@
 							(setq truthv (comparasion (second exp1) (second exp2)) 
 							 			expresion (list termB2  termA2)
 							 			statement (concatenate 'string (string-downcase (string (first expresion))) " <-> " (string-downcase (string (second expresion))) 
-										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
+										" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv)) ) ">" )) )
 						((equal termB2 termA2) 
 				 			(setq truthv (comparasion (second exp2) (second exp1)) 
 				 						expresion (list termB1  termA1 )
 				 						statement (concatenate 'string (string-downcase (string (first expresion))) " <-> " (string-downcase (string (second expresion))) 
-										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
+										" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv)) ) ">" )) )
 						(T (setf errorSintax 'T)) ))
 
     			((string= (string rule) "ANALOGÍA")
@@ -484,26 +484,35 @@
 							(setq truthv (analogy (second exp1) (second exp2)) 
 							 			expresion (list termB1  termA2)
 							 			statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
-										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
+										" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv)) ) ">" )) )
 						((and (equal termA2 termB2) (string= (string copulaB) "<->"))  ;p->m s<->m = p->s 
 							(setq truthv (analogy (second exp1) (second exp2)) 
 							 			expresion (list termA1  termB1)
 							 			statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
-										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
+										" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv)) ) ">" )) )
 						((and (equal termA1 termB1) (string= (string copulaA) "<->"))  ;m<->p m->s = p->s
 							(setq truthv (analogy (second exp1) (second exp2)) 
 							 			expresion (list termA2  termB2)
 							 			statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
-										" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) )
+										" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv)) ) ">" )) )
 						(T (setf errorSintax 'T)) ))
 
 			  ((string= (string rule) "SEMEJANZA")
-			  	(setf ruleSintax "(analogía No-exp1: (M <-> P) No-exp2: (S <-> M))") 
-			  (cond ((and (equal termA1 termB2) (string= (string copulaA) "<->") (string= (string copulaB) "<->"))
+			  	(setf ruleSintax "(semejanza No-exp1: (M <-> P) No-exp2: (S <-> M))") 
+			  (cond ((and (or (equal termA1 termB1) (equal termA1 termB2) (equal termA2 termB1) (equal termA2 termB2))
+			  			 (string= (string copulaA) "<->") (string= (string copulaB) "<->"))
 			  			(setq truthv (resemblance (second exp1) (second exp2)) 
-								 		expresion (list termB1  termA2)  
+								 		expresion (cond ((equal termA1 termB1)
+								 						(list termA2 termB2))
+								 						((equal termA1 termB2)
+								 						(list termA2 termB1))
+								 						((equal termA2 termB1)
+								 						(list termA1 termB2))
+								 						(T
+								 						(list termA1 termB1))
+								 				  )
 							  	  statement (concatenate 'string (string-downcase (string (first expresion))) " <-> " (string-downcase (string (second expresion))) 
-											" <" (format nil "~f" (first truthv)) ", " (format nil "~f" (second truthv)) ">" )) ) 
+											" <" (format nil "~f" (first truthv) ) ", " (format nil "~f"  (if (= (first truthv) 0.5) 0 (second truthv)) ) ">" )) ) 
 			  		(T (setf errorSintax 'T)) )) 
 
 			  (T (insert2 (format 'nil "Error reglas NAL-2. Revise el nombre de la regla que desea usar" )) (setf flag-ingresaBC 'nil))) 
