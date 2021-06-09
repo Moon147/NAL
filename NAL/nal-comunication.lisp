@@ -191,26 +191,27 @@
 ;;  
 ;;=======================================================================================
 (defun bcAgente (expresion)
-  
+
   (let ((lista (first expresion))
         (vv (second expresion))
         (expString (third expresion)) 
         (newExpresion nil))
     (cond 
       ((or (listp (third lista)) (listp (first lista)))
+        (insert4 expresion))
 
           ;(((* WATER SALT) --> DISSOLVE) (1.0 0.9) ("(* water salt) --> dissolve" " <1.0, 0.9>"))
           
-          (cond ((string= "*" (string (first (first lista))) )
-            (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
-                          expresion ;(* water salt) --> dissolve
-                  (list (list (second (first lista)) (read-from-string "-->") (third lista) ) ; water --> (/ dissolve ° salt)
-                    vv 
-                    (list (concatenate 'string (string (first lista)) " --> " (string (third lista))) (second expString)) ) 
-                          ))
+          ;(cond ((string= "*" (string (first (first lista))) )
+          ;  (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
+          ;                expresion ;(* water salt) --> dissolve
+          ;        (list (list (second (first lista)) (read-from-string "-->") (third lista) ) ; water --> (/ dissolve ° salt)
+          ;          vv 
+          ;          (list (concatenate 'string (string (first lista)) " --> " (string (third lista))) (second expString)) ) 
+          ;                ))
             
-            (insert4 newExpresion)) 
-            (T (insert4 expresion))   )  )
+          ;  (insert4 newExpresion)) 
+           ; (T (insert4 expresion))   )  )
 
       ((string= "<->"(string (second lista)))
         (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones

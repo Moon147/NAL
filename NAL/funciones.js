@@ -306,12 +306,29 @@ function recuperarPolitica(){
 }
 
 $("#lpopcadd").change(function() {
-	if(document.politica.lpopcadd.checked){
-		document.getElementById("lpopcadd").value = "on";
-	}else {
-		document.getElementById("lpopcadd").value="off";}
-	console.log(document.getElementById("lpopcadd").value);		
+    if(document.politica.lpopcadd.checked){
+        document.getElementById("lpopcadd").value = "on";
+    }else {
+        document.getElementById("lpopcadd").value="off";}
+    console.log(document.getElementById("lpopcadd").value);		
 });
+
+function elimina(check){
+  var index = new Object();  
+  objSerialized = localStorage.getItem('indices');
+  
+  
+  if (index == null){
+    index.value = check.value;
+  }else{
+    index.value = index.value + "," + check.value;
+  }
+  
+  
+  objSerialized = JSON.stringify(index);
+  localStorage.setItem('indices', objSerialized);
+  console.log("index: "+index);
+};
 
 jQuery(document).ready(function() {
   var politicaControl = new Object();
@@ -325,5 +342,4 @@ jQuery(document).ready(function() {
     localStorage.setItem('politica', objSerialized);
 
   });
-
 });

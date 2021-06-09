@@ -4,8 +4,9 @@
                                 :default-request-type :post)
       
 
-      (conocimiento valorV relacion expresion debug (selectbc :parameter-type 'integer)
+      (conocimiento expr valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
+        (del :parameter-type 'string)
         (comportamiento :parameter-type 'string)
         (inferenciarepetidos :parameter-type 'string)
         (decimales :parameter-type 'integer)
@@ -45,11 +46,19 @@
       (setf opcjoin 'nil)
       (manage-files)))
     (cond ((numberp decimales) (setf var-decimales decimales)))
-    ;(log:info "opcadd: ~s" opcadd)
-    ;(log:info "(eq opcadd on): ~s" (eq opcadd "on"))
     (if (equal opcadd "on") (setf var-addexp 'T))
     (if (equal inferenciarepetidos "SELECCION") (setf infRep  "SELECCIÓN") (setf infRep "REVISIÓN"))
     (if (numberp kuser) (setf k kuser))
+
+    ;Elimina de la bc
+    (cond ((or (not (equal del 'nil)))
+            (setf expr (split-by-comma (remove #\space del)))
+            (loop for i in expr do       
+              (eliminar (parse-integer i)))
+            (setf del 'nil)
+            (setf expr 'nil))
+          (T))
+    
     ;------------------------------------------- 
      (:body :onload "recuperarPolitica()"
       (:div :id "contenedor"
@@ -107,11 +116,14 @@
                             (setf expresion (first (obtiene-expresion (list i))))
                             (setf valorV (second (third expresion)))
                             (setf relacion (string-downcase (first (third expresion))))
+                            ;(setf eliminaS (format t "eliminar~a" i) )
                               (htm
                                (:tr 
                                 (:td (print i))
                                 (:td (format t "~a" relacion))
-                                (:td (format t "~a" valorV))))) )
+                                (:td (format t "~a" valorV))) )))
+
+
                       (:table :id "BC" :class "tabcontent"
                         (:tr 
                           (:th :class "num" "No")
@@ -143,7 +155,13 @@
                                  (:tr 
                                   (:td (print i))
                                   (:td (format t "~a" relacion))
-                                  (:td (format t "~a" valorV)))) )) )) ))
+                                  (:td (format t "~a" valorV)))) )) )) 
+              (:form :method :post 
+            (htm  
+              (:input :type :text :id "del"  :name "del" :required "true"
+                            :placeholder "Ingrese el número de las expresiones a eliminar"  ))
+              (:input :type "submit" :value "Eliminar" :id "bEliminar" ))))          
+          ;(format t "eliminar: ~a" delete)
           );aside
 
         (:section :id "contenido"
@@ -190,7 +208,7 @@
 		(:input :style "display:none;" :id "kuser" :name "kuser")              
 		(:input :style "display:none;" :id "opcadd" :name "opcadd")
 		(:input :type :text :class "conocimiento" :id "conocimiento"  :name "conocimiento"  
-                  :placeholder "Ingrese sus consultas" ))
+                  :placeholder "Ingrese sus consultas" :required "true" ))
 		(:input :class "botonSubir" :onclick "scroll()" :type "submit" :value "Enviar" ))))
 
         (:div :class "pc" :data-pushbar-target "mypushbar1"
