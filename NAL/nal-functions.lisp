@@ -322,10 +322,12 @@
 
 (defun forward-rules-N1 (rule exp1 exp2 &optional decimales)
 	(labels ((deduction (vv1 vv2)
+		;(log:info "deduction324")
 		(list (float (adjust-precision (ext-and (first vv1) (first vv2)) decimales))
 			  (float (adjust-precision (ext-and (first vv1) (first vv2) (second vv1) (second vv2)) decimales))) ) 
 
 	 (induction (vv1 vv2) 
+	 	;(log:info "induction329")
 	 	(let ((w+ 'nil) (w 'nil) ) 
 	 	 (setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
 	 	 	   w  (ext-and (first vv2) (second vv2) (second vv1)) )	 				;w = and(f2 , c2 , c1 )
@@ -333,6 +335,7 @@
   			   (float (adjust-precision (/ w (+ w k)) decimales)) ) )) 
 
 	 (abduction (vv1 vv2)
+	 	;(log:info "abduction337")
 	 	(let ((w+ 'nil) (w 'nil) ) 
 	 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
 	 	 	   w  (ext-and (first vv1) (second vv1) (second vv2)) )	 				;w = and(f1 ,c1 ,c2)
@@ -340,10 +343,12 @@
   			   (float (adjust-precision (/ w (+ w k)) decimales))) ))
 	 
 	 (conversion (vv1)
+	 ;(log:info "conversion345")
 	 	 (list (float 1) (float (adjust-precision (/ (* (first vv1) (second vv1)) 
 	 	 											(+ (* (first vv1) (second vv1)) k))  decimales)) )) 
 
 	 (exemplification (vv1 vv2)
+	 ;(log:info "exemplification350")
 	 	(let ((w+ 'nil) (w 'nil) ) 
 	 	 (setq w+ (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) 		;w + = and(f1 ,c1 ,f2 ,c2)
 	 	 	   w  (ext-and (first vv1) (second vv1) (first vv2) (second vv2)) )	 	;w = and(f1 ,c1,f2 ,c2)
@@ -356,6 +361,7 @@
 			(ruleSintax 'nil) (errorSintax 'nil)) 
 
 		(cond ((string= (string rule) "DEDUCCIÓN")
+				;(log:info "deduction363")
 					(setf ruleSintax "(deducción No-exp1: (M --> P) No-exp2: (S --> M))")
 					(cond 
 						((isEqualTerms exp1 exp2 "A1" "B2")
@@ -367,6 +373,7 @@
 						(T (setf errorSintax 'T)) ))
 
 			  ((string= (string rule) "INDUCCIÓN")
+			  ;(log:info "induction375")
 					(setf ruleSintax "(inducción No-exp1: (M --> P) No-exp2: (M --> S))")
 					(cond 
 						((isEqualTerms exp1 exp2 "A1" "B1")
@@ -531,7 +538,7 @@
 (defun elimina-Vacios (cache)
 	(let ((total (cacle:cache-count cache)))
 		(loop for i from 1 to (+ total 5) do
-		(log:info "~d: ~a" i (cacle:cache-fetch cache i :only-if-cached t))
+		;(log:info "~d: ~a" i (cacle:cache-fetch cache i :only-if-cached t))
 		)))
 
 (defun menor (n1 n2)
