@@ -49,6 +49,7 @@
     (if (equal opcadd "on") (setf var-addexp 'T))
     (if (equal inferenciarepetidos "SELECCION") (setf infRep  "SELECCIÓN") (setf infRep "REVISIÓN"))
     (if (numberp kuser) (setf k kuser))
+    (if conocimiento (setf conocimientoRastreo conocimiento))
 
     ;Elimina de la bc
     (cond ((or (not (equal del 'nil)))
@@ -133,34 +134,30 @@
                            do 
                             (setf expresion (first (obtiene-agente (list i))))
                             (cond 
-                              ((third expresion)  ;-----------------------EXPRESIÓN CON CÓPULAS --> O-> ->O O->O
+                              ((= (length (second expresion)) 3)  ;-----------------------EXPRESIÓN NAL4 Y EXPRESIÓN CON CÓPULA <-> SE IMPREMEN LAS 2 VERSIONES DE LA BC DE AGENTE
+                                (loop for subExp in expresion 
+                                  do 
+                                  (setf valorV (second (third subExp))) 
+                                  (setf relacion (string-downcase (first (third subExp))) ) 
+                                  (htm      
+                                   (:tr 
+                                    (:td (print i))
+                                    (:td (format t "~a" relacion))
+                                    (:td (format t "~a" valorV))))  ))
+                              (T ;-----------------------EXPRESIÓN CON CÓPULAS --> O-> ->O O->O
                                 (setf valorV (second (third expresion)))
                                 (setf relacion (string-downcase (first (third expresion)))) 
                                 (htm
                                  (:tr 
                                   (:td (print i))
                                   (:td (format t "~a" relacion))
-                                  (:td (format t "~a" valorV)))) ) 
-                              (T                   ;-----------------------EXPRESIÓN CON CÓPULA <-> SE IMPREMEN LAS 2 VERSIONES DE LA BC DE AGENTE
-                                (setf valorV (second (third (first expresion))))
-                                (setf relacion (string-downcase (first (third (first expresion)))) )
-                                (htm
-                                 (:tr 
-                                  (:td (print i))
-                                  (:td (format t "~a" relacion))
-                                  (:td (format t "~a" valorV))))
-                                (setf valorV (second (third (second expresion))))
-                                (setf relacion (string-downcase (first (third (second expresion)))) )
-                                (htm
-                                 (:tr 
-                                  (:td (print i))
-                                  (:td (format t "~a" relacion))
-                                  (:td (format t "~a" valorV)))) )) )) 
+                                  (:td (format t "~a" valorV)))) )  ) )) 
               (:form :method :post 
             (htm  
               (:input :type :text :id "del"  :name "del" :required "true"
+               :style "width: 70%; height: 25px; margin-left: 5px"
                             :placeholder "Ingrese el número de las expresiones a eliminar"  ))
-              (:input :type "submit" :value "Eliminar" :id "bEliminar" ))))          
+              (:input :type "submit" :value "Eliminar" :id "bEliminar" :style "height: 30px"))))          
           ;(format t "eliminar: ~a" delete)
           );aside
 

@@ -191,28 +191,12 @@
 ;;  
 ;;=======================================================================================
 (defun bcAgente (expresion)
-
   (let ((lista (first expresion))
         (vv (second expresion))
         (expString (third expresion)) 
         (newExpresion nil))
+
     (cond 
-      ((or (listp (third lista)) (listp (first lista)))
-        (insert4 expresion))
-
-          ;(((* WATER SALT) --> DISSOLVE) (1.0 0.9) ("(* water salt) --> dissolve" " <1.0, 0.9>"))
-          
-          ;(cond ((string= "*" (string (first (first lista))) )
-          ;  (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
-          ;                expresion ;(* water salt) --> dissolve
-          ;        (list (list (second (first lista)) (read-from-string "-->") (third lista) ) ; water --> (/ dissolve ° salt)
-          ;          vv 
-          ;          (list (concatenate 'string (string (first lista)) " --> " (string (third lista))) (second expString)) ) 
-          ;                ))
-            
-          ;  (insert4 newExpresion)) 
-           ; (T (insert4 expresion))   )  )
-
       ((string= "<->"(string (second lista)))
         (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
           (list (list (first lista) (read-from-string "-->") (third lista)) 
@@ -225,24 +209,60 @@
 
       ((string= "O->"(string (second lista)))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "-->") (third lista)) 
+          (list (list (read-from-string (concatenate 'string "{" (string (first lista)) "}")) (read-from-string "-->") (third lista)) 
                 vv 
                 (list (concatenate 'string "{" (string (first lista)) "} --> " (string (third lista))) (second expString)) ))
         (insert4 newExpresion))
 
       ((string= "->O"(string (second lista)))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "-->") (third lista)) 
+          (list (list (first lista) (read-from-string "-->") (read-from-string (concatenate 'string "[" (string (third lista)) "]"))) 
                 vv 
                 (list (concatenate 'string (string (first lista)) " --> [" (string (third lista)) "]") (second expString)) ))
         (insert4 newExpresion))
 
       ((string= "O->O"(string (second lista)))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "-->") (third lista)) 
+          (list (list (read-from-string (concatenate 'string "{" (string (first lista)) "}")) (read-from-string "-->") (read-from-string (concatenate 'string "[" (string (third lista)) "]")) ) 
                 vv 
                 (list (concatenate 'string "{" (string (first lista)) "} --> [" (string (third lista)) "]") (second expString)) ))
         (insert4 newExpresion))
+
+      ((and (search "(*" (string (first lista)) ) (not (search "(*" (string (third lista)) )))  ;NAL-4 se agregan los 3 tipos de expresiones para una relación ;(search "(*" (string (third lista)))
+        (let ((term2 (third lista)) 
+              (newTerm (read-from-string (first lista))) 
+              (img1 'nil) (img2 'nil) )
+          (setq img1 (list (second newTerm) (read-from-string "-->") (concatenate 'string "(/ " (string term2) " ° " (string (third newTerm)) ")")) 
+                img2 (list (third newTerm) (read-from-string "-->") (concatenate 'string "(/ " (string term2) " " (string (second newTerm)) " °)")) )
+          
+          (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
+            expresion
+            (list img1
+                  vv 
+                  (list (concatenate 'string (string-downcase (string (first img1))) " --> " (string-downcase (third img1)) ) (second expString)) )
+            (list img2
+                  vv 
+                  (list (concatenate 'string (string-downcase (string (first img2))) " --> " (string-downcase (third img2)) ) (second expString)) ) ))
+
+          (insert4 newExpresion) ))
+
+      ((and (search "(*" (string (third lista)) ) (not (search "(*" (string (first lista)) )))  ;NAL-4 se agregan los 3 tipos de expresiones para una relación ;(search "(*" (string (third lista)))
+        (let ((term2 (first lista)) 
+              (newTerm (read-from-string (third lista))) 
+              (img1 'nil) (img2 'nil) )
+          (setq img1 (list (concatenate 'string "(\\ " (string term2) " ° " (string (third newTerm)) ")") (read-from-string "-->") (second newTerm) ) 
+                img2 (list (concatenate 'string "(\\ " (string term2) " " (string (second newTerm)) " °)") (read-from-string "-->") (third newTerm)) )
+          
+          (setf newExpresion (list ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso de equivalencia, se agregar 2 expresiones
+            expresion
+            (list img1
+                  vv 
+                  (list (concatenate 'string (string-downcase (string (first img1))) " --> " (string-downcase (third img1)) ) (second expString)) )
+            (list img2
+                  vv 
+                  (list (concatenate 'string (string-downcase (string (first img2))) " --> " (string-downcase (third img2)) ) (second expString)) ) ))
+
+          (insert4 newExpresion) ))
 
       (T (insert4 expresion)) )) )
 
@@ -259,7 +279,7 @@
         (setf newLastPosTerm1  (- (length term1) 2) newLastPosTerm2  (- (length term2) 2))
         (setf newTerm1 (subseq term1 2 newLastPosTerm1) newTerm2 (subseq term2 2 newLastPosTerm2)) ;Rescorta las llaves
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (read-from-string newTerm1) (read-from-string "o->o") (read-from-string newTerm2)) 
+          (list (list (concatenate 'string "{" newTerm1 "}") (read-from-string "o->o") (concatenate 'string "[" newTerm2 "]")) 
                 vv 
                 (list (concatenate 'string newTerm1 " o->o " newTerm2) (second expString)) ))
         (insert newExpresion) ))
@@ -269,7 +289,7 @@
         (setf newLastPos  (- (length term1) 2))
         (setf newTerm1 (subseq term1 2 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (read-from-string newTerm1) (read-from-string "o->") (third lista)) 
+          (list (list (concatenate 'string "{" newTerm1 "}") (read-from-string "o->") (third lista)) 
                 vv 
                 (list (concatenate 'string newTerm1 " o-> " (string (third lista))) (second expString)) ))
         (insert newExpresion) ))
@@ -279,7 +299,7 @@
         (setf newLastPos  (- (length term2) 2))
         (setf newTerm2 (subseq term2 2 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "->o") (read-from-string newTerm2)) 
+          (list (list (first lista) (read-from-string "->o") (concatenate 'string "{" newTerm2 "}")) 
                 vv 
                 (list (concatenate 'string (string (first lista)) " ->o " newTerm2) (second expString)) ))
         (insert newExpresion) ))
@@ -326,6 +346,7 @@
         (bcUsuario expresionLista)
         (bcAgente expresionLista)
         (insert2 (format nil "Conflicto detectado, se aplicó ~(~a~)." infRep))
+        (insert3 (format 'nil "Consulta realizada: ~a ~%" conocimiento)) 
         (incf i)
         (setf statementRep 'nil) ))
   ) (not repetidos) ))
@@ -362,7 +383,8 @@
       ;Agregar a variable contPassParser los que fueron agregados a la caché
       (incf contPassParser) )
 	  ((and (equal auxiliar2 'NIL) (not (null aux)) )  ;Si la expresión está mal...
-	    (insert2 (format nil "Error en ~(~a~). Revise la estructura de su consulta." aux)) )  )) ;Agregar como mensaje de error a la cache de errores
+	    (insert2 (format nil "Error en ~(~a~). Revise la estructura de su consulta." aux))
+      (insert3 (format 'nil "Consulta realizada: ~a ~%" conocimiento))  )  )) ;Agregar como mensaje de error a la cache de errores
 
 
 
@@ -397,7 +419,7 @@
 	 	(format 'nil "~d-~2,'0d-~d_~2,'0d:~2,'0d:~2,'0d" 
 	 												año mes dia horas minutos segundos )))
 (defvar *directory*
-  (pathname 
+  (pathname  ;home/nalogic/NAL/Sesiones/~a/
 	(format 'nil "/home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/" logfecha)))
 
 (defparameter *log* 'nil) 		;Variable para guardar las sesiones 
@@ -417,7 +439,7 @@
     (cond ((> *cont* 1) 
       (setq path (format 'nil "Sesiones/~a/BC-0" logfecha))
       (writefile path)
-      (setq *files* (list (first *files*) 
+      (setq *files* (list (first *files*)  ;home/nalogic/NAL/Sesiones/~a/BC-0 home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/BC-0
         (list (pathname (format 'nil "home/jenifer/Escritorio/GITNAL/NAL/Sesiones/~a/BC-0" logfecha))
         	"BC-0.txt" "text/plain") )
         flag-BC0 'T)
@@ -431,7 +453,7 @@
 			(with-open-file (in path-selectbc)
 		      (loop for line = (read-line in nil) 	  ;LEE ARCHIVO
 		           while line do (parser line))) 
-			(insert2 "No se puede agregar el mismo archivo")) )
+			(insert2 "No se puede agregar el mismo archivo") ) )
 
   	;Manejo de los archivos existentes
   (when (or (= (length *files*) flag-files) (numberp var-selectbc))

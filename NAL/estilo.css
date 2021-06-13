@@ -74,7 +74,8 @@ aside{
 
 #TABLA{
 	text-align: center;
-	height: 85%;
+	height: 80%;
+	margin-bottom: 10px;
 	overflow-y: scroll;
 	background-color: rgb(201, 201, 201 , 0.7);
 	display: flex;
@@ -103,7 +104,8 @@ aside{
 
 #BC{
 	text-align: center;
-	height: 85%;
+	height: 80%;
+	margin-bottom: 10px;
 	overflow-y: scroll;
 	background-color: rgb(201, 201, 201 , 0.7);
 	display: none;

@@ -35,6 +35,7 @@
 (defparameter evidence 'nil)
 (defvar var-decimales 2)
 (defvar var-addexp 'nil)
+(defvar conocimientoRastreo)
 
 ; Función para calcular intension con parámetros: término a buscar y posición de la expresión a comparar con
 ; elementos de la cache
@@ -84,8 +85,8 @@
 
 		(setq wp (length (union (intersection Ae Be) (intersection Ai Bi)))
 					w (+ (length Ae) (length Bi)) )
-		(insert3   (format 'nil "Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Evidencia positiva: ~(~a~) ~% Evidencia negativa: ~(~a~) ~% Evidencia total: ~(~a~)" 
-			term1 Ai term1 Ae term2 Bi term2 Be wp (- w wp) w 
+		(insert3 (format 'nil "Consulta realizada: ~a ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Evidencia positiva: ~(~a~) ~% Evidencia negativa: ~(~a~) ~% Evidencia total: ~(~a~)" 
+			conocimientoRastreo term1 Ai term1 Ae term2 Bi term2 Be wp (- w wp) w 
 			
 			))
 		))
@@ -99,14 +100,15 @@
 		(Ai	(eliminarRepetidos (cons term1 (intension term1 1))) )
 		(Bi	(eliminarRepetidos (cons term2 (intension term2 1))) )
 		(Ae	(eliminarRepetidos (cons term1 (extension term1 1))) ) 
-		(Be	(eliminarRepetidos (cons term2 (extension term2 1))) ) )
+		(Be	(eliminarRepetidos (cons term2 (extension term2 1))) ) 
+		(finalExp "") )
 	;(print Ai) (print Bi) (print Ae) (print Be) 
 
 	;Ingreso de mensaje en caché de manesajes si los término de consulta no se conocían
 	(when (and (equal Ai Ae) (= 1 (length Ai))) 
-		(insert2 (format nil "El término ~(~a~) es nuevo en esta BC" (first Ai)))  )
+		(setf finalExp (format nil "El término ~(~a~) es nuevo en esta BC ~%" (first Ai)))  )
 	(when (and (equal Bi Be) (= 1 (length Bi)))
-		(insert2 (format nil "El término ~(~a~) es nuevo en esta BC" (first Bi)))  )
+		(setf finalExp (concatenate 'string finalExp (format nil "El término ~(~a~) es nuevo en esta BC ~%" (first Bi))) )  )
 
 		(I-E term1 term2)
 
@@ -121,8 +123,10 @@
 
 	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
 							" <" (format nil "~f"  frequency) ", " (format nil "~f" (if (= frequency 0.5) 0 confidence)) ">" ))
-	(insert2 (format 'nil "~(~a --> ~a~) <~a, ~a>" 
-												(string-downcase term1) (string-downcase term2) frequency (if (= frequency 0.5) 0 confidence))) ))	
+	
+	(setf finalExp (concatenate 'string finalExp (format 'nil "~(~a --> ~a~) <~a, ~a>" 
+												(string-downcase term1) (string-downcase term2) frequency (if (= frequency 0.5) 0 confidence)) ) )
+	(insert2 finalExp ) ))	
 
 ;;======================================================================================= 
 ;;  
@@ -195,7 +199,9 @@
 				  							  						(first (second exp2)) (second (second exp2)))) ) ))
 				)
 	
-		(T (insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como la estructura para la regla de inferencia ~a con estructura en las premisas: No-exp1: (M --> P) <f1,c1> No-exp2: (M --> P) <f2,c2>"  rule )) (setf errorSintax-local-n1 'T)) ) 	
+		(T (insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como la estructura para la regla de inferencia ~a con estructura en las premisas: No-exp1: (M --> P) <f1,c1> No-exp2: (M --> P) <f2,c2>"  rule )) 
+			(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) 
+			(setf errorSintax-local-n1 'T)) ) 	
 
 	(I-E (first (first exp1)) (third (first exp1)))
 	(setf statementRep (concatenate 'string (string-downcase (string (first (first exp1)))) " --> " (string-downcase (string (third (first exp1)))) 
@@ -215,12 +221,14 @@
 (defun ext-or (&rest arguments) (- 1 (reduce #'* (mapcar #'(lambda (x) (- 1 x)) arguments))) )
 
 (defun isEquivalentExpresion (expresion)
-	(equal (length expresion) 2))
+	(= (length (second expresion)) 3))
 (defun getVV (expresion)
 	(if (isEquivalentExpresion expresion) 
 		(second (first expresion))
 		(second expresion)) )
 (defun isEqualTerms (exp1 exp2 comp1 comp2)  ;isEqualTerms exp1 exp2 A1 B2
+	
+
 	(let 
 		((termA11 (if (isEquivalentExpresion exp1) (first (first (first exp1))) (first (first exp1))) )
 		(termA12  (if (isEquivalentExpresion exp1) (third (first (first exp1))) (third (first exp1))) )
@@ -239,7 +247,8 @@
 			((and (string= comp1 "A1") (string= comp2 "B2"))
 				(or (equal termA11 termB12) (equal termA21 termB12) (equal termA11 termB22) (equal termA21 termB22)) )
 			((and (string= comp1 "A2") (string= comp2 "B2"))
-				(or (equal termA12 termB12) (equal termA22 termB12) (equal termA12 termB22) (equal termA22 termB22)) )) ))
+				(or (equal termA12 termB12) (equal termA22 termB12) (equal termA12 termB22) (equal termA22 termB22)) )) )
+	)
 
 (defun secondList (exp1 exp2)
 	(let 
@@ -373,13 +382,13 @@
 				 			expresion (newList exp1 exp2 "A1" "B2") ))
 						(T (setf errorSintax 'T)) ))
 
-			  ((string= (string rule) "INDUCCIÓN")
+			  ((string= (string rule) "INDUCCIÓN") ;{M → P , M → S }  S → P 
 			  ;(log:info "induction375")
 					(setf ruleSintax "(inducción No-exp1: (M --> P) No-exp2: (M --> S))")
 					(cond 
 						((isEqualTerms exp1 exp2 "A1" "B1")
 							(setq truthv (induction exp1VV exp2VV) 
-				 			expresion (newList exp1 exp2 "A2" "B2")))
+				 			expresion (newList exp1 exp2 "B2" "A2")))
 						(T (setf errorSintax 'T)) ))
 
 			  ((string= (string rule) "ABDUCCIÓN")
@@ -387,7 +396,7 @@
 					(cond 
 						((isEqualTerms exp1 exp2 "A2" "B2")
 							(setq truthv (abduction exp1VV exp2VV) 
-				 			expresion (newList exp1 exp2 "A1" "B1")))
+				 			expresion (newList exp1 exp2 "B1" "A1")))
 						(T (setf errorSintax 'T)) )) 
 
 			  ((string= (string rule) "EJEMPLIFICACIÓN")
@@ -396,7 +405,7 @@
 						((isEqualTerms exp1 exp2 "A1" "B2")
 							(setq truthv (exemplification exp1VV exp2VV) 
 				 			expresion (newList exp1 exp2 "A2" "B1")))
-						((isEqualTerms exp1 exp2 "B1" "A2") 
+						((isEqualTerms exp1 exp2 "A2" "B1") 
 				 			(setq truthv (exemplification exp1VV exp2VV) 
 				 			expresion (newList exp1 exp2 "B2" "A1")))
 						(T (setf errorSintax 'T)) ))
@@ -406,20 +415,22 @@
 				 (setq truthv (conversion exp1VV) 
 				 		expresion (list (third (first exp1))  (first (first exp1)) ) ))
 
-			  (T (insert2 (format 'nil "Error reglas NAL-1. Revise el nombre de la regla que desea usar")) (setf flag-ingresaBC 'nil))) 
+			  (T (insert2 (format 'nil "Error reglas NAL-1. Revise el nombre de la regla que desea usar")) 
+			  		(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) 
+			  		(setf flag-ingresaBC 'nil))) 
 
-			(if errorSintax
-				(insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como el orden para la regla de inferencia ~a con estructura ~a"  rule ruleSintax)))
-		
-			(setf errorSintax 'nil)
-
-		(I-E (first expresion) (second expresion))
+			(when errorSintax
+				(insert2 (format 'nil "Error reglas NAL-1. Revise el número de las expresiones que desea usar asi como el orden para la regla de inferencia ~a con estructura ~a"  rule ruleSintax)) 
+				(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) )
 		;(I-E termB1 termB1)
-		(setf statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
+		
+		(when (not errorSintax)
+			(setf statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
 							" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv))) ">" )) 
+			(I-E (first expresion) (second expresion)) )
 
 		(if (and statement (not (search "NIL" statement) ))  (insert2 statement))  
-		(setq e 'nil e2 'nil) )) )
+		(setq e 'nil e2 'nil errorSintax 'nil) )) )
 
 ;;======================================================================================= 
 ;;  
@@ -503,27 +514,31 @@
 			  			 (string= (string copulaA) "<->") (string= (string copulaB) "<->"))
 			  			(setq truthv (resemblance (second exp1) (second exp2)) 
 								 		expresion (cond ((equal termA1 termB1)
-								 						(list termA2 termB2))
-								 						((equal termA1 termB2)
-								 						(list termA2 termB1))
+								 						(list termB2 termA2))
+								 						((equal termB2 termA1)
+								 						(list termB1 termA2))
 								 						((equal termA2 termB1)
-								 						(list termA1 termB2))
+								 						(list termB2 termA1))
 								 						(T
-								 						(list termA1 termB1))
+								 						(list termB1 termA1))
 								 				  )
 							  	  statement (concatenate 'string (string-downcase (string (first expresion))) " <-> " (string-downcase (string (second expresion))) 
 											" <" (format nil "~f" (first truthv) ) ", " (format nil "~f"  (if (= (first truthv) 0.5) 0 (second truthv)) ) ">" )) ) 
 			  		(T (setf errorSintax 'T)) )) 
 
-			  (T (insert2 (format 'nil "Error reglas NAL-2. Revise el nombre de la regla que desea usar" )) (setf flag-ingresaBC 'nil))) 
+			  (T (insert2 (format 'nil "Error reglas NAL-2. Revise el nombre de la regla que desea usar" )) 
+			  			(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) 
+			  			(setf flag-ingresaBC 'nil))) 
 
-    	(if errorSintax
-				(insert2 (format 'nil "Error reglas NAL-2. Revise el número de las expresiones que desea usar asi como el orden para la regla de inferencia ~a con estructura ~a"  rule ruleSintax)))
+    	(when errorSintax
+				(insert2 (format 'nil "Error reglas NAL-2. Revise el número de las expresiones que desea usar asi como el orden para la regla de inferencia ~a con estructura ~a"  rule ruleSintax)) 
+				(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) )
 
+    		(if (not errorSintax) 
+    			(I-E (first expresion) (second expresion)) )
 			(if (and statement (not (search "NIL" statement) )) 
 						(insert2 statement))
 			(setq e 'nil e2 'nil errorSintax 'nil)
-		(I-E (first expresion) (second expresion))
 	)) )
 
 (defun recorre-Registros (registro cache)
@@ -544,12 +559,6 @@
 			(cond ((equal expresion (cacle:cache-fetch cache i))
 				(cacle:cache-remove cache i ))
 				(T )))))
-
-(defun elimina-Vacios (cache)
-	(let ((total (cacle:cache-count cache)))
-		(loop for i from 1 to (+ total 5) do
-		;(log:info "~d: ~a" i (cacle:cache-fetch cache i :only-if-cached t))
-		)))
 
 (defun menor (n1 n2)
 	(let ((men 0))
@@ -584,7 +593,7 @@
 
 		 ((and (< noExp1 *cont*) (< noExp2 *cont*))
 		 	
-			(let ((exp1 (first (obtiene-agente (list noExp1))) ) 
+			(let ((exp1 (first (obtiene-agente (list noExp1))) )  ;((1 2 3)) (((1 2 3)(1 2 3))) (((1 2 3)(1 2 3)(1 2 3)))
 			  	  (exp2 (first (obtiene-agente (list noExp2)))  ))
 
 
@@ -606,10 +615,13 @@
 				((not (numberp (fourth solicitud)) )
 					(forward-rules-N1 (first solicitud) exp1 exp2 decimales) )
 
-				(T (insert2 (format 'nil "Error en: ~a. Revise la estructura y el nombre de las reglas de inferencia"  solicitud)) (setf flag-ingresaBC 'nil))))  )
+				(T (insert2 (format 'nil "Error en: ~a. Revise la estructura y el nombre de las reglas de inferencia"  solicitud)) 
+					(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) 
+					(setf flag-ingresaBC 'nil))))  )
 
 		 ((or (>= noExp1 *cont*) (>= noExp2 *cont*))  
-		 	(insert2 (format 'nil "Error en: ~a. Números fuera de la base de conocimiento"  solicitud)) ))  
+		 	(insert2 (format 'nil "Error en: ~a. Números fuera de la base de conocimiento"  solicitud)) 
+		 	(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) ))  
 	)
 		 
 	)
@@ -658,7 +670,8 @@
 							(setq subject (third (second expresion)) maxEspectativa espectativa) ) ))
 				(setq truthv subject  subjectOptions (mapcar #'(lambda (x) (third (second x))) subjectOptions) )) )
 
-		(insert2 (format 'nil "Lista de coincidencias: ~a" subjectOptions)) ))
+		(insert2 (format 'nil "Lista de coincidencias: ~{~% ~a~^, ~}" subjectOptions)) 
+		(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo))  ))
 
 ;;======================================================================================= 
 ;;  
@@ -692,7 +705,8 @@
 							(setq predicate (third (second expresion)) maxEspectativa espectativa) ) ))
 				(setq truthv predicate predicateOptions (mapcar #'(lambda (x) (third (second x))) predicateOptions) )) )
 	
-	(insert2 (format 'nil "Lista de coincidencias: ~a" predicateOptions))	))
+	(insert2 (format 'nil "Lista de coincidencias: ~{~% ~a~^, ~}"  predicateOptions )) 
+	(insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoRastreo)) 	))
 
 ;;======================================================================================= 
 ;;  
