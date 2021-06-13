@@ -138,6 +138,7 @@
         (and "(-" sp term sp term sp ")")       ;;DifferenceExt NAL-3
         (and "(~" sp term sp term sp ")")       ;;DifferenceInt NAL-3
         (and "(*" sp term sp term sp ")")      ;;Product NAL-4
+        (and "(×" sp term sp term sp ")")      ;;Product NAL-4
         ;(and "(/" sp+ term "+" sp+ "_" sp+ term ")")      ;;ImageExt NAL-4
         ;(and "(\\" sp+ term "+" sp+ "_" sp+ term ")")))   ;; ImageInt NAL-4
         (and "(/" sp+ term sp+ "°" sp+ term sp ")")      ;;ImageExt NAL-4

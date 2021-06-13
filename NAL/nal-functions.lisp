@@ -329,11 +329,16 @@
 
 	 (induction (vv1 vv2) 
 	 	;(log:info "induction329")
-	 	(let ((w+ 'nil) (w 'nil) ) 
-	 	 (setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
-	 	 	   w  (ext-and (first vv2) (second vv2) (second vv1)) )	 				;w = and(f2 , c2 , c1 )
-	 	 (list (float (adjust-precision (if (= w 0) 0 (/ w+ w)) decimales)) 			
-  			   (float (adjust-precision (/ w (+ w k)) decimales)) ) )) 
+	 	;(let ((w+ 'nil) (w 'nil) ) 
+	 	 ;(setq w+ (ext-and (first vv2) (second vv2) (first vv1) (second vv1)) 		;w+ = and(f2 , c2 , f1 , c1 )
+	 	 ;	   w  (ext-and (first vv2) (second vv2) (second vv1)) )	 				;w = and(f2 , c2 , c1 )
+	 	 ;(list (float (adjust-precision (if (= w 0) 0 (/ w+ w)) decimales)) 			
+  		 ;	   (float (adjust-precision (/ w (+ w k)) decimales)) ) )
+		 (let ((f 'nil) (c 'nil))
+		 	(setq f (first vv1) 	
+	 	 	   c (/ (* (first vv2) (second vv2) (second vv1)) (+ (* (first vv2) (second vv2) (second vv1)) k )))
+			(list (float (adjust-precision f decimales)) 			
+				(float (adjust-precision c decimales)) ) ))
 
 	 (abduction (vv1 vv2)
 	 	;(log:info "abduction337")
@@ -526,7 +531,7 @@
 		(I-E (first expresion) (second expresion))
 	)) )
 
-(defun recorre-Registros (registro cache)
+(defun recorre-Registros-Usuario (registro cache)
 	
 	(let ((total (cacle:cache-count cache)))
 		(cacle:cache-remove cache registro)	
@@ -538,6 +543,18 @@
 			(cacle:cache-remove cache (+ i 1))
 			(setf *exprcon* nil))))
 
+(defun recorre-Registros-Agente (registro cache)
+	
+	(let ((total (cacle:cache-count cache)))
+		(cacle:cache-remove cache registro)	
+		(loop for i from registro to total do
+			(cacle:cache-remove cache i)
+			(setf *expragente* (cacle:cache-fetch cache (+ i 1)))
+			(proveedor4 i)
+			(cacle:cache-fetch cache i)
+			(cacle:cache-remove cache (+ i 1))
+			(setf *expragente* nil))))
+
 (defun elimina-Registros (expresion cache)
 	(let ((total (cacle:cache-count cache)))
 		(loop for i from 1 to total do
@@ -545,11 +562,6 @@
 				(cacle:cache-remove cache i ))
 				(T )))))
 
-(defun elimina-Vacios (cache)
-	(let ((total (cacle:cache-count cache)))
-		(loop for i from 1 to (+ total 5) do
-		;(log:info "~d: ~a" i (cacle:cache-fetch cache i :only-if-cached t))
-		)))
 
 (defun menor (n1 n2)
 	(let ((men 0))
@@ -567,9 +579,9 @@
 (defun eliminar (exp1)
 	(let ((aexp1 (first (obtiene-expresion (list exp1)))) )
 		(elimina-Registros aexp1 *my-cache*)
-		(recorre-Registros exp1 *my-cache*)
+		(recorre-Registros-Usuario exp1 *my-cache*)
 		(elimina-Registros aexp1 *mensajes-agente*)
-		(recorre-Registros exp1 *mensajes-agente*)) 
+		(recorre-Registros-Agente exp1 *mensajes-agente*)) 
 		(setf *cont* (- *cont* 1))
 		(setf *cont4* (- *cont4* 1)))
 

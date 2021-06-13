@@ -133,6 +133,28 @@
                            do 
                             (setf expresion (first (obtiene-agente (list i))))
                             (cond 
+                              ((= (length (third expresion)) 3)  ;-----------------------EXPRESIÓN NAL4
+                                (setf valorV (second (third (first expresion)))) 
+                                (setf relacion (string-downcase (first (third (first expresion)))) )
+                                (htm      ;(SALT --> "(/ DISSOLVE WATER °)")
+                                 (:tr 
+                                  (:td (print i))
+                                  (:td (format t "~a" relacion))
+                                  (:td (format t "~a" valorV))))
+                                (setf valorV (second (third (second expresion))))
+                                (setf relacion (string-downcase (first (third (second expresion)))) )
+                                (htm
+                                 (:tr 
+                                  (:td (print i))
+                                  (:td (format t "~a" relacion))
+                                  (:td (format t "~a" valorV))))
+                                (setf valorV (second (third (third expresion))))
+                                (setf relacion (string-downcase (first (third (third expresion)))) )
+                                (htm
+                                 (:tr 
+                                  (:td (print i))
+                                  (:td (format t "~a" relacion))
+                                  (:td (format t "~a" valorV))))  )
                               ((third expresion)  ;-----------------------EXPRESIÓN CON CÓPULAS --> O-> ->O O->O
                                 (setf valorV (second (third expresion)))
                                 (setf relacion (string-downcase (first (third expresion)))) 
@@ -142,9 +164,9 @@
                                   (:td (format t "~a" relacion))
                                   (:td (format t "~a" valorV)))) ) 
                               (T                   ;-----------------------EXPRESIÓN CON CÓPULA <-> SE IMPREMEN LAS 2 VERSIONES DE LA BC DE AGENTE
-                                (setf valorV (second (third (first expresion))))
+                                (setf valorV (second (third (first expresion)))) 
                                 (setf relacion (string-downcase (first (third (first expresion)))) )
-                                (htm
+                                (htm      ;(SALT --> "(/ DISSOLVE WATER °)")
                                  (:tr 
                                   (:td (print i))
                                   (:td (format t "~a" relacion))
