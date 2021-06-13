@@ -49,7 +49,7 @@
     (if (equal opcadd "on") (setf var-addexp 'T))
     (if (equal inferenciarepetidos "SELECCION") (setf infRep  "SELECCIÓN") (setf infRep "REVISIÓN"))
     (if (numberp kuser) (setf k kuser))
-    (if conocimiento (setf conocimientoRastreo conocimiento))
+    (if conocimiento (setf conocimientoRastreo conocimiento conocimientoBack conocimiento))
 
     ;Elimina de la bc
     (cond ((or (not (equal del 'nil)))
@@ -196,7 +196,7 @@
           (:button :onclick "simbolo('|')"  :class "simbolo" "|")
           (:button :onclick "simbolo('-')"  :class "simbolo" "-")
           (:button :onclick "simbolo('~')"  :class "simbolo" "~")
-          (:button :onclick "simbolo('&times')"  :class "simbolo" "&times")
+          (:button :onclick "simbolo('×')"  :class "simbolo" "×")
           (:p (:form :method :post 
               (htm  
 		(:input :style "display:none;" :id "inferenciarepetidos" :name "inferenciarepetidos")

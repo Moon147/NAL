@@ -97,9 +97,9 @@
 ;; ===========================================================
 (parseq:defrule term () (or anyword variable
                              (and "{" sp anyword sp "}")
-			     (and "{" sp variable sp "}")			     
-			     (and "[" sp anyword sp "]")
-			     (and "[" sp variable sp "]")) 
+                 (and "{" sp variable sp "}")                
+                 (and "[" sp anyword sp "]")
+                 (and "[" sp variable sp "]")) 
                     (:string)
                     (:lambda (term) (read-from-string term)))
 

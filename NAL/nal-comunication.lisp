@@ -72,6 +72,7 @@
 ;;  
 ;;=======================================================================================
 
+(defvar conocimientoBack)
 (defparameter *cont* 1)
 (defparameter *exprcon* nil)
 
@@ -228,7 +229,7 @@
                 (list (concatenate 'string "{" (string (first lista)) "} --> [" (string (third lista)) "]") (second expString)) ))
         (insert4 newExpresion))
 
-      ((and (search "(*" (string (first lista)) ) (not (search "(*" (string (third lista)) )))  ;NAL-4 se agregan los 3 tipos de expresiones para una relación ;(search "(*" (string (third lista)))
+      ((and (search "(×" (string (first lista)) ) (not (search "(*" (string (third lista)) )))  ;NAL-4 se agregan los 3 tipos de expresiones para una relación ;(search "(*" (string (third lista)))
         (let ((term2 (third lista)) 
               (newTerm (read-from-string (first lista))) 
               (img1 'nil) (img2 'nil) )
@@ -284,24 +285,24 @@
                 (list (concatenate 'string newTerm1 " o->o " newTerm2) (second expString)) ))
         (insert newExpresion) ))
 
-      ((string= "*{" (subseq (string (first lista)) 0 2))
+      ((string= "O->"(string (second lista))) ;(string= "*{" (subseq (string (first lista)) 0 2))
         (let ((term1 (string (first lista))) (newLastPos 0) (newTerm1 nil))
         (setf newLastPos  (- (length term1) 2))
         (setf newTerm1 (subseq term1 2 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (concatenate 'string "{" newTerm1 "}") (read-from-string "o->") (third lista)) 
+          (list (list (concatenate 'string "{" (string (first lista)) "}") (read-from-string "o->") (third lista)) 
                 vv 
-                (list (concatenate 'string newTerm1 " o-> " (string (third lista))) (second expString)) ))
+                (list (concatenate 'string (string (first lista)) " o-> " (string (third lista))) (second expString)) ))
         (insert newExpresion) ))
 
-      ((string= "*[" (subseq (string (third lista)) 0 2))
+      ((string= "->O"(string (second lista))) ;(string= "*[" (subseq (string (third lista)) 0 2))
         (let ((term2 (string (third lista))) (newLastPos 0) (newTerm2 nil))
         (setf newLastPos  (- (length term2) 2))
         (setf newTerm2 (subseq term2 2 newLastPos))
         (setf newExpresion  ;Se agrega una lista con 3 elementos ((term cop term2) (vv) ("expresion"  "vv")) caso para nal2
-          (list (list (first lista) (read-from-string "->o") (concatenate 'string "{" newTerm2 "}")) 
+          (list (list (first lista) (read-from-string "->o") (concatenate 'string "[" (string (third lista)) "]")) 
                 vv 
-                (list (concatenate 'string (string (first lista)) " ->o " newTerm2) (second expString)) ))
+                (list (concatenate 'string (string (first lista)) " ->o " (string (third lista))) (second expString)) ))
         (insert newExpresion) ))
 
       (T
@@ -346,7 +347,7 @@
         (bcUsuario expresionLista)
         (bcAgente expresionLista)
         (insert2 (format nil "Conflicto detectado, se aplicó ~(~a~)." infRep))
-        (insert3 (format 'nil "Consulta realizada: ~a ~%" conocimiento)) 
+        (insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoBack)) 
         (incf i)
         (setf statementRep 'nil) ))
   ) (not repetidos) ))
@@ -384,7 +385,7 @@
       (incf contPassParser) )
 	  ((and (equal auxiliar2 'NIL) (not (null aux)) )  ;Si la expresión está mal...
 	    (insert2 (format nil "Error en ~(~a~). Revise la estructura de su consulta." aux))
-      (insert3 (format 'nil "Consulta realizada: ~a ~%" conocimiento))  )  )) ;Agregar como mensaje de error a la cache de errores
+      (insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoBack))  )  )) ;Agregar como mensaje de error a la cache de errores
 
 
 
