@@ -1,0 +1,20 @@
+PROCARIOTA ->o CELULA_SIN_NÚCLEO <1.0, 0.9>
+PROCARIOTA ->o CÉLULA_SIN_ORGANELOS <1.0, 0.9>
+PROCARIOTA ->o CROMOSOMA_ÚNICO <1.0, 0.9>
+EUCARIOTA ->o CON_NÚCLEO <1.0, 0.9>
+EUCARIOTA ->o CON_ORGANELOS <1.0, 0.9>
+EUCARIOTA ->o CROMOSOMAS_MÚLTIPLES <1.0, 0.9>
+bacterias --> procariotas <1.0, 0.9>
+arqueas --> procariotas <1.0, 0.9>
+animales --> eucariotas <1.0, 0.9>
+plantas --> eucariotas <1.0, 0.9>
+hongos --> eucariotas <1.0, 0.9>
+ANIMALES ->o MOVILIDAD <0.75, 0.9>
+PLANTAS ->o CLOROPLASTOS <0.9, 0.9>
+HONGOS ->o MOVILIDAD <0.2, 0.9>
+HONGOS ->o CLOROPLASTOS <0.0, 0.9>
+elysia_chlorotica --> animales <0.9, 0.9>
+ELYSIA_CHLOROTICA ->o CLOROPLASTOS <0.5, 0>
+(* elysia_chlorotica algas) --> alimentación <1.0, 0.9>
+CLEPTOPLASTOS ->o CONSERVAN-CLOROPLASTOS-DE-COMIDA <1.0, 0.9>
+ELYSIA_CHLOROTICA o-> CLEPTOPLASTOS <1.0, 0.9>

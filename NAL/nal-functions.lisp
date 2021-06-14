@@ -25,6 +25,7 @@
 (defparameter truthv 'nil)
 (defparameter term1 'nil)
 (defparameter term2 'nil)
+(defparameter copula 'nil)
 (defparameter k 1)
 (defparameter intensionA 'nil)
 (defparameter extensionA 'nil)
@@ -45,7 +46,7 @@
 	;( (((term1 cop term2)(t-v))) (((exp2)(t-v))) (((exp3)(t-v))) )
 	(cond
 		((or (null term) (= i *cont*)) '()) 
-		((eql term  aux) 
+		((equal term  aux) 
 			;se obtiene el segundo término de la expresión
 			(setf aux2 (third (first (first (obtiene-expresion (list i)))))) 
 			;y se agrega a la lista de la intensión llamando recursivamente la
@@ -60,7 +61,7 @@
 	(let ((aux (third (first (first (obtiene-expresion (list i))))) )  (aux2) )
 	(cond
 		((or (null term) (= i *cont*)) '()) 
-		((eql term  aux) 
+		((equal term  aux) 
 			(setf aux2 (first  (first (first (obtiene-expresion (list i))))))
 			(append (list aux2) (extension aux2 1) (extension term (incf i)) ) ) 
 		(T (extension term (incf i))) )  ))
@@ -80,13 +81,14 @@
 		(Bi	(eliminarRepetidos (cons term2 (intension term2 1))) )
 		(Ae	(eliminarRepetidos (cons term1 (extension term1 1))) ) 
 		(Be	(eliminarRepetidos (cons term2 (extension term2 1))) ) 
-		(wp 'nil ) 
-		(w 'nil ) )
+		;(wp 'nil ) 
+		;(w 'nil ) 
+		)
 
-		(setq wp (length (union (intersection Ae Be) (intersection Ai Bi)))
-					w (+ (length Ae) (length Bi)) )
-		(insert3 (format 'nil "Consulta realizada: ~a ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Evidencia positiva: ~(~a~) ~% Evidencia negativa: ~(~a~) ~% Evidencia total: ~(~a~)" 
-			conocimientoRastreo term1 Ai term1 Ae term2 Bi term2 Be wp (- w wp) w 
+		;(setq wp (length (union (intersection Ae Be) (intersection Ai Bi)))
+		;			w (+ (length Ae) (length Bi)) )
+		(insert3 (format 'nil "Consulta realizada: ~a ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~) ~% Intensión de ~(~a: ~a~) ~% Extensión de ~(~a: ~a~)" 
+			conocimientoRastreo term1 Ai term1 Ae term2 Bi term2 Be
 			
 			))
 		))
@@ -95,6 +97,7 @@
 (defun truth-value (query decimales)
 	;(print query)
 	(setq term1 (first query)
+		  copula (second query)
 	      term2 (third query)) 
 	(let ( (w+ '()) (w '()) (confidence 0) (frequency 0)
 		(Ai	(eliminarRepetidos (cons term1 (intension term1 1))) )
@@ -124,8 +127,8 @@
 	(setq truthv (concatenate 'string (string term1) " --> " (string term2) 
 							" <" (format nil "~f"  frequency) ", " (format nil "~f" (if (= frequency 0.5) 0 confidence)) ">" ))
 	
-	(setf finalExp (concatenate 'string finalExp (format 'nil "~(~a --> ~a~) <~a, ~a>" 
-												(string-downcase term1) (string-downcase term2) frequency (if (= frequency 0.5) 0 confidence)) ) )
+	(setf finalExp (concatenate 'string finalExp (format 'nil "~(~a ~a ~a~) <~a, ~a>" 
+												(string-downcase term1) copula (string-downcase term2) frequency (if (= frequency 0.5) 0 confidence)) ) )
 	(insert2 finalExp ) ))	
 
 ;;======================================================================================= 
@@ -356,7 +359,16 @@
 		(when (not errorSintax)
 			(setf statement (concatenate 'string (string-downcase (string (first expresion))) " --> " (string-downcase (string (second expresion))) 
 							" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv))) ">" )) 
-			(I-E (first expresion) (second expresion)) )
+			(I-E ;[cloroplasto]
+				(if (or (search "{" (string (first expresion))) (search "[" (string (first expresion))) )  
+					(subseq (string (first expresion)) 1 (- (length (string (first expresion))) 1) )
+					(first expresion))  
+				(if (or (search "{" (string (second expresion))) (search "[" (string (second expresion))) )  
+					(subseq (string (second expresion)) 1 (- (length (string (second expresion))) 1) )
+					(second expresion))
+				 
+
+				) )
 
 		(if (and statement (not (search "NIL" statement) ))  (insert2 statement))  
 		(setq e 'nil e2 'nil errorSintax 'nil) )) )

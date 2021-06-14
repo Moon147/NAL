@@ -4,7 +4,7 @@
                                 :default-request-type :post)
       
 
-      (conocimiento expr valorV relacion expresion debug (selectbc :parameter-type 'integer)
+      (conocimiento parserFunciones listParser expr valorV relacion expresion debug (selectbc :parameter-type 'integer)
         (selectlog :parameter-type 'integer)
         (del :parameter-type 'string)
         (comportamiento :parameter-type 'string)
@@ -104,12 +104,19 @@
                                 (if (equal opcadd "on") (parser  (concatenate 'string "(" (string truthv) ")") ))       ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
                                 (setq truthv 'nil)
                                 )                 ;Se reinician las variables                    
-                              ((parseq:parseq 'funciones conocimiento) 
-                                  (if (parseq:parseq 'funciones conocimiento)
-                                  (inference-rules (parseq:parseq 'funciones conocimiento) var-decimales)
+                              ((setf parserFunciones (parseq:parseq 'funciones conocimiento))
+                                  (setf listParser (read-from-string conocimiento))
+                                  (setf conocimientoRastreo (concatenate 'string 
+                                        "(" 
+                                        (string (first listParser) ) " "
+                                        (first (third (first (obtiene-expresion (list (second listParser) ))) )) ", "
+                                        (if (numberp (third listParser)) 
+                                          (first (third (first (obtiene-expresion (list (third listParser) ))) )) ) ")" ) ) 
+                                  (if parserFunciones
+                                  (inference-rules parserFunciones var-decimales)
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) )
                                 (if (equal opcadd "on") (parser  (concatenate 'string "(" (string statement) ")")))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                                (setq statement 'nil))
+                                (setq statement 'nil) )
                             (T (parser conocimiento) ))       
           
                           (loop for i from 1 to (- *cont* 1)
@@ -155,8 +162,8 @@
               (:form :method :post 
             (htm  
               (:input :type :text :id "del"  :name "del" :required "true"
-               :style "width: 70%; height: 25px; margin-left: 5px"
-                            :placeholder "Ingrese el número de las expresiones a eliminar"  ))
+               :style "width: 40%; height: 25px; margin-left: 5px"
+                            :placeholder "Índice de las expresiones"  ))
               (:input :type "submit" :value "Eliminar" :id "bEliminar" :style "height: 30px"))))          
           ;(format t "eliminar: ~a" delete)
           );aside
