@@ -163,8 +163,9 @@
             (htm  
               (:input :type :text :id "del"  :name "del" :required "true"
                :style "width: 40%; height: 25px; margin-left: 5px"
-                            :placeholder "Índice de las expresiones"  ))
-              (:input :type "submit" :value "Eliminar" :id "bEliminar" :style "height: 30px"))))          
+                            :placeholder "Índice* de las expresiones"  ))
+              (:input :type "submit" :value "Eliminar" :id "bEliminar" :style "height: 30px")
+              "    *Indice en BC Usuario")))          
           ;(format t "eliminar: ~a" delete)
           );aside
 
