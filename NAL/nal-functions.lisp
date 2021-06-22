@@ -148,7 +148,7 @@
     (let ((f1 (first vv1)) (c1 (second vv1))
     	  (f2 (first vv2)) (c2 (second vv2)) (frev 'nil) (crev 'nil))
 
-        (setq frev (float (adjust-precision (/ (+ (* f1 c1 (- 1 c2)) (* f2 c2 (- 1 c1))) (+ (* c1 (- 1 c2)) (* c2 (- 1 c1)))) decimales))
+        (setq frev (float (adjust-precision (if (or (= c2 0)(= c1 0)) 0 (/ (+ (* f1 c1 (- 1 c2)) (* f2 c2 (- 1 c1))) (+ (* c1 (- 1 c2)) (* c2 (- 1 c1)))) ) decimales) )
         	  crev (float (adjust-precision (/ (+ (* c1 (- 1 c2)) (* c2 (- 1 c1))) (+ (* c1 (- 1 c2)) (* c2 (- 1 c1)) (* (- 1 c1) (- 1 c2)))) decimales)) )
         (list frev crev))) 
 
@@ -361,10 +361,10 @@
 							" <" (format nil "~f" (first truthv) ) ", " (format nil "~f" (if (= (first truthv) 0.5) 0 (second truthv))) ">" )) 
 			(I-E ;[cloroplasto]
 				(if (or (search "{" (string (first expresion))) (search "[" (string (first expresion))) )  
-					(subseq (string (first expresion)) 1 (- (length (string (first expresion))) 1) )
+					(read-from-string (subseq (string (first expresion)) 1 (- (length (string (first expresion))) 1) ))
 					(first expresion))  
 				(if (or (search "{" (string (second expresion))) (search "[" (string (second expresion))) )  
-					(subseq (string (second expresion)) 1 (- (length (string (second expresion))) 1) )
+					(read-from-string (subseq (string (second expresion)) 1 (- (length (string (second expresion))) 1) ) )
 					(second expresion))
 				 
 

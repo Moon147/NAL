@@ -102,7 +102,7 @@
                                   (query-NAL1 (parseq:parseq 'query conocimiento) var-decimales) 
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de su consulta."  conocimiento)) )
                                 (if (equal opcadd "on") (parser  (concatenate 'string "(" (string truthv) ")") ))       ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                                (setq truthv 'nil)
+                                (setq truthv 'nil conocimiento 'nil)
                                 )                 ;Se reinician las variables                    
                               ((setf parserFunciones (parseq:parseq 'funciones conocimiento))
                                   (setf listParser (read-from-string conocimiento))
@@ -116,7 +116,7 @@
                                   (inference-rules parserFunciones var-decimales)
                                   (insert2 (format 'nil "Error en: ~a. Revise la estructura de las reglas de inferencia"  conocimiento)) )
                                 (if (equal opcadd "on") (parser  (concatenate 'string "(" (string statement) ")")))        ;Se agrega el resultado de la consulta a BC si opcadd fue seleccionado 
-                                (setq statement 'nil) )
+                                (setq statement 'nil conocimiento 'nil) )
                             (T (parser conocimiento) ))       
           
                           (loop for i from 1 to (- *cont* 1)
@@ -164,8 +164,7 @@
               (:input :type :text :id "del"  :name "del" :required "true"
                :style "width: 40%; height: 25px; margin-left: 5px"
                             :placeholder "Índice* de las expresiones"  ))
-              (:input :type "submit" :value "Eliminar" :id "bEliminar" :style "height: 30px")
-              "    *Indice en BC Usuario")))          
+              (:input :type "submit" :value "Eliminar" :id "bEliminar" :style "height: 30px") )))          
           ;(format t "eliminar: ~a" delete)
           );aside
 

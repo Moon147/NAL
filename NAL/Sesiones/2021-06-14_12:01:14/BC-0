@@ -1,0 +1,5 @@
+pingüino --> ave <1.0, 0.9>
+águila --> ave <1.0, 0.9>
+pingüino ->o no_volador <1.0, 0.9>
+águila ->o volador <1.0, 0.9>
+ave --> ovíparo <1.0, 0.9>

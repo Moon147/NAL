@@ -310,7 +310,6 @@
         (bcUsuario expresionLista)
         (bcAgente expresionLista)
         (insert2 (format nil "Conflicto detectado, se aplicó ~(~a~)." infRep))
-        (insert3 (format 'nil "Consulta realizada: ~a ~%" conocimientoBack)) 
         (incf i)
         (setf statementRep 'nil) ))
   ) (not repetidos) ))
